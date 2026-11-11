@@ -1,0 +1,34 @@
+name: Generate SFX
+
+on:
+  workflow_dispatch:
+    inputs:
+      per_event:
+        description: "1イベントあたりの音の数"
+        default: "3"
+      only:
+        description: "作るイベントを限定（例: hit,grab）。空なら全部"
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate
+        env:
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          PER_EVENT: ${{ inputs.per_event }}
+          ONLY: ${{ inputs.only }}
+        run: python3 tools/gen_sfx.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898273+github-actions[bot]@users.noreply.github.com"
+          git add sfx
+          git diff --cached --quiet && echo "no new sounds" && exit 0
+          git commit -m "Generate sound effects"
+          git push

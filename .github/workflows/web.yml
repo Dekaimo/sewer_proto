@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # 効果音を自動生成したあとにも書き出し直す
+  workflow_run:
+    workflows: ["Generate SFX"]
+    types: [completed]
 
 permissions:
   contents: read
