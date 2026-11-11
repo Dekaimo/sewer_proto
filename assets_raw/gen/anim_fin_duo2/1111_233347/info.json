@@ -1,0 +1,12 @@
+{
+  "name": "anim_fin_duo2",
+  "mode": "anim",
+  "src": "assets_raw/gen/fin_duo_puddle.png",
+  "last": "assets_raw/gen/fin_duo_last.png",
+  "frames": 8,
+  "subject": "a muscular pink paint crocodile monster and a chubby pink paint shark rising out of a paint puddle; a small purple witch hat lies on the puddle between them",
+  "desc": "Both monsters surge up out of the paint puddle side by side, thick goo stretching off their bodies, turn to each other grinning and slap a big triumphant high five over the soaked hat. Thick sticky paint drips.",
+  "generations_before": 1651.0,
+  "generations_after": 1651.0,
+  "used": 0.0
+}
