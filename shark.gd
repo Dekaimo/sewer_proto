@@ -157,6 +157,7 @@ func _swim(delta: float, p) -> void:
 	if can_hunt and absf(to_p.x) < 16.0 and absf(to_p.y) < 14.0:
 		state = "gulp"
 		t = 0.0
+		gulp_fast = p.state == "grabbed"
 		main.sfx.play("grab", -4.0)
 		# 飛び出す瞬間から寄って、呑まれるところを見せる
 		main.zoom_moment(Vector2(position.x + facing * mx, position.y - 100.0), 1.5)
@@ -165,13 +166,14 @@ func _swim(delta: float, p) -> void:
 # ---------- 真下から丸呑み ----------
 var gulped_solo := false   # 1人を呑み込んだ（呑み込みのコマを見せる）
 var gulped_combo := false  # ワニごと呑み込んだ
+var gulp_fast := false     # ワニに捕まっている獲物を狙った（飛び出しざまに一気に呑んで、すぐドプンと沈む）
 
 
 func _gulp(delta: float, p) -> void:
 	# 突き上げ（0〜0.45秒、0.4秒で呑む）→ 呑み込むコマ（1人のとき）→ 口を閉じて沈む
 	var b2: bool = anims.has("breach2")
-	var bite := 0.45 if b2 else (0.36 if anims.has("breach") else 0.3)
-	var end := (2.45 if gulped_solo else (1.9 if gulped_combo else 1.25)) if b2 else (0.95 if anims.has("breach") else 0.7)
+	var bite := (0.28 if gulp_fast else 0.45) if b2 else (0.36 if anims.has("breach") else 0.3)
+	var end := (2.45 if gulped_solo else (1.15 if gulped_combo else 1.25)) if b2 else (0.95 if anims.has("breach") else 0.7)
 	if t >= bite and not has_meta("gulped"):
 		set_meta("gulped", true)
 		main.add_goop(position, 220.0, 0.7)
@@ -182,13 +184,16 @@ func _gulp(delta: float, p) -> void:
 		gulped_solo = caught_player and caught_wani == null and anims.has("gulp")
 		gulped_combo = caught_player and caught_wani != null
 		if gulped_combo:
-			main.zoom_moment(Vector2(position.x + facing * B2_MOUTH, position.y - 110.0), 1.6)
+			main.zoom_moment(Vector2(position.x + facing * B2_MOUTH, position.y - 110.0), 1.0)
 		if gulped_solo:
 			main.zoom_moment(Vector2(position.x + facing * B2_MOUTH, position.y - 110.0), 2.0)
 	if t > end:
 		remove_meta("gulped")
+		if has_meta("plunged"):
+			remove_meta("plunged")
 		gulped_solo = false
 		gulped_combo = false
+		gulp_fast = false
 		_sink_after_attack()
 
 
@@ -395,7 +400,12 @@ func _gulp_pose() -> Array:
 	var b: Array = anims["breach2"]
 	var g: Array = anims["gulp"]
 	var s: Array = anims["sink2"]
-	if t < 0.5:
+	if gulp_fast and t < 0.28:
+		# 一気に飛び出す（ためなし）
+		return [b[clampi(int(t / 0.28 * 9.0), 0, 8)], Vector2(0, -10.0 * t / 0.28)]
+	if gulp_fast and gulped_combo and anims.has("combo"):
+		return _combo_pose()
+	if t < 0.5 and not gulp_fast:
 		var k := t / 0.5
 		var lift := -16.0 * sin(clampf((k - 0.6) / 0.4, 0.0, 1.0) * PI)   # 出きる直前にぐっと伸び上がる
 		return [b[clampi(int(k * 9.0), 0, 8)], Vector2(0, lift)]
@@ -433,6 +443,26 @@ func _gulp_pose() -> Array:
 	# 満足げに、前のめりに沈んでいく
 	var k4 := (t - 2.0) / 0.45
 	return [s[clampi(2 + int(k4 * 7.0), 2, 8)], Vector2(k4 * 10.0, 0)]
+
+
+## ワニごと：飛び出しざまに大口で2体まとめてくわえ込み、そのまま弧を描いて頭から「ドプン」と沈む
+func _combo_pose() -> Array:
+	var c: Array = anims["combo"]
+	var s: Array = anims["sink2"]
+	if t < 0.62:
+		# くわえ込みながら、勢いで少し跳び上がって前へ
+		var k := (t - 0.28) / 0.34
+		var arc := -sin(k * PI) * 34.0
+		return [c[clampi(int(k * 5.0), 0, 4)], Vector2(k * 18.0, arc)]
+	# ドプン：口を閉じたまま一気に沈む
+	if not has_meta("plunged"):
+		set_meta("plunged", true)
+		main.add_goop(position, 260.0, 0.8)
+		for i in 6:
+			main.splat_wall(Vector2(position.x + randf_range(-240.0, 240.0), main.FLOOR_TOP - randf_range(10.0, 230.0)), randf_range(40.0, 75.0))
+		main.sfx.play("defeat", -1.0)
+	var k2 := (t - 0.62) / 0.5
+	return [s[clampi(3 + int(k2 * 6.0), 3, 8)], Vector2(18.0 + k2 * 10.0, k2 * 26.0)]
 
 
 func _img(tex: Texture2D) -> Image:
