@@ -1,0 +1,12 @@
+{
+  "name": "same_full",
+  "mode": "edit",
+  "src": "assets_raw/gen/same_base_pro/1111_165940/v1_00.png",
+  "w": 336,
+  "h": 192,
+  "variants": 2,
+  "desc": "Show the whole shark with nothing cut off: complete its snout and grinning mouth on the left and its tail fin on the right, centered on the canvas with empty space around it. Keep the same design, colors, pixel style and left-facing side view, belly melting into a paint puddle.",
+  "generations_before": 1807.0,
+  "generations_after": 1805.0,
+  "used": 2.0
+}
