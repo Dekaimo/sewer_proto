@@ -29,7 +29,8 @@ var mask_tex: ImageTexture
 var opaque_px: Array[Vector2i] = []
 
 var state := "normal"   # normal / slipped / grabbed / defeated
-var slip_t := 0.0       # 転んでいる残り時間
+var slip_t := 0.0
+var hidden_in_hug := false   # 抱きつきの1枚絵に描かれている間は自分を表示しない       # 転んでいる残り時間
 var vel := Vector2.ZERO
 var facing := 1
 var on_floor := true
@@ -288,7 +289,7 @@ func _process(delta: float) -> void:
 			_update_grabbed(delta)
 	_update_frame(delta)
 	sprite.flip_h = facing < 0
-	sprite.visible = state != "defeated" and not (invuln > 0.0 and state == "normal" and int(invuln * 20) % 2 == 0)
+	sprite.visible = state != "defeated" and not hidden_in_hug and not (invuln > 0.0 and state == "normal" and int(invuln * 20) % 2 == 0)
 	queue_redraw()
 
 
@@ -481,7 +482,7 @@ func _update_grabbed(delta: float) -> void:
 
 func _draw() -> void:
 	# 足元の影（ジャンプ中も床に残す）
-	if state != "defeated":
+	if state != "defeated" and not hidden_in_hug:
 		var gy: float = main.FLOOR_Y - position.y
 		draw_set_transform(Vector2(0, gy), 0.0, Vector2(1.0, 0.25))
 		draw_circle(Vector2.ZERO, 30.0, Color(0, 0, 0, 0.35))

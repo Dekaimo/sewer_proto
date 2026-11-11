@@ -22,6 +22,10 @@ var ambush_done := false
 var slide_v := 0.0       # 抱きつきの勢いで掴んだあと滑る速さ
 # ポーズ絵（生成できたものだけ使う。無ければ待機絵）
 var pose := {}
+var anims := {}          # 生成したアニメ（コマ配列）
+const HUG_SHADER = preload("res://hug_dirt.gdshader")
+var hug_mat: ShaderMaterial
+var hold_t := 0.0
 var anim_t := 0.0
 var sprite: Sprite2D
 var emerge_frames: Array[Texture2D] = []
@@ -37,6 +41,14 @@ func _ready() -> void:
 	for k in ["windup", "spread", "hug"]:
 		var path := "res://assets/wani_pose_%s.png" % k
 		pose[k] = load(path) if ResourceLoader.exists(path) else IDLE
+	var counts := {"windup": 8, "charge": 6, "grab": 6, "hug": 9}
+	for k in counts:
+		var arr: Array[Texture2D] = []
+		for i in counts[k]:
+			arr.append(load("res://assets/wani_%s_%d.png" % [k, i]))
+		anims[k] = arr
+	hug_mat = ShaderMaterial.new()
+	hug_mat.shader = HUG_SHADER
 	sprite = Sprite2D.new()
 	sprite.texture = emerge_frames[0]
 	sprite.centered = false
@@ -144,7 +156,7 @@ func _process(delta: float) -> void:
 				# 殴りは被弾のみ。転んでいるところだけは掴む
 				if p.state == "slipped" and p.can_be_grabbed():
 					p.grab(self)
-					state = "hold"
+					_start_hold()
 				else:
 					if p.take_hit(position.x, 2, 4):
 						main.add_floor_splat(p.position.x, 40.0)
@@ -163,28 +175,28 @@ func _process(delta: float) -> void:
 		"hug_windup":
 			# 後ろにググッと体重をかけて力を溜める
 			t -= delta
-			sprite.texture = pose["windup"]
 			var k: float = clampf(1.0 - t / 0.85, 0.0, 1.0)
-			sprite.position.x = -facing * 14.0 * k
-			sprite.scale = Vector2(1.0 + 0.03 * k, 1.0 - 0.03 * k)
+			sprite.texture = anims["windup"][clampi(int(k * 8.0), 0, 7)]
+			sprite.position.x = -facing * 8.0 * k
 			if t < 0.2:
 				sprite.position.x += sin(anim_t * 70.0) * 2.0   # 震えて、来るぞ
 			if t <= 0.0:
 				state = "charge"
 				t = 0.55
+				anim_t = 0.0
 				lunge_dir = facing
 				main.sfx.play("grab", -6.0)
 		"charge":
 			# 両腕を広げて突進
 			t -= delta
-			sprite.texture = pose["spread"]
+			sprite.texture = anims["charge"][clampi(int(anim_t * 14.0), 0, 5)]
 			position.x += lunge_dir * 380.0 * delta
 			main.add_goop(position.x, 40.0, 0.05)
 			var hit: bool = absf(p.position.x - position.x) < REACH + 10.0 and p.position.y > position.y - 110.0
 			if hit and p.can_be_grabbed():
 				p.grab(self)
 				_hug_impact(p)
-				state = "hold"
+				_start_hold()
 				slide_v = lunge_dir * 300.0
 			elif t <= 0.0:
 				# 空振り：勢い余ってつんのめる
@@ -193,7 +205,7 @@ func _process(delta: float) -> void:
 				state = "recover"
 				t = 0.9
 		"hold":
-			sprite.texture = pose["hug"]
+			_update_hold_sprite(delta, p)
 			# 抱きついた勢いのままジュルジュル滑ってから止まる（ドロドロが厚いほど長く滑る）
 			if slide_v != 0.0:
 				var g: float = main.goop_at(position.x)
@@ -208,6 +220,7 @@ func _process(delta: float) -> void:
 			# 掴んでいる間はゆっくり脈打つ
 			sprite.scale = Vector2(1.0, 1.0 + sin(anim_t * 5.0) * 0.015)
 			if p.state != "grabbed" or p.grabbed_by != self:
+				_end_hold()
 				main.release_token(self)
 				state = "recover"
 				t = 0.8
@@ -282,8 +295,7 @@ func _update_ambush(delta: float) -> void:
 				var close: bool = absf(p.position.x - position.x) < REACH and p.position.y > position.y - 120.0
 				if close and p.can_be_grabbed():
 					p.grab(self)
-					state = "hold"
-					sprite.texture = IDLE
+					_start_hold()
 					queue_redraw()
 					return
 			if anim_t > 0.6:
@@ -312,6 +324,32 @@ func _draw() -> void:
 		draw_arc(Vector2(bx, -2.0 - ph * 10.0), r, PI * 1.1, PI * 1.6, 6, Color(1, 0.9, 0.95, c.a), 1.0)
 
 
+# ---------- 抱きつき中（ワニ＋主人公の1枚絵） ----------
+func _start_hold() -> void:
+	state = "hold"
+	hold_t = 0.0
+	sprite.material = hug_mat
+	main.player.sprite.visible = false
+	main.player.hidden_in_hug = true
+
+
+func _end_hold() -> void:
+	sprite.material = null
+	main.player.hidden_in_hug = false
+
+
+func _update_hold_sprite(delta: float, p) -> void:
+	hold_t += delta
+	hug_mat.set_shader_parameter("contamination", p.contamination())
+	if hold_t < 0.5:
+		# 捕まえた瞬間：ベチャッと抱え込む
+		sprite.texture = anims["grab"][clampi(int(hold_t * 12.0), 0, 5)]
+	else:
+		# 抱えたまま、ゆっくりこねるように締め付ける（往復で再生）
+		var f := int((hold_t - 0.5) * 8.0) % 16
+		sprite.texture = anims["hug"][f if f < 9 else 16 - f]
+
+
 ## 抱きつかれた瞬間：勢いでペンキが派手に飛び散る
 func _hug_impact(p) -> void:
 	for i in 7:
@@ -325,6 +363,7 @@ func _hug_impact(p) -> void:
 
 ## とどめ：プレイヤーを抱えて水たまりに沈む
 func play_swallow(p) -> void:
+	_end_hold()
 	state = "swallow"
 	anim_t = 0.0
 	position.x = clampf(p.position.x - facing * 10.0, main.ARENA_L, main.ARENA_R)
