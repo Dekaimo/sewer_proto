@@ -1,0 +1,12 @@
+{
+  "name": "anim_fin_vomit",
+  "mode": "anim",
+  "src": "assets/same_gulp_8.png",
+  "frames": 8,
+  "variants": 2,
+  "subject": "a big chubby shark made of glossy pink paint with yellow marble streaks, sticking up out of a paint puddle, stuffed full",
+  "desc": "The shark's throat and cheeks swell up enormously, its eyes bulge, then it throws its head forward and vomits a huge gushing torrent of thick pink and yellow paint out of its mouth onto the floor, the paint splashing and piling up in a big gooey heap. Over-the-top and gross.",
+  "generations_before": 1650.0,
+  "generations_after": 1648.0,
+  "used": 2.0
+}
