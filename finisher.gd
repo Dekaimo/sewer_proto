@@ -64,6 +64,7 @@ func _ready() -> void:
 	wani_sprite = Sprite2D.new()
 	wani_sprite.centered = false
 	wani_sprite.visible = false
+	wani_sprite.z_index = 1
 	add_child(wani_sprite)
 	strands = Node2D.new()
 	strands.draw.connect(_draw_strands)
@@ -180,7 +181,7 @@ func _update_duo(tt: float) -> void:
 	# 吐き出す瞬間：床も壁も一気にペンキまみれ
 	if not vomited and i >= 4:
 		vomited = true
-		var spot := position + Vector2(150, 10)
+		var spot := position + Vector2(190, 10)
 		main.add_goop(spot, 320.0, 1.0)
 		for k in 10:
 			main.splat_wall(Vector2(spot.x + randf_range(-300, 300), main.FLOOR_TOP - randf_range(10, 260)), randf_range(40, 90))
@@ -199,7 +200,7 @@ func _update_duo(tt: float) -> void:
 		wani_sprite.visible = true
 		wani_sprite.texture = wani_frames[fi]
 		wani_sprite.offset = Vector2(-128, -253)
-		wani_sprite.position = Vector2(150, 12)
+		wani_sprite.position = Vector2(230, 14)
 		wani_sprite.flip_h = true   # サメの方を向いて余裕の顔
 
 

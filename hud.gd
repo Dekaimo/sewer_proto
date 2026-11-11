@@ -50,6 +50,9 @@ func _draw() -> void:
 	if main.game_over and main.finisher_done():
 		draw_rect(Rect2(0, 0, 960, 540), Color(0, 0, 0, 0.45))
 		var f = main.finisher
+		# 演出が左寄りのときは文字を右側に
+		var ox := 380.0 if (f != null and f.position.x < 480.0) else 0.0
+		draw_set_transform(Vector2(ox, 0), 0.0, Vector2.ONE)
 		var title := "OVERWHELMED..."
 		var sub := ""
 		if f != null:
@@ -63,3 +66,4 @@ func _draw() -> void:
 		_txt(Vector2(220, 290), "Lasted %.1f sec" % main.survive_time)
 		_txt(Vector2(200, 320), "Defeats collected  %d / %d" % [f.collected() if f else 0, f.ORDER.size() if f else 4], Color("aab3ba"))
 		_txt(Vector2(225, 360), "R : try again", Color("aab3ba"))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
