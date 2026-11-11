@@ -1,0 +1,10 @@
+{
+  "name": "wani_pose_windup",
+  "mode": "edit",
+  "src": "assets/wani_idle.png",
+  "variants": 2,
+  "desc": "Upper body arched backward with chest pushed out and both elbows pulled back. Keep the exact same monster design, size and left-facing direction. Its lower body stays a melted puddle of paint with no legs and no feet.",
+  "generations_before": 1854.0,
+  "generations_after": 1852.0,
+  "used": 2.0
+}

@@ -1,0 +1,10 @@
+{
+  "name": "wani_pose_spread",
+  "mode": "edit",
+  "src": "assets/wani_idle.png",
+  "variants": 2,
+  "desc": "Falling forward to the left, sliding on its melting base, both arms open wide reaching forward to hug. Keep the exact same monster design, size and left-facing direction. Its lower body stays a melted puddle of paint with no legs and no feet.",
+  "generations_before": 1852.0,
+  "generations_after": 1850.0,
+  "used": 2.0
+}

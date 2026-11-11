@@ -1,0 +1,10 @@
+{
+  "name": "wani_pose_hugcat",
+  "mode": "edit",
+  "src": "assets_raw/gen/input_hug.png",
+  "variants": 2,
+  "desc": "The monster hugs the small black cat tightly, both arms wrapped around the cat and pressing it against its chest. The cat is squeezed with eyes shut. Keep the exact same monster design, size and left-facing direction. Its lower body stays a melted puddle of paint with no legs and no feet. Keep the cat the same size.",
+  "generations_before": 1850.0,
+  "generations_after": 1848.0,
+  "used": 2.0
+}
