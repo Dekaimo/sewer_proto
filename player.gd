@@ -9,6 +9,12 @@ const FRAMES := [
 	preload("res://assets/cat_2.png"),
 	preload("res://assets/cat_3.png"),
 ]
+const WALK := [
+	preload("res://assets/cat_walk_0.png"),
+	preload("res://assets/cat_walk_1.png"),
+	preload("res://assets/cat_walk_2.png"),
+	preload("res://assets/cat_walk_3.png"),
+]
 const W := 128
 const H := 128
 const FEET_Y := 119          # 絵の中で足が接地している行
@@ -293,10 +299,11 @@ func _update_frame(delta: float) -> void:
 	elif cleaning:
 		f = 3
 	sprite.texture = FRAMES[f]
-	# 歩いているときは上下に揺らす（歩きアニメの代わり）
-	if state == "normal" and on_floor and absf(vel.x) > 1.0:
-		bob += delta * 12.0
-		sprite.position.y = -absf(sin(bob)) * 3.0
+	# 歩きアニメ（速さに合わせてコマ送り）
+	if state == "normal" and on_floor and absf(vel.x) > 8.0 and f == 0:
+		bob += delta * absf(vel.x) / 14.0
+		sprite.texture = WALK[int(bob) % 4]
+		sprite.position.y = 0.0
 	elif state == "slipped":
 		sprite.position = Vector2(facing * 55.0, -32.0)   # 横倒しで床に寝そべる（足元を中心に）
 	else:
