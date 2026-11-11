@@ -1,0 +1,10 @@
+{
+  "name": "wani_pose_charge",
+  "mode": "edit",
+  "src": "assets_raw/user/wani_tackle_4.png",
+  "variants": 2,
+  "desc": "Charging forward to the left, leaning forward at a medium angle, both arms spread wide open to the sides ready to hug, mouth open grinning, paint flying behind. Keep the exact same monster design, size and left-facing direction. Its lower body stays a melted puddle of paint with no legs and no feet. The monster has exactly two arms.",
+  "generations_before": 1842.0,
+  "generations_after": 1840.0,
+  "used": 2.0
+}
