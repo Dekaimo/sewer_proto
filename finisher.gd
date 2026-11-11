@@ -38,7 +38,7 @@ func setup(k: String, at: Vector2) -> void:
 	# 予備：アニメが無いときは1枚絵（キーフレーム）
 	if frames.is_empty() and ResourceLoader.exists("res://assets/%s_key.png" % info.frames):
 		frames.append(load("res://assets/%s_key.png" % info.frames))
-	pre = 1.2 if kind == "duo" else 0.0
+	pre = 2.4 if kind == "duo" else 0.0
 	is_new = _record()
 
 
@@ -53,8 +53,11 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	t += delta
 	if t < pre:
-		# 2対1：地中で最後に思いきり締め上げられる（床が激しく噴き上がる）
-		if fmod(t, 0.18) < delta:
+		# 2対1のとどめ：地中（小窓）で、ワニに抱え込まれたままサメの胃袋がドンッと閉じて押し潰す
+		if t > 1.4 and t - delta <= 1.4:
+			main.sfx.play("assist", 2.0)
+			main.sfx.play("defeat", 0.0)
+		if t > 1.4 and fmod(t, 0.18) < delta:
 			main.add_goop(position + Vector2(randf_range(-80, 80), randf_range(-10, 10)), randf_range(80, 140), 0.6)
 			main.splat_wall(Vector2(position.x + randf_range(-200, 200), main.FLOOR_TOP - randf_range(20, 180)), randf_range(40, 70))
 			main.sfx.play("hit", -2.0)
@@ -74,6 +77,22 @@ func _process(delta: float) -> void:
 		done = true
 	if tt < 0.05:
 		main.zoom_moment(position + Vector2(0, -120), dur + 0.8)
+
+
+## とどめの間の小窓の様子（belly_view が読む）
+## active: 小窓を出すか / sq: 締まり具合 / shake: 揺れ / flash: 白く光る / limp: ぐったり（動かない）
+func inset_state() -> Dictionary:
+	if kind != "duo" or t >= pre:
+		return {"active": false}
+	if t < 1.4:
+		# じわじわ締まっていく。主人公は必死にもがく
+		var k := t / 1.4
+		return {"active": true, "sq": 0.3 + 0.5 * k + 0.2 * sin(t * 14.0), "shake": 2.0 + 3.0 * k, "flash": 0.0, "limp": false}
+	if t < 1.75:
+		# ドンッ：一気に閉じて押し潰す
+		return {"active": true, "sq": 1.6, "shake": 9.0, "flash": 1.0 - (t - 1.4) / 0.35, "limp": false}
+	# ぐったりして、粘液に沈んでいく
+	return {"active": true, "sq": 1.2, "shake": 0.0, "flash": 0.0, "limp": true, "sink": (t - 1.75) / (pre - 1.75)}
 
 
 ## 図鑑に記録。初めて見た負け方なら true

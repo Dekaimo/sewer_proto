@@ -15,6 +15,9 @@ var bg_mat: ShaderMaterial
 var content: Sprite2D
 var goo_fg: Node2D     # 中身の手前にかぶさるネバネバ（糸・垂れ・底に溜まる粘液）
 var sq_now := 0.0
+var flash := 0.0
+var limp := false
+var sink := 0.0
 var t := 0.0
 
 
@@ -49,7 +52,11 @@ func _process(delta: float) -> void:
 	t += delta
 	var p = main.player
 	var shark = p.swallower if p.state == "swallowed" else null
-	visible = shark != null and is_instance_valid(shark) and shark.view_mode == "inside" and shark.is_dragging()
+	# 2対1のとどめ演出中は、見せ方に関係なく小窓を出す
+	var fin: Dictionary = main.finisher.inset_state() if main.finisher != null else {"active": false}
+	if fin.active:
+		shark = p.swallower
+	visible = shark != null and is_instance_valid(shark) and (fin.active or (shark.view_mode == "inside" and shark.is_dragging()))
 	queue_redraw()
 	if not visible:
 		return
@@ -58,6 +65,16 @@ func _process(delta: float) -> void:
 	# 胃袋がギュッと締まる（2対1のときは間隔が短く強い）
 	var period := 1.1 if p.swallow_combo else 1.6
 	var sq := pow(maxf(sin(t * TAU / period), 0.0), 3.0)
+	var shake := 2.0
+	flash = 0.0
+	limp = false
+	sink = 0.0
+	if fin.active:
+		sq = fin.sq
+		shake = fin.shake
+		flash = fin.flash
+		limp = fin.limp
+		sink = fin.get("sink", 0.0)
 	sq_now = sq
 	goo_fg.queue_redraw()
 	if bg_mat:
@@ -68,12 +85,14 @@ func _process(delta: float) -> void:
 	var holder = null
 	if shark.has_method("get_swallowed"):
 		holder = shark   # ワニに地中へ引きずり込まれている
-	elif p.swallow_combo and shark.caught_wani != null and is_instance_valid(shark.caught_wani):
+	elif (p.swallow_combo or fin.active) and shark.caught_wani != null and is_instance_valid(shark.caught_wani):
 		holder = shark.caught_wani   # サメの中で、ワニに抱え込まれたまま
 	if holder != null:
 		# 抱きつきの絵を流用
 		var w = holder
 		var f := int(t * 8.0) % 16
+		if limp:
+			f = 8   # ぐったりして動かない
 		tex = w.anims["hug"][f if f < 9 else 16 - f]
 		w.hug_mat.set_shader_parameter("cat_mask", w.anim_masks["hug"][f if f < 9 else 16 - f])
 		w.hug_mat.set_shader_parameter("contamination", p.contamination())
@@ -94,8 +113,9 @@ func _process(delta: float) -> void:
 	content.region_rect = crop
 	content.rotation = -PI / 2.0   # 90度なのでドットは崩れない
 	content.scale = Vector2(2.0 * (1.0 - 0.05 * sq), 2.0 * (1.0 + 0.06 * sq))
+	content.modulate = Color(0.7, 0.6, 0.65) if limp else Color.WHITE
 	content.flip_h = false
-	content.position = Vector2(W * 0.5, H * 0.5) + Vector2(sin(t * 9.0) * 2.0, cos(t * 7.0) * 1.5).round()
+	content.position = Vector2(W * 0.5, H * 0.5 + sink * 50.0) + Vector2(sin(t * 37.0) * shake, cos(t * 29.0) * shake * 0.7).round()
 
 
 ## 手前にかぶさるネバネバ。締まるほど糸が太く、底の粘液がせり上がる
@@ -127,7 +147,7 @@ func _draw_goo() -> void:
 		goo_fg.draw_circle(Vector2(dx, ln), 5.0, dark)
 		goo_fg.draw_circle(Vector2(dx, ln), 4.0, yel if k % 3 == 0 else pink)
 	# 底に溜まって中身を呑み込むようにせり上がる粘液
-	var level := H - 26.0 - 18.0 * sq_now
+	var level := H - 26.0 - 18.0 * minf(sq_now, 1.0) - sink * 110.0   # ぐったりすると粘液に沈んでいく
 	var pts := PackedVector2Array()
 	for x in range(0, int(W) + 8, 8):
 		pts.append(Vector2(x, level + sin(t * 3.0 + x * 0.07) * 5.0))
@@ -143,6 +163,9 @@ func _draw_goo() -> void:
 	for x in range(10, int(W), 37):
 		goo_fg.draw_rect(Rect2(x, level + 8 + sin(t * 3.0 + x * 0.07) * 5.0, 10, 2), shine)
 		goo_fg.draw_line(Vector2(x + 14, level + 16), Vector2(x + 26, level + 12), yel, 2.0)
+	# とどめの瞬間：白く光る
+	if flash > 0.0:
+		goo_fg.draw_rect(Rect2(0, 0, W, H), Color(1, 1, 1, flash * 0.85))
 	# 弾ける泡
 	for k in 6:
 		var ph2 := fmod(t * 1.4 + k * 0.29, 1.0)
