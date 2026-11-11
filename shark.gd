@@ -6,8 +6,8 @@ extends Node2D
 
 const BASE_PATH := "res://assets/same_base.png"
 const OPEN_PATH := "res://assets/same_open.png"
-const FEET_Y := 150          # 絵の中で腹（水たまり）が床に着く行
-const FIN_H := 46            # 泳いでいるとき床から出ている高さ
+const FEET_Y := 182          # 絵の中で腹（水たまり）が床に着く行
+const FIN_H := 52            # 泳いでいるとき床から出ている高さ（絵の上から何行ぶん＝背ビレ）
 
 var main
 var state := "swim"   # swim / gulp / leap / drag / spit / stunned
@@ -201,11 +201,10 @@ func _update_sprite() -> void:
 	sprite.visible = true
 	sprite.texture = tex
 	sprite.flip_h = facing > 0
-	# 上から vis_h だけを切り出して、床から生えているように見せる
-	var top := 0.0 if state == "leap" else maxf(FEET_Y - vis_h, 0.0)
-	var h := FEET_Y - top
+	# 絵の上から vis_h 行だけを切り出して床の上に置く＝床から生えて（潜って）見える
+	var h := clampf(vis_h, 1.0, FEET_Y)
 	sprite.region_enabled = true
-	sprite.region_rect = Rect2(0, top, tex.get_width(), h)
+	sprite.region_rect = Rect2(0, 0, tex.get_width(), h)
 	sprite.offset = Vector2(-tex.get_width() / 2.0, -h)
 	sprite.position = Vector2(0, -z + (4.0 if underground() else 0.0))
 	# 泳いでいるときはゆらゆら
