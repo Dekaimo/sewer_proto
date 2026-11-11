@@ -1,0 +1,12 @@
+{
+  "name": "anim_goo_flat",
+  "mode": "anim",
+  "src": "assets/wani_emerge_1.png",
+  "last": "assets/wani_emerge_1.png",
+  "frames": 8,
+  "subject": "a low wide puddle of thick pink and yellow marbled liquid paint on the floor",
+  "desc": "The wide flat puddle heaves and churns: low lumps bulge up and sink back as if someone trapped just under the surface is struggling and kicking, a hand-like bulge pushes up and gets dragged back down, thick goo squelching, bubbles swelling and popping. It stays low and wide, never taller than a small bump. Loop.",
+  "generations_before": 1692.0,
+  "generations_after": 1691.0,
+  "used": 1.0
+}

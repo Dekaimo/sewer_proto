@@ -1,0 +1,13 @@
+{
+  "name": "anim_same_struggle",
+  "mode": "anim",
+  "src": "assets/same_gulp_2.png",
+  "last": "assets/same_gulp_4.png",
+  "frames": 8,
+  "variants": 2,
+  "subject": "a big chubby shark made of thick glossy pink paint with yellow marble streaks, sticking up out of a paint puddle, with a small black witch cat stuck in its mouth",
+  "desc": "The cat stuck in the shark's mouth struggles desperately, legs kicking and paws pushing against the teeth, while the shark tilts its head back, wobbles and gulps it down in two big swallows; the cat slides down inside, its shape bulging the cheeks and throat, thick paint goo oozing out between the teeth.",
+  "generations_before": 1691.0,
+  "generations_after": 1689.0,
+  "used": 2.0
+}
