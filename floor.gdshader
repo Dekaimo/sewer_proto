@@ -1,11 +1,10 @@
 shader_type canvas_item;
 // 下水道の床。下地は古いペンキ染み、その上に「ドロドロ」(goop_tex) を描く。
-// goop_tex は横1行の厚みマップ（0〜1）。足元の線の周りに帯状に広がる。
+// goop_tex は床全体の厚みマップ（0〜1）。キャラのドット絵と同じ描き方（暗い輪郭・下側の影・てかり）にする。
 
-uniform vec2 size = vec2(960.0, 110.0);
+uniform vec2 size = vec2(960.0, 210.0);
 uniform float px = 1.0;
 uniform sampler2D goop_tex : filter_linear, repeat_disable;
-uniform float feet_v = 0.53;   // 足元の線の位置（0=奥 1=手前）
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float noise(vec2 p) {
@@ -25,38 +24,40 @@ void fragment() {
 	vec2 p = floor(UV * size / px) * px;
 	vec2 uv = p / size;
 	float depth = uv.y;
-	vec2 q = vec2(p.x / 60.0, p.y / (18.0 + 30.0 * depth));
+	vec2 q = vec2(p.x / 70.0, p.y / (16.0 + 26.0 * depth));
 
-	// --- 下地：古くて濁ったペンキ染み ---
-	vec3 base = mix(vec3(0.15, 0.16, 0.18), vec3(0.19, 0.20, 0.22), depth);
+	// --- 下地：濡れた石の床と、古くて濁ったペンキ染み ---
+	vec3 base = mix(vec3(0.13, 0.14, 0.16), vec3(0.20, 0.21, 0.23), depth);
 	float n0 = fbm(q * 0.8 + vec2(7.0, 0.0));
 	vec3 col = base;
 	if (n0 > 0.58) col = mix(base, vec3(0.30, 0.13, 0.24), 0.6);
 	if (n0 > 0.66) col = mix(base, vec3(0.33, 0.29, 0.14), 0.5);
 
 	// --- ドロドロ ---
-	float g = texture(goop_tex, vec2(uv.x, 0.5)).r;
-	float t = TIME * 0.05;
-	float wob = fbm(vec2(p.x / 26.0 + t, p.y / 9.0));
-	// 厚いほど足元の線から奥・手前へ広く広がる
-	float half_w = g * (0.42 + 0.25 * wob);
-	float d = abs(depth - feet_v);
-	float edge = half_w - d;
-	if (g > 0.04 && edge > 0.0) {
-		float m = fbm(vec2(p.x / 40.0 - t * 2.0, p.y / 12.0) * 1.5);
-		vec3 pink = vec3(0.93, 0.36, 0.63);
-		vec3 pink_dark = vec3(0.70, 0.20, 0.47);
-		vec3 yellow = vec3(0.98, 0.85, 0.32);
+	float t = TIME * 0.04;
+	vec2 cell = 1.0 / size;
+	float wob = (fbm(vec2(p.x / 22.0 + t, p.y / 9.0)) - 0.5) * 0.22;
+	float g = texture(goop_tex, uv).r;
+	float v = g + wob * step(0.03, g);
+	float th = 0.30;
+	if (v > th) {
+		// となりの厚み（上＝奥、下＝手前）で、盛り上がりの明暗をつける
+		float g_dn = texture(goop_tex, uv + vec2(0.0, cell.y * 5.0)).r + wob;
+		float g_up = texture(goop_tex, uv - vec2(0.0, cell.y * 5.0)).r + wob;
+		vec3 pink = vec3(0.925, 0.353, 0.620);
+		vec3 pink_dark = vec3(0.722, 0.208, 0.478);
+		vec3 yellow = vec3(0.976, 0.847, 0.302);
 		vec3 gc = pink;
-		float swirl = sin(p.x / 9.0 + m * 10.0 + p.y / 7.0);
-		if (swirl > 0.72) gc = yellow;
-		if (edge < 0.035) gc = pink_dark;                       // 縁取り
-		if (edge > 0.05 && m > 0.66 && swirl < 0.0) gc = vec3(1.0, 0.80, 0.90);   // てかり
-		col = gc;   // 床のドロドロはワニと同じ色。どこから出てくるかわからないように一体化させる
-	} else if (g > 0.04 && edge > -0.03) {
-		col = mix(col, vec3(0.45, 0.12, 0.30), 0.6);   // にじみ
+		float m = fbm(vec2(p.x / 46.0 - t, p.y / 14.0));
+		float swirl = sin(p.x / 15.0 + m * 9.0 + p.y / 9.0);
+		if (swirl > 0.80) gc = yellow;
+		if (g_dn < th + 0.04) gc = pink_dark;                             // 手前の縁は影
+		else if (g_up < th + 0.02 && swirl < 0.3) gc = vec3(1.0, 0.72, 0.86);   // 奥の縁はてかり
+		if (m > 0.70 && swirl < -0.2 && v > th + 0.2) gc = vec3(1.0, 0.86, 0.94);   // 面のてかり
+		if (v < th + 0.05) gc = vec3(0.26, 0.05, 0.19);                      // 暗い輪郭
+		col = gc;
+	} else if (v > th - 0.06 && g > 0.03) {
+		col = mix(col, vec3(0.0), 0.45);   // 床に落ちる影
 	}
-
-	col *= 0.75 + 0.25 * smoothstep(0.0, 0.25, depth);
 	COLOR = vec4(col, 1.0);
 }

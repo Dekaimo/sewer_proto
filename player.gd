@@ -40,6 +40,8 @@ var hidden_in_hug := false   # 抱きつきの1枚絵に描かれている間は
 var vel := Vector2.ZERO
 var facing := 1
 var on_floor := true
+var z := 0.0     # ジャンプの高さ（position.y は床の上での奥行き）
+var vz := 0.0
 var grabbed_by = null
 var struggle := 0.0
 var last_dir := 0
@@ -198,7 +200,7 @@ func take_hit(from_x: float, r: int, count: int) -> bool:
 	# 飛び散って後ろの壁も汚れる
 	main.splat_wall(position + Vector2(-facing * 30.0, -randf_range(40.0, 120.0)), 28.0)
 	vel.x = (1.0 if position.x > from_x else -1.0) * 220.0
-	vel.y = -120.0
+	vz = 120.0
 	on_floor = false
 	hitstun = 0.3
 	invuln = 0.6
@@ -231,13 +233,14 @@ func _escape() -> void:
 	hidden_in_hug = false   # 抱きつきの絵から自分の表示に戻す
 	invuln = 1.0
 	main.sfx.play("escape")
-	position.y = main.FLOOR_Y - 1
 	on_floor = false
 	if is_instance_valid(e):
-		vel = Vector2(-e.facing * 260.0, -220.0)
+		vel = Vector2(-e.facing * 260.0, 0.0)
+		vz = 220.0
 		e.on_escaped()
 	else:
-		vel = Vector2(0.0, -220.0)
+		vel = Vector2.ZERO
+		vz = 220.0
 
 
 func _defeat() -> void:
@@ -295,6 +298,7 @@ func _process(delta: float) -> void:
 		"grabbed":
 			_update_grabbed(delta)
 	_update_frame(delta)
+	z_index = int(position.y)   # 手前にいるほど前に描く
 	sprite.flip_h = facing < 0
 	if state != "grabbed":
 		hidden_in_hug = false
@@ -309,32 +313,33 @@ func _update_frame(delta: float) -> void:
 	elif cleaning:
 		f = 3
 	sprite.texture = FRAMES[f]
-	# 歩きアニメ（速さに合わせてコマ送り）
-	if state == "normal" and on_floor and absf(vel.x) > 8.0 and f == 0:
-		bob += delta * absf(vel.x) / 14.0
+	sprite.position = Vector2(0.0, -z)
+	if state == "normal" and on_floor and vel.length() > 8.0 and f == 0:
+		# 歩きアニメ（速さに合わせてコマ送り）
+		bob += delta * vel.length() / 14.0
 		sprite.texture = WALK[int(bob) % 4]
-		sprite.position.y = 0.0
 	elif state == "normal" and f == 0:
 		# 待機の呼吸
 		sprite.texture = IDLE_ANIM[int(Time.get_ticks_msec() / 220) % 4]
 	elif state == "slipped":
 		sprite.position = Vector2(facing * 55.0, -32.0)   # 横倒しで床に寝そべる（足元を中心に）
-	else:
-		sprite.position.y = 0.0
 
 
 func _update_normal(delta: float) -> void:
 	var c := contamination()
-	var dir := Input.get_axis("left", "right")
-	var mouse_x := get_global_mouse_position().x
-	if dir == 0.0 and lmb_held and lmb_time >= 0.18 and absf(mouse_x - position.x) > 8.0:
-		dir = 1.0 if mouse_x > position.x else -1.0
+	var inp := Vector2(Input.get_axis("left", "right"), Input.get_axis("up", "down"))
+	var mouse := get_global_mouse_position()
+	var mouse_x := mouse.x
+	if inp == Vector2.ZERO and lmb_held and lmb_time >= 0.18 and mouse.distance_to(position) > 8.0:
+		inp = (mouse - position).normalized()
+	if inp.length() > 1.0:
+		inp = inp.normalized()
 	var want_clean := Input.is_action_pressed("clean") or Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
 	cleaning = want_clean and on_floor and hitstun <= 0.0
 	if hitstun > 0.0 or cleaning:
-		dir = 0.0
-	if dir != 0.0:
-		facing = 1 if dir > 0 else -1
+		inp = Vector2.ZERO
+	if absf(inp.x) > 0.1:
+		facing = 1 if inp.x > 0 else -1
 
 	# 自分を拭く（その場で動けなくなる代わりに汚れを少しずつ落とす）
 	if cleaning:
@@ -346,10 +351,10 @@ func _update_normal(delta: float) -> void:
 
 	var speed := 140.0 * (1.0 - 0.55 * c)
 	# 床のドロドロ：厚いほど遅く、ヌルヌル滑り、足元から汚れていく
-	var g: float = main.goop_at(position.x) if on_floor else 0.0
+	var g: float = main.goop_at(position) if on_floor else 0.0
 	if g > 0.1:
 		speed *= 1.0 - 0.35 * g
-		floor_timer += delta * (0.5 + absf(vel.x) / 140.0)
+		floor_timer += delta * (0.5 + vel.length() / 140.0)
 		if floor_timer > 0.5 - 0.3 * g:
 			floor_timer = 0.0
 			# 厚いほど高い位置まで跳ねる（足→脚→胴）
@@ -358,21 +363,21 @@ func _update_normal(delta: float) -> void:
 			main.sfx.play("step_paint", -3.0, 0.2)
 
 	if hitstun > 0.0:
-		vel.x = move_toward(vel.x, 0.0, 700.0 * delta)
+		vel = vel.move_toward(Vector2.ZERO, 700.0 * delta)
 	else:
 		# 地面が乾いていればキビキビ、ドロドロだと止まりにくく曲がりにくい
 		var accel := lerpf(1400.0, 220.0, g)
-		var target := dir * speed
+		var target := Vector2(inp.x * speed, inp.y * speed * 0.6)   # 奥行き方向は少し遅い
 		# 勢いがついた状態で急に切り返す／止まると転ぶことがある
-		if g > 0.45 and absf(vel.x) > 90.0 and signf(target) != signf(vel.x) and randf() < 2.5 * g * delta:
+		if g > 0.45 and absf(vel.x) > 90.0 and signf(target.x) != signf(vel.x) and randf() < 2.5 * g * delta:
 			_slip()
 			return
-		vel.x = move_toward(vel.x, target, accel * delta)
+		vel = vel.move_toward(target, accel * delta)
 
 	var jump := Input.is_action_just_pressed("jump") or queued_jump
 	queued_jump = false
 	if on_floor and jump and not cleaning:
-		vel.y = -360.0 * (1.0 - 0.4 * c)
+		vz = 360.0 * (1.0 - 0.4 * c)
 		on_floor = false
 
 	var mouse_attack := queued_attack
@@ -384,37 +389,39 @@ func _update_normal(delta: float) -> void:
 		attack_cd = 0.4
 		_do_attack()
 
-	vel.y += 900.0 * delta
 	position += vel * delta
-	if position.y >= main.FLOOR_Y:
-		position.y = main.FLOOR_Y
-		var landing_speed := vel.y
-		vel.y = 0.0
-		if not on_floor:
+	position.x = clampf(position.x, main.ARENA_L, main.ARENA_R)
+	position.y = clampf(position.y, main.DEPTH_MIN, main.DEPTH_MAX)
+	if not on_floor:
+		vz -= 900.0 * delta
+		z += vz * delta
+		if z <= 0.0:
+			var landing_speed := -vz
+			z = 0.0
+			vz = 0.0
 			on_floor = true
 			# ドロドロの上に着地：跳ねて汚れる。勢いがあると足を取られて転ぶ
-			var lg: float = main.goop_at(position.x)
+			var lg: float = main.goop_at(position)
 			if lg > 0.2:
 				for i in 2:
 					add_dirt(Vector2i(randi_range(40, 88), randi_range(95, 118)), 1)
-				main.add_goop(position.x, 30.0, 0.05)
+				main.add_goop(position, 30.0, 0.05)
 				main.sfx.play("step_paint")
 				if lg > 0.5 and landing_speed > 250.0 and randf() < 0.5 * lg:
 					_slip()
-	position.x = clampf(position.x, main.ARENA_L, main.ARENA_R)
 
 
 func _do_attack() -> void:
 	# モップ（筆）攻撃：前方の床掃除＋敵を押し返す
 	var x0 := position.x + (10.0 if facing > 0 else -60.0)
 	var x1 := x0 + 50.0
-	main.clean_floor(x0, x1, 0.35)
+	main.clean_floor(Vector2((x0 + x1) * 0.5, position.y), 80.0, 0.35)
 	main.sfx.play("mop", -2.0)
 	for e in main.enemies:
 		if not e.active():
 			continue
 		var ex: float = e.position.x
-		if ex > x0 - 50.0 and ex < x1 + 50.0 and absf(e.position.y - position.y) < 80.0:
+		if ex > x0 - 50.0 and ex < x1 + 50.0 and absf(e.position.y - position.y) < 30.0:
 			e.on_hit(facing)
 			if randf() < 0.3:
 				add_dirt(Vector2i(64 + facing * 30, randi_range(60, 90)), 1)  # 跳ね返り
@@ -427,11 +434,12 @@ func _slip() -> void:
 	struggle = 0.0
 	last_dir = 0
 	vel.x *= 0.6
+	vel.y = 0.0
 	main.sfx.play("hit")
 	# 倒れ込んだ側がべったり汚れる
 	for i in 5:
 		add_dirt(Vector2i(randi_range(30, 98), randi_range(40, 118)), 2)
-	main.add_goop(position.x, 70.0, 0.25)
+	main.add_goop(position, 70.0, 0.25)
 	damage(3.0)
 	# 90度回転なのでドットは崩れない
 	sprite.rotation = -PI / 2 * facing
@@ -464,7 +472,8 @@ func _update_grabbed(delta: float) -> void:
 	if not is_instance_valid(grabbed_by):
 		state = "normal"
 		return
-	position = grabbed_by.position + Vector2(grabbed_by.facing * 40, -50)
+	position = grabbed_by.position + Vector2(grabbed_by.facing * 40, 1)
+	z = 0.0
 	facing = -grabbed_by.facing
 	struggle -= 0.22 * delta
 	var d := 0
@@ -495,8 +504,7 @@ func _update_grabbed(delta: float) -> void:
 func _draw() -> void:
 	# 足元の影（ジャンプ中も床に残す）
 	if state != "defeated" and not hidden_in_hug:
-		var gy: float = main.FLOOR_Y - position.y
-		draw_set_transform(Vector2(0, gy), 0.0, Vector2(1.0, 0.25))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.25))
 		draw_circle(Vector2.ZERO, 30.0, Color(0, 0, 0, 0.35))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	if cleaning and state == "normal":

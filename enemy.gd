@@ -28,6 +28,7 @@ const HUG_SHADER = preload("res://hug_dirt.gdshader")
 var hug_mat: ShaderMaterial
 var hold_t := 0.0
 var last_x := 0.0
+var last_y := 0.0
 var anim_t := 0.0
 var sprite: Sprite2D
 var emerge_frames: Array[Texture2D] = []
@@ -69,6 +70,7 @@ func active() -> bool:
 
 func _process(delta: float) -> void:
 	anim_t += delta
+	z_index = int(position.y)   # 手前にいるほど前に描く
 	sprite.flip_h = facing > 0
 	sprite.scale = Vector2.ONE
 	sprite.position = Vector2.ZERO
@@ -101,8 +103,9 @@ func _process(delta: float) -> void:
 		_update_ambush(delta)
 		return
 	# 普段は呼吸、動いているときは這う動き（下の各状態で上書きされる）
-	var moved := absf(position.x - last_x) > 0.3
+	var moved := absf(position.x - last_x) + absf(position.y - last_y) > 0.3
 	last_x = position.x
+	last_y = position.y
 	if moved and state in ["approach", "assist"]:
 		sprite.texture = anims["move"][int(anim_t * 9.0) % 8]
 	else:
@@ -121,7 +124,7 @@ func _process(delta: float) -> void:
 	spread_t -= delta
 	if spread_t <= 0.0:
 		spread_t = 1.0
-		main.add_goop(position.x, 150.0, 0.12)
+		main.add_goop(position, 150.0, 0.12)
 
 	var dx: float = p.position.x - position.x
 	match state:
@@ -137,9 +140,11 @@ func _process(delta: float) -> void:
 				# 挟み撃ち：相方と反対側の位置へ回り込む（プレイヤーをすり抜けてよい）
 				var tx: float = clampf(p.position.x + _flank_side(p) * FLANK, main.ARENA_L, main.ARENA_R)
 				var to_slot: float = tx - position.x
+				# 奥行きも合わせに行く（奥・手前にずれれば攻撃を外せる）
+				position.y = move_toward(position.y, p.position.y, 45.0 * delta)
 				if absf(to_slot) > 6.0:
 					position.x += signf(to_slot) * 60.0 * delta
-				elif main.request_token(self):
+				elif absf(p.position.y - position.y) < 14.0 and main.request_token(self):
 					# 抱きつき突進（本命）か、普通の殴り
 					if randf() < 0.6:
 						state = "hug_windup"
@@ -162,8 +167,8 @@ func _process(delta: float) -> void:
 		"lunge":
 			t -= delta
 			position.x += lunge_dir * 280.0 * delta
-			main.add_goop(position.x, 40.0, 0.04)   # 突進した跡にドロドロが残る
-			var close: bool = absf(p.position.x - position.x) < REACH and p.position.y > position.y - 100.0
+			main.add_goop(position, 40.0, 0.04)   # 突進した跡にドロドロが残る
+			var close: bool = _in_reach(p, REACH)
 			if close and (p.state == "normal" or p.state == "slipped"):
 				# 殴りは被弾のみ。転んでいるところだけは掴む
 				if p.state == "slipped" and p.can_be_grabbed():
@@ -171,11 +176,11 @@ func _process(delta: float) -> void:
 					_start_hold()
 				else:
 					if p.take_hit(position.x, 2, 4):
-						main.add_floor_splat(p.position.x, 40.0)
+						main.add_floor_splat(p.position, 40.0)
 					state = "recover"
 					t = 0.6
 			elif t <= 0.0:
-				main.add_floor_splat(position.x + lunge_dir * 40.0, 24.0)
+				main.add_floor_splat(position + Vector2(lunge_dir * 40.0, 0.0), 24.0)
 				main.splat_wall(Vector2(position.x + lunge_dir * 60.0, position.y - randf_range(80.0, 200.0)), 40.0)
 				state = "recover"
 				t = 0.6
@@ -203,8 +208,8 @@ func _process(delta: float) -> void:
 			t -= delta
 			sprite.texture = anims["charge"][clampi(int(anim_t * 14.0), 0, 5)]
 			position.x += lunge_dir * 380.0 * delta
-			main.add_goop(position.x, 40.0, 0.05)
-			var hit: bool = absf(p.position.x - position.x) < REACH + 10.0 and p.position.y > position.y - 110.0
+			main.add_goop(position, 40.0, 0.05)
+			var hit: bool = _in_reach(p, REACH + 10.0)
 			if hit and p.can_be_grabbed():
 				p.grab(self)
 				_hug_impact(p)
@@ -212,7 +217,7 @@ func _process(delta: float) -> void:
 				slide_v = lunge_dir * 300.0
 			elif t <= 0.0:
 				# 空振り：勢い余ってつんのめる
-				main.add_floor_splat(position.x + lunge_dir * 50.0, 40.0)
+				main.add_floor_splat(position + Vector2(lunge_dir * 50.0, 0.0), 40.0)
 				main.splat_wall(Vector2(position.x + lunge_dir * 80.0, position.y - randf_range(60.0, 180.0)), 36.0)
 				state = "recover"
 				t = 0.9
@@ -220,10 +225,10 @@ func _process(delta: float) -> void:
 			_update_hold_sprite(delta, p)
 			# 抱きついた勢いのままジュルジュル滑ってから止まる（ドロドロが厚いほど長く滑る）
 			if slide_v != 0.0:
-				var g: float = main.goop_at(position.x)
+				var g: float = main.goop_at(position)
 				slide_v = move_toward(slide_v, 0.0, lerpf(900.0, 260.0, g) * delta)
 				position.x += slide_v * delta
-				main.add_goop(position.x, 50.0, 0.06)
+				main.add_goop(position, 50.0, 0.06)
 				if absf(slide_v) > 60.0 and randf() < 0.3:
 					p.add_dirt(p.random_body_point(), 1)
 				if position.x <= main.ARENA_L or position.x >= main.ARENA_R:
@@ -250,7 +255,7 @@ func _process(delta: float) -> void:
 				if absf(position.x - target_x) < 6.0 and assist_timer <= 0.0:
 					assist_timer = 0.9
 					p.assist_splash()
-					main.add_floor_splat(p.position.x, 30.0)
+					main.add_floor_splat(p.position, 30.0)
 	_clamp()
 
 
@@ -260,7 +265,7 @@ func _want_ambush(delta: float, p) -> bool:
 	if ambush_cd > 0.0:
 		return false
 	# プレイヤーがドロドロの上にいる、または遠くにいるときに狙う
-	var on_goop: bool = main.goop_at(p.position.x) > 0.25
+	var on_goop: bool = main.goop_at(p.position) > 0.25
 	var far: bool = absf(p.position.x - position.x) > 260.0
 	if on_goop or far:
 		ambush_cd = randf_range(5.0, 9.0)
@@ -283,12 +288,13 @@ func _update_ambush(delta: float) -> void:
 			# 床の下を移動。ドロドロのある所しか通れない。泡だけが見える
 			lurk_t += delta
 			var dx: float = p.position.x - position.x
+			var to_p: Vector2 = p.position - position
 			# ドロドロの中は速く、乾いた床はゆっくり（通った跡がドロドロになる）
-			var sp: float = 200.0 if main.goop_at(position.x) > 0.12 else 70.0
-			if absf(dx) > 4.0:
-				position.x += signf(dx) * sp * delta
-				main.add_goop(position.x, 36.0, 0.04)
-			var under: bool = absf(dx) < 10.0 and p.state != "grabbed"
+			var sp: float = 200.0 if main.goop_at(position) > 0.12 else 70.0
+			if to_p.length() > 4.0:
+				position += to_p.normalized() * Vector2(1.0, 0.6) * sp * delta
+				main.add_goop(position, 36.0, 0.04)
+			var under: bool = to_p.length() < 12.0 and p.state != "grabbed"
 			if (under and lurk_t > 0.6) or lurk_t > 4.5:
 				state = "ambush"
 				anim_t = 0.0
@@ -302,9 +308,9 @@ func _update_ambush(delta: float) -> void:
 			sprite.texture = emerge_frames[j]
 			if j >= 4 and not ambush_done:
 				ambush_done = true
-				main.add_goop(position.x, 90.0, 0.3)
+				main.add_goop(position, 90.0, 0.3)
 				main.splat_wall(Vector2(position.x, position.y - randf_range(60.0, 180.0)), 40.0)
-				var close: bool = absf(p.position.x - position.x) < REACH and p.position.y > position.y - 120.0
+				var close: bool = _in_reach(p, REACH)
 				if close and p.can_be_grabbed():
 					p.grab(self)
 					_start_hold()
@@ -374,7 +380,7 @@ func _hug_impact(p) -> void:
 	p.damage(6.0)
 	for i in 3:
 		main.splat_wall(Vector2(p.position.x + randf_range(-120.0, 120.0), p.position.y - randf_range(50.0, 220.0)), randf_range(30.0, 55.0))
-	main.add_goop(p.position.x, 160.0, 0.4)
+	main.add_goop(p.position, 160.0, 0.4)
 	main.sfx.play("assist")
 
 
@@ -384,7 +390,7 @@ func play_swallow(p) -> void:
 	state = "swallow"
 	anim_t = 0.0
 	position.x = clampf(p.position.x - facing * 10.0, main.ARENA_L, main.ARENA_R)
-	z_index = 5
+	position.y = p.position.y
 
 
 ## 1体目は今いる側、2体目以降は1体目の反対側を受け持つ
@@ -399,8 +405,14 @@ func _flank_side(p) -> float:
 	return -lead_side
 
 
+func _in_reach(p, r: float) -> bool:
+	# 横の距離・奥行き・高さ（ジャンプで飛び越えられる）がすべて近いときだけ届く
+	return absf(p.position.x - position.x) < r and absf(p.position.y - position.y) < 24.0 and p.z < 70.0
+
+
 func _clamp() -> void:
 	position.x = clampf(position.x, main.ARENA_L, main.ARENA_R)
+	position.y = clampf(position.y, main.DEPTH_MIN, main.DEPTH_MAX)
 
 
 func on_hit(dir: int) -> void:

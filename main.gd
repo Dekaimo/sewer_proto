@@ -10,16 +10,21 @@ const WallShader = preload("res://wall_paint.gdshader")
 
 const VIEW_W := 960.0
 const VIEW_H := 540.0
-const FLOOR_TOP := 430.0   # 壁と床の境目
-const FLOOR_Y := 488.0     # 足元の線（床の奥行きの中ほど）
+const FLOOR_TOP := 330.0   # 壁と床の境目
+const FLOOR_Y := 440.0     # 開始時の立ち位置（奥行き）
+const DEPTH_MIN := 352.0   # 歩ける範囲のいちばん奥
+const DEPTH_MAX := 516.0   # いちばん手前
 const ARENA_L := 30.0
 const ARENA_R := 930.0
 
 var player
 var sfx
 var enemies: Array = []
-# 床のドロドロ（マリオサンシャインの「らくがき」風）。4pxごとの厚み 0〜1
-const GOOP_CELL := 4.0
+# 床のドロドロ（マリオサンシャインの「らくがき」風）。床全体をマス目に分けた厚み 0〜1
+const GOOP_CX := 6.0   # 1マスの横幅
+const GOOP_CY := 3.0   # 1マスの縦幅（床は奥行きが潰れて見えるので半分）
+var goop_w := 0
+var goop_h := 0
 var goop := PackedFloat32Array()
 var goop_img: Image
 var goop_tex: ImageTexture
@@ -62,14 +67,12 @@ func _ready() -> void:
 	fm.set_shader_parameter("size", fl.size)
 	_init_goop()
 	fm.set_shader_parameter("goop_tex", goop_tex)
-	fm.set_shader_parameter("feet_v", (FLOOR_Y - FLOOR_TOP) / fl.size.y)
 	fl.material = fm
 	fl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(fl)
 	player = PlayerScript.new()
 	player.main = self
 	player.position = Vector2(300, FLOOR_Y)
-	player.z_index = 2
 	add_child(player)
 	for x in [760.0]:   # ペンキワニは1体（2体目は別の敵として後で追加）
 		var e = EnemyScript.new()
@@ -79,7 +82,7 @@ func _ready() -> void:
 		enemies.append(e)
 	var hud = HudScript.new()
 	hud.main = self
-	hud.z_index = 10
+	hud.z_index = 4000
 	add_child(hud)
 
 
@@ -92,8 +95,7 @@ func _process(delta: float) -> void:
 	_update_mess(delta)
 	if goop_dirty:
 		goop_dirty = false
-		for i in goop.size():
-			goop_img.set_pixel(i, 0, Color(goop[i], 0, 0))
+		goop_img.set_data(goop_w, goop_h, false, Image.FORMAT_RF, goop.to_byte_array())
 		goop_tex.update(goop_img)
 
 
@@ -101,7 +103,9 @@ func _process(delta: float) -> void:
 func _setup_input() -> void:
 	_add_keys("left", [KEY_LEFT, KEY_A])
 	_add_keys("right", [KEY_RIGHT, KEY_D])
-	_add_keys("jump", [KEY_UP, KEY_W, KEY_SPACE])
+	_add_keys("up", [KEY_UP, KEY_W])
+	_add_keys("down", [KEY_DOWN, KEY_S])
+	_add_keys("jump", [KEY_SPACE])
 	_add_keys("attack", [KEY_Z, KEY_J])
 	_add_keys("clean", [KEY_X, KEY_K])
 	_add_keys("restart", [KEY_R])
@@ -150,54 +154,60 @@ func on_player_defeated(grabber) -> void:
 
 # ---------- 床のドロドロ ----------
 func _init_goop() -> void:
-	var n := int(VIEW_W / GOOP_CELL)
-	goop.resize(n)
-	goop_img = Image.create(n, 1, false, Image.FORMAT_RF)
+	goop_w = int(VIEW_W / GOOP_CX)
+	goop_h = int((VIEW_H - FLOOR_TOP) / GOOP_CY)
+	goop.resize(goop_w * goop_h)
+	goop_img = Image.create(goop_w, goop_h, false, Image.FORMAT_RF)
 	goop_tex = ImageTexture.create_from_image(goop_img)
 	# 最初からあちこちにドロドロがある
-	add_goop(150.0, 90.0, 0.8)
-	add_goop(560.0, 60.0, 0.6)
-	add_goop(780.0, 160.0, 1.0)   # ワニの足元
+	add_goop(Vector2(150, 400), 110.0, 0.8)
+	add_goop(Vector2(520, 490), 90.0, 0.6)
+	add_goop(Vector2(330, 370), 70.0, 0.5)
+	add_goop(Vector2(760, 440), 240.0, 1.0)   # ワニの足元
 
 
-## x を中心に幅 w のドロドロを amount だけ足す（中心ほど厚い）
-func add_goop(x: float, w: float, amount: float) -> void:
-	var i0 := int((x - w * 0.5) / GOOP_CELL)
-	var i1 := int((x + w * 0.5) / GOOP_CELL)
-	for i in range(maxi(i0, 0), mini(i1 + 1, goop.size())):
-		var cx := (i + 0.5) * GOOP_CELL
-		var k := 1.0 - absf(cx - x) / (w * 0.5 + 0.01)
-		if k > 0.0:
-			goop[i] = minf(goop[i] + amount * (0.4 + 0.6 * k), 1.0)
+## p を中心に横幅 w のドロドロを amount だけ足す（中心ほど厚い。奥行き方向は潰れた楕円）
+func add_goop(p: Vector2, w: float, amount: float) -> void:
+	_paint_goop(p, w, amount)
+
+
+func add_floor_splat(p: Vector2, w: float) -> void:
+	_paint_goop(p, w * 1.6, 0.5)
+
+
+## 筆で p のまわりのドロドロを薄くする
+func clean_floor(p: Vector2, w: float, power := 0.45) -> void:
+	_paint_goop(p, w, -power)
+
+
+func _paint_goop(p: Vector2, w: float, amount: float) -> void:
+	var rx := w * 0.5 + 0.01
+	var ry := rx * 0.45
+	var x0 := maxi(int((p.x - rx) / GOOP_CX), 0)
+	var x1 := mini(int((p.x + rx) / GOOP_CX), goop_w - 1)
+	var y0 := maxi(int((p.y - ry - FLOOR_TOP) / GOOP_CY), 0)
+	var y1 := mini(int((p.y + ry - FLOOR_TOP) / GOOP_CY), goop_h - 1)
+	for cy in range(y0, y1 + 1):
+		var dy := ((cy + 0.5) * GOOP_CY + FLOOR_TOP - p.y) / ry
+		for cx in range(x0, x1 + 1):
+			var dx := ((cx + 0.5) * GOOP_CX - p.x) / rx
+			var d := sqrt(dx * dx + dy * dy)
+			if d < 1.0:
+				var i := cy * goop_w + cx
+				if amount > 0.0:
+					goop[i] = minf(goop[i] + amount * (0.4 + 0.6 * (1.0 - d)), 1.0)
+				else:
+					goop[i] = maxf(goop[i] + amount, 0.0)
 	goop_dirty = true
-
-
-# 互換用：敵の攻撃などで床が汚れる
-func add_floor_splat(x: float, w: float) -> void:
-	add_goop(x, w * 1.6, 0.5)
-
-
-## モップ（筆）で範囲のドロドロを薄くする。消えた量を返す
-func clean_floor(x0: float, x1: float, power := 0.45) -> float:
-	var removed := 0.0
-	for i in range(maxi(int(x0 / GOOP_CELL), 0), mini(int(x1 / GOOP_CELL) + 1, goop.size())):
-		var before := goop[i]
-		goop[i] = maxf(goop[i] - power, 0.0)
-		removed += before - goop[i]
-	goop_dirty = true
-	return removed
 
 
 ## 足元のドロドロの厚み（0〜1）
-func goop_at(x: float) -> float:
-	var i := int(x / GOOP_CELL)
-	if i < 0 or i >= goop.size():
+func goop_at(p: Vector2) -> float:
+	var cx := int(p.x / GOOP_CX)
+	var cy := int((p.y - FLOOR_TOP) / GOOP_CY)
+	if cx < 0 or cy < 0 or cx >= goop_w or cy >= goop_h:
 		return 0.0
-	return goop[i]
-
-
-func splat_under(x: float) -> bool:
-	return goop_at(x) > 0.15
+	return goop[cy * goop_w + cx]
 
 
 # ---------- 壁のペンキと、全体の汚れの進行 ----------
@@ -211,6 +221,9 @@ func _init_wall() -> void:
 
 ## 壁にベチャッとペンキを付ける（いびつな塊＋垂れ）
 func splat_wall(pos: Vector2, r: float, amount := 1.0) -> void:
+	# 床の高さを指定されたら、壁の下の方に付ける
+	if pos.y > FLOOR_TOP - 20.0:
+		pos.y = randf_range(FLOOR_TOP - 150.0, FLOOR_TOP - 20.0)
 	var cw := wall_img.get_width()
 	var ch := wall_img.get_height()
 	var c := pos / WALL_CELL
@@ -250,7 +263,7 @@ func _update_mess(delta: float) -> void:
 			x = clampf(e.position.x + randf_range(-220, 220), 0, VIEW_W)
 		splat_wall(Vector2(x, randf_range(120, FLOOR_TOP - 10)), randf_range(12, 34), 0.9)
 		# 配管から床に垂れて、床のドロドロも増える
-		add_goop(randf_range(0, VIEW_W), randf_range(20, 60), 0.15 + minf(survive_time * 0.004, 0.35))
+		add_goop(Vector2(randf_range(0, VIEW_W), randf_range(FLOOR_TOP + 10, VIEW_H)), randf_range(30, 80), 0.2 + minf(survive_time * 0.004, 0.35))
 	# 壁のペンキが下に流れる
 	flow_t -= delta
 	if flow_t <= 0.0:
@@ -270,12 +283,15 @@ func _update_mess(delta: float) -> void:
 	# 床のドロドロが横ににじんで広がる
 	spread_goop_t -= delta
 	if spread_goop_t <= 0.0:
-		spread_goop_t = 0.4
+		spread_goop_t = 0.6
 		var src := goop.duplicate()
-		for i in range(1, goop.size() - 1):
-			var nb := maxf(src[i - 1], src[i + 1]) * 0.93
-			if nb > goop[i]:
-				goop[i] = lerpf(goop[i], nb, 0.35)
+		for cy in range(1, goop_h - 1):
+			var row := cy * goop_w
+			for cx in range(1, goop_w - 1):
+				var i := row + cx
+				var nb := maxf(maxf(src[i - 1], src[i + 1]), maxf(src[i - goop_w], src[i + goop_w])) * 0.9
+				if nb > src[i]:
+					goop[i] = lerpf(src[i], nb, 0.3)
 		goop_dirty = true
 
 
