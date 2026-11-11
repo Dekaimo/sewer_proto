@@ -1,0 +1,13 @@
+{
+  "name": "anim_wani_idle",
+  "mode": "anim",
+  "src": "assets/wani_idle.png",
+  "last": "assets/wani_idle.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge muscular crocodile monster made of thick pink and yellow marbled liquid paint, its lower body melting into a puddle, no legs",
+  "desc": "Idle breathing loop: massive chest heaves slowly, shoulders flex, the gooey body wobbles and the puddle base ripples. Stays in place. Thick, sticky, viscous goo: paint sagging, stretching and dripping slowly.",
+  "generations_before": 1820.0,
+  "generations_after": 1819.0,
+  "used": 1.0
+}

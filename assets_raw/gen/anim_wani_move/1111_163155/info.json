@@ -1,0 +1,13 @@
+{
+  "name": "anim_wani_move",
+  "mode": "anim",
+  "src": "assets/wani_idle.png",
+  "last": "assets/wani_idle.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge muscular crocodile monster made of thick pink and yellow marbled liquid paint, its lower body melting into a puddle, no legs",
+  "desc": "Slithering forward to the left on its melted puddle base like a slug, the gooey base surging and rippling forward, upper body swaying and leaning, arms swinging heavily. Loop. Thick, sticky, viscous goo: paint sagging, stretching and dripping slowly.",
+  "generations_before": 1818.0,
+  "generations_after": 1818.0,
+  "used": 0.0
+}

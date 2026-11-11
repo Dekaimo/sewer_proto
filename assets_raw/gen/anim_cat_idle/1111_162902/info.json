@@ -1,0 +1,13 @@
+{
+  "name": "anim_cat_idle",
+  "mode": "anim",
+  "src": "assets/cat_0.png",
+  "last": "assets/cat_0.png",
+  "frames": 4,
+  "direction": "east",
+  "subject": "a small black cat wearing a purple witch hat and cape, holding a paintbrush",
+  "desc": "Idle breathing loop: chest gently rises and falls, tail sways slowly, hat bell jiggles slightly. Stays in place.",
+  "generations_before": 1820.0,
+  "generations_after": 1820.0,
+  "used": 0.0
+}
