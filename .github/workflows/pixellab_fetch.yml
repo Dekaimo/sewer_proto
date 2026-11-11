@@ -14,7 +14,7 @@ jobs:
       - name: Fetch
         env:
           PIXELLAB_API_KEY: ${{ secrets.PIXELLAB_API_KEY }}
-        run: python3 tools/pixellab_fetch.py
+        run: python3 tools/pixellab_fetch.py && python3 tools/pixellab_spec.py
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
