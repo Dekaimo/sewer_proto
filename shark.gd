@@ -24,6 +24,11 @@ var wander := 0.0
 var sprite: Sprite2D
 var tex_base: Texture2D
 var tex_open: Texture2D
+var img_cache := {}       # 切れ目の幅を調べるための画像
+var collar: Node2D        # 床との境目に重ねるドロドロ（画像の切れ目を隠す）
+var cut_l := 0.0
+var cut_r := 0.0
+var cut_on := false
 
 
 func _ready() -> void:
@@ -32,6 +37,9 @@ func _ready() -> void:
 	sprite = Sprite2D.new()
 	sprite.centered = false
 	add_child(sprite)
+	collar = Node2D.new()
+	collar.draw.connect(_draw_collar)
+	add_child(collar)
 	cd = 2.0
 
 
@@ -222,9 +230,75 @@ func _update_sprite() -> void:
 	sprite.region_rect = Rect2(0, 0, tex.get_width(), h)
 	sprite.offset = Vector2(-tex.get_width() / 2.0, -h)
 	sprite.position = Vector2(0, -z + (4.0 if underground() else 0.0))
+	# 床に埋まっている部分の切れ目の幅（その行の不透明な範囲）
+	cut_on = state != "leap" and h < FEET_Y - 2
+	if cut_on:
+		var img: Image = _img(tex)
+		var row := int(h) - 1
+		var l := -1
+		var r := -1
+		for x in img.get_width():
+			if img.get_pixel(x, row).a > 0.0:
+				if l < 0:
+					l = x
+				r = x
+		if l < 0:
+			cut_on = false
+		else:
+			var w2: float = tex.get_width() / 2.0
+			if sprite.flip_h:
+				var l2 := tex.get_width() - 1 - r
+				r = tex.get_width() - 1 - l
+				l = l2
+			cut_l = l - w2
+			cut_r = r - w2
+	collar.queue_redraw()
 	# 泳いでいるときはゆらゆら
 	if underground():
 		sprite.position.y += sin(t * 6.0) * 2.0
+
+
+func _img(tex: Texture2D) -> Image:
+	if not img_cache.has(tex):
+		img_cache[tex] = tex.get_image()
+	return img_cache[tex]
+
+
+## 床との境目に、盛り上がったドロドロの縁を描いて切れ目を隠す
+func _draw_collar() -> void:
+	if not cut_on or not sprite.visible:
+		return
+	var y := sprite.position.y
+	var w := cut_r - cut_l + 24.0
+	var cx := (cut_l + cut_r) * 0.5
+	var tt := t
+	var dark := Color("5a1240")
+	var pink := Color("ec5a9e")
+	var light := Color("f489bd")
+	var yel := Color("f9d84d")
+	# 外側の暗い縁 → ピンク → 上のてかり、の順に横長の塊を重ねる
+	var n := int(w / 14.0) + 2
+	for pass_i in 3:
+		var col: Color = [dark, pink, light][pass_i]
+		var shrink: float = [0.0, 3.0, 7.0][pass_i]
+		for k in n:
+			var fx := cx - w * 0.5 + (k + 0.5) * w / n
+			var bump := 5.0 + 3.0 * sin(k * 1.7 + tt * 3.0)
+			var r: float = 9.0 + bump - shrink
+			if r <= 0.0:
+				continue
+			collar.draw_set_transform(Vector2(roundf(fx), roundf(y - 2.0 - shrink * 0.9)), 0.0, Vector2(1.0, 0.55))
+			collar.draw_circle(Vector2.ZERO, r, col)
+	collar.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	# 黄色のマーブルの筋と、縁から垂れて引っ張られる糸
+	for k in n:
+		if k % 3 == 1:
+			var fx2 := cx - w * 0.5 + (k + 0.5) * w / n
+			collar.draw_line(Vector2(fx2 - 5, y - 6), Vector2(fx2 + 4, y - 3), yel, 2.0)
+	for k in 3:
+		var dx := cx + (k - 1) * w * 0.3 + sin(tt * 2.0 + k) * 4.0
+		var ln := 6.0 + 10.0 * absf(sin(tt * 1.3 + k * 2.0))
+		collar.draw_line(Vector2(dx, y - 6), Vector2(dx, y - 6 - ln), pink, 3.0)
 
 
 func _draw() -> void:
