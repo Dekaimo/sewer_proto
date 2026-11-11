@@ -1,0 +1,22 @@
+{
+  "name": "same_key_dive",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "style": "assets/same_base.png",
+  "refs": [
+    [
+      "assets/same_base.png",
+      "the shark character: chubby shark made of thick glossy pink paint with yellow marble streaks, sly grin, half-lidded eyes, dripping. Keep this exact design, colors and pixel style"
+    ],
+    [
+      "assets/same_open.png",
+      "how its gaping mouth looks: rows of white teeth and a filthy gooey pink paint gullet with a drooping paint-blob tongue"
+    ]
+  ],
+  "desc": "The paint shark plunging head-first straight down into a puddle of pink paint on the floor, mouth gaping wide open, its front half already sinking into the puddle while its tail sticks up in the air. Thick sticky paint splashes up and clings around it where it enters the puddle. Side view, facing left. Pixel art sprite, same style, palette, outline and shading as the reference images. Transparent background.",
+  "generations_before": 1733.0,
+  "generations_after": 1723.0,
+  "used": 10.0
+}

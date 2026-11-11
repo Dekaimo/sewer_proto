@@ -1,0 +1,22 @@
+{
+  "name": "same_key_leap",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "style": "assets/same_base.png",
+  "refs": [
+    [
+      "assets/same_base.png",
+      "the shark character: chubby shark made of thick glossy pink paint with yellow marble streaks, sly grin, half-lidded eyes, dripping. Keep this exact design, colors and pixel style"
+    ],
+    [
+      "assets/same_open.png",
+      "how its gaping mouth looks: rows of white teeth and a filthy gooey pink paint gullet with a drooping paint-blob tongue"
+    ]
+  ],
+  "desc": "The whole paint shark leaping through the air in a dynamic diagonal pose, nose angled down toward the lower left, huge mouth gaping wide open to swallow its prey from above, fins spread, tail curled up behind, paint droplets and strings flying off its body. The entire body fits inside the image. Pixel art sprite, same style, palette, outline and shading as the reference images. Transparent background.",
+  "generations_before": 1723.0,
+  "generations_after": 1713.0,
+  "used": 10.0
+}
