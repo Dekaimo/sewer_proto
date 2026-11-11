@@ -30,19 +30,21 @@ func _process(delta: float) -> void:
 	var dx: float = p.position.x - position.x
 	match state:
 		"approach":
-			if absf(dx) > 1.0:
-				facing = 1 if dx > 0 else -1
 			var h = main.holding_enemy()
 			if h != null and h != self:
 				state = "assist"
 			elif p.state == "normal":
-				if absf(dx) > 34.0:
-					position.x += facing * 28.0 * delta
-				elif absf(dx) < 20.0:
-					position.x -= facing * 15.0 * delta
+				# 挟み撃ち：相方と反対側の位置へ回り込む（プレイヤーをすり抜けてよい）
+				var tx: float = clampf(p.position.x + _flank_side(p) * 27.0, main.ARENA_L, main.ARENA_R)
+				var to_slot: float = tx - position.x
+				if absf(to_slot) > 4.0:
+					position.x += signf(to_slot) * 34.0 * delta
 				elif main.request_token(self):
 					state = "windup"
 					t = 0.5
+			dx = p.position.x - position.x
+			if absf(dx) > 1.0:
+				facing = 1 if dx > 0 else -1
 		"windup":
 			t -= delta
 			if t <= 0.0:
@@ -81,7 +83,8 @@ func _process(delta: float) -> void:
 			if h2 == null or h2 == self:
 				state = "approach"
 			else:
-				var target_x: float = clampf(p.position.x - h2.facing * 14.0, main.ARENA_L, main.ARENA_R)
+				# 掴んでいる敵の反対側（プレイヤーの向こう側）に回る
+				var target_x: float = clampf(p.position.x + h2.facing * 12.0, main.ARENA_L, main.ARENA_R)
 				position.x = move_toward(position.x, target_x, 45.0 * delta)
 				if absf(dx) > 1.0:
 					facing = 1 if dx > 0 else -1
@@ -92,6 +95,18 @@ func _process(delta: float) -> void:
 					main.add_floor_splat(p.position.x, 10.0)
 	_clamp()
 	queue_redraw()
+
+
+## 1体目は今いる側、2体目以降は1体目の反対側を受け持つ
+func _flank_side(p) -> float:
+	var lead = main.enemies[0]
+	var lead_side: float = 1.0 if lead.position.x >= p.position.x else -1.0
+	if lead == self:
+		# 壁際で回り込めない場合は反対側を使う
+		if p.position.x + lead_side * 27.0 < main.ARENA_L or p.position.x + lead_side * 27.0 > main.ARENA_R:
+			return -lead_side
+		return lead_side
+	return -lead_side
 
 
 func _clamp() -> void:
