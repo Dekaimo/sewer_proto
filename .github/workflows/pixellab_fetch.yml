@@ -1,0 +1,25 @@
+name: Fetch PixelLab assets
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch
+        env:
+          PIXELLAB_API_KEY: ${{ secrets.PIXELLAB_API_KEY }}
+        run: python3 tools/pixellab_fetch.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898273+github-actions[bot]@users.noreply.github.com"
+          git add assets_raw
+          git diff --cached --quiet && echo "nothing new" && exit 0
+          git commit -m "Fetch PixelLab assets"
+          git push
