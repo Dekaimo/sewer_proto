@@ -9,6 +9,12 @@ const FRAMES := [
 	preload("res://assets/cat_2.png"),
 	preload("res://assets/cat_3.png"),
 ]
+const IDLE_ANIM := [
+	preload("res://assets/cat_idle_0.png"),
+	preload("res://assets/cat_idle_1.png"),
+	preload("res://assets/cat_idle_2.png"),
+	preload("res://assets/cat_idle_3.png"),
+]
 const WALK := [
 	preload("res://assets/cat_walk_0.png"),
 	preload("res://assets/cat_walk_1.png"),
@@ -308,6 +314,9 @@ func _update_frame(delta: float) -> void:
 		bob += delta * absf(vel.x) / 14.0
 		sprite.texture = WALK[int(bob) % 4]
 		sprite.position.y = 0.0
+	elif state == "normal" and f == 0:
+		# 待機の呼吸
+		sprite.texture = IDLE_ANIM[int(Time.get_ticks_msec() / 220) % 4]
 	elif state == "slipped":
 		sprite.position = Vector2(facing * 55.0, -32.0)   # 横倒しで床に寝そべる（足元を中心に）
 	else:

@@ -27,6 +27,7 @@ var anim_masks := {}     # 2体が1枚に描かれたコマの、主人公部分
 const HUG_SHADER = preload("res://hug_dirt.gdshader")
 var hug_mat: ShaderMaterial
 var hold_t := 0.0
+var last_x := 0.0
 var anim_t := 0.0
 var sprite: Sprite2D
 var emerge_frames: Array[Texture2D] = []
@@ -42,7 +43,7 @@ func _ready() -> void:
 	for k in ["windup", "spread", "hug"]:
 		var path := "res://assets/wani_pose_%s.png" % k
 		pose[k] = load(path) if ResourceLoader.exists(path) else IDLE
-	var counts := {"windup": 8, "charge": 6, "grab": 6, "hug": 9}
+	var counts := {"windup": 8, "charge": 6, "grab": 6, "hug": 9, "idle_anim": 8, "move": 8}
 	for k in counts:
 		var arr: Array[Texture2D] = []
 		var masks: Array[Texture2D] = []
@@ -99,7 +100,13 @@ func _process(delta: float) -> void:
 	if state == "sink" or state == "lurk" or state == "ambush":
 		_update_ambush(delta)
 		return
-	sprite.texture = IDLE
+	# 普段は呼吸、動いているときは這う動き（下の各状態で上書きされる）
+	var moved := absf(position.x - last_x) > 0.3
+	last_x = position.x
+	if moved and state in ["approach", "assist"]:
+		sprite.texture = anims["move"][int(anim_t * 9.0) % 8]
+	else:
+		sprite.texture = anims["idle_anim"][int(anim_t * 7.0) % 8]
 
 	var p = main.player
 	stun -= delta
