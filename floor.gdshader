@@ -52,7 +52,7 @@ void fragment() {
 		if (swirl > 0.72) gc = yellow;
 		if (edge < 0.035) gc = pink_dark;                       // 縁取り
 		if (edge > 0.05 && m > 0.66 && swirl < 0.0) gc = vec3(1.0, 0.80, 0.90);   // てかり
-		col = gc;
+		col = gc * 0.8;   // 床は少し沈めて、ワニより目立たないように
 	} else if (g > 0.04 && edge > -0.03) {
 		col = mix(col, vec3(0.45, 0.12, 0.30), 0.6);   // にじみ
 	}

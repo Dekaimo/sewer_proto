@@ -118,6 +118,7 @@ func _process(delta: float) -> void:
 					t = 0.6
 			elif t <= 0.0:
 				main.add_floor_splat(position.x + lunge_dir * 40.0, 24.0)
+				main.splat_wall(Vector2(position.x + lunge_dir * 60.0, position.y - randf_range(80.0, 200.0)), 40.0)
 				state = "recover"
 				t = 0.6
 		"recover":

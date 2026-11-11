@@ -6,6 +6,7 @@ const EnemyScript = preload("res://enemy.gd")
 const HudScript = preload("res://hud.gd")
 const SfxScript = preload("res://sfx.gd")
 const FloorShader = preload("res://floor.gdshader")
+const WallShader = preload("res://wall_paint.gdshader")
 
 const VIEW_W := 960.0
 const VIEW_H := 540.0
@@ -23,6 +24,14 @@ var goop := PackedFloat32Array()
 var goop_img: Image
 var goop_tex: ImageTexture
 var goop_dirty := false
+# 壁のペンキ（4pxごとの厚み）。時間とともに壁全体がペンキまみれになっていく
+const WALL_CELL := 4
+var wall_img: Image
+var wall_tex: ImageTexture
+var wall_dirty := false
+var ambient_t := 1.0
+var flow_t := 0.0
+var spread_goop_t := 0.0
 var token_holder = null        # 同時に攻撃できる敵は1体だけ（攻撃権トークン）
 var game_over := false
 var survive_time := 0.0
@@ -33,6 +42,17 @@ func _ready() -> void:
 	_setup_input()
 	sfx = SfxScript.new()
 	add_child(sfx)
+	# 壁のペンキ層
+	_init_wall()
+	var wl := ColorRect.new()
+	wl.size = Vector2(VIEW_W, FLOOR_TOP)
+	var wm := ShaderMaterial.new()
+	wm.shader = WallShader
+	wm.set_shader_parameter("wall_tex", wall_tex)
+	wm.set_shader_parameter("size", wl.size)
+	wl.material = wm
+	wl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(wl)
 	# ペンキまみれの床（シェーダー）
 	var fl := ColorRect.new()
 	fl.position = Vector2(0, FLOOR_TOP)
@@ -69,6 +89,7 @@ func _process(delta: float) -> void:
 			get_tree().reload_current_scene()
 		return
 	survive_time += delta
+	_update_mess(delta)
 	if goop_dirty:
 		goop_dirty = false
 		for i in goop.size():
@@ -177,6 +198,85 @@ func goop_at(x: float) -> float:
 
 func splat_under(x: float) -> bool:
 	return goop_at(x) > 0.15
+
+
+# ---------- 壁のペンキと、全体の汚れの進行 ----------
+func _init_wall() -> void:
+	wall_img = Image.create(int(VIEW_W) / WALL_CELL, int(ceil(FLOOR_TOP / WALL_CELL)), false, Image.FORMAT_RF)
+	wall_tex = ImageTexture.create_from_image(wall_img)
+	# 最初から少し汚れている
+	for i in 6:
+		splat_wall(Vector2(randf_range(0, VIEW_W), randf_range(150, FLOOR_TOP - 30)), randf_range(14, 30), 0.8)
+
+
+## 壁にベチャッとペンキを付ける（いびつな塊＋垂れ）
+func splat_wall(pos: Vector2, r: float, amount := 1.0) -> void:
+	var cw := wall_img.get_width()
+	var ch := wall_img.get_height()
+	var c := pos / WALL_CELL
+	var rc := r / WALL_CELL
+	for b in randi_range(3, 6):
+		var bc := c + Vector2(randf_range(-rc, rc), randf_range(-rc, rc) * 0.6)
+		var br := randf_range(rc * 0.4, rc * 0.85)
+		for y in range(int(bc.y - br) - 1, int(bc.y + br) + 2):
+			for x in range(int(bc.x - br) - 1, int(bc.x + br) + 2):
+				if x < 0 or y < 0 or x >= cw or y >= ch:
+					continue
+				var d := Vector2(x - bc.x, y - bc.y).length() / maxf(br, 0.5)
+				if d <= 1.0:
+					var v := wall_img.get_pixel(x, y).r
+					wall_img.set_pixel(x, y, Color(minf(v + amount * (1.2 - d), 1.0), 0, 0))
+	# 垂れ
+	for k in randi_range(2, 4):
+		var dx := int(c.x + randf_range(-rc, rc))
+		var ln := randi_range(3, 18)
+		for y in range(int(c.y), int(c.y) + ln):
+			if dx < 0 or dx >= cw or y < 0 or y >= ch:
+				break
+			var v2 := wall_img.get_pixel(dx, y).r
+			wall_img.set_pixel(dx, y, Color(minf(v2 + amount * 0.8, 1.0), 0, 0))
+	wall_dirty = true
+
+
+func _update_mess(delta: float) -> void:
+	# 時間がたつほど汚れるペースが上がる（最終的には壁も床もペンキまみれ）
+	ambient_t -= delta
+	if ambient_t <= 0.0:
+		ambient_t = maxf(0.35, 2.5 - survive_time * 0.03)
+		var e = enemies[0] if not enemies.is_empty() else null
+		# ワニの周りほど汚れやすい
+		var x: float = randf_range(0, VIEW_W)
+		if e != null and randf() < 0.6:
+			x = clampf(e.position.x + randf_range(-220, 220), 0, VIEW_W)
+		splat_wall(Vector2(x, randf_range(120, FLOOR_TOP - 10)), randf_range(12, 34), 0.9)
+		# 配管から床に垂れて、床のドロドロも増える
+		add_goop(randf_range(0, VIEW_W), randf_range(20, 60), 0.15 + minf(survive_time * 0.004, 0.35))
+	# 壁のペンキが下に流れる
+	flow_t -= delta
+	if flow_t <= 0.0:
+		flow_t = 0.12
+		var cw := wall_img.get_width()
+		var ch := wall_img.get_height()
+		for i in 60:
+			var x2 := randi() % cw
+			var y2 := randi() % (ch - 1)
+			var v := wall_img.get_pixel(x2, y2).r
+			if v > 0.5 and wall_img.get_pixel(x2, y2 + 1).r < v - 0.15:
+				wall_img.set_pixel(x2, y2 + 1, Color(v * 0.92, 0, 0))
+				wall_dirty = true
+		if wall_dirty:
+			wall_dirty = false
+			wall_tex.update(wall_img)
+	# 床のドロドロが横ににじんで広がる
+	spread_goop_t -= delta
+	if spread_goop_t <= 0.0:
+		spread_goop_t = 0.4
+		var src := goop.duplicate()
+		for i in range(1, goop.size() - 1):
+			var nb := maxf(src[i - 1], src[i + 1]) * 0.93
+			if nb > goop[i]:
+				goop[i] = lerpf(goop[i], nb, 0.35)
+		goop_dirty = true
 
 
 # ---------- 背景 ----------

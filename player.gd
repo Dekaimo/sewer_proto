@@ -13,7 +13,7 @@ const W := 128
 const H := 128
 const FEET_Y := 119          # 絵の中で足が接地している行
 const HP_MAX := 100.0
-const DIRT_R := 3            # 汚れの塗り半径の倍率
+const DIRT_R := 5            # 汚れの塗り半径の倍率
 
 var main
 var sprite: Sprite2D
@@ -21,7 +21,6 @@ var base_img: Image
 var mask_img: Image
 var mask_tex: ImageTexture
 var opaque_px: Array[Vector2i] = []
-var dirty_list: Array[Vector2i] = []
 
 var state := "normal"   # normal / slipped / grabbed / defeated
 var slip_t := 0.0       # 転んでいる残り時間
@@ -74,25 +73,67 @@ func _ready() -> void:
 
 
 # ---------- 汚れ ----------
+# mask_img の赤 = ペンキの厚み（0〜1）。dirty は汚れている画素の集合。
+var dirty := {}
+var drip_flow_t := 0.0
+
+
 func contamination() -> float:
-	return float(dirty_list.size()) / float(max(opaque_px.size(), 1))
+	return float(dirty.size()) / float(max(opaque_px.size(), 1))
 
 
+func _paint_px(x: int, y: int, amount: float) -> bool:
+	if x < 0 or y < 0 or x >= W or y >= H:
+		return false
+	if base_img.get_pixel(x, y).a == 0.0:
+		return false
+	var v := mask_img.get_pixel(x, y).r
+	if v >= 1.0:
+		return false
+	mask_img.set_pixel(x, y, Color(minf(v + amount, 1.0), 0, 0))
+	dirty[Vector2i(x, y)] = true
+	return true
+
+
+## ベチャッと付く汚れ：いびつな塊＋下に垂れる筋
 func add_dirt(center: Vector2i, r: int) -> void:
 	r *= DIRT_R
+	var blobs := randi_range(3, 5)
+	for b in blobs:
+		var c := center + Vector2i(randi_range(-r, r) / 2, randi_range(-r, r) / 2)
+		var br := randf_range(r * 0.45, r * 0.9)
+		var ib := int(ceil(br))
+		for y in range(c.y - ib, c.y + ib + 1):
+			for x in range(c.x - ib, c.x + ib + 1):
+				var d := Vector2(x - c.x, (y - c.y) * 1.15).length()
+				if d <= br:
+					_paint_px(x, y, 0.75 if d < br * 0.6 else 0.45)
+	# 垂れ
+	for k in randi_range(1, 3):
+		var dx := center.x + randi_range(-r, r)
+		var y0 := center.y + randi_range(0, r)
+		var ln := randi_range(r, r * 3)
+		for y in range(y0, y0 + ln):
+			if not _paint_px(dx, y, 0.6):
+				break
+			if randf() < 0.25:
+				_paint_px(dx + 1, y, 0.5)
+	mask_tex.update(mask_img)
+
+
+## 汚れがじわじわ下に流れていく
+func _flow_dirt() -> void:
+	if dirty.is_empty():
+		return
+	var keys := dirty.keys()
 	var changed := false
-	for y in range(center.y - r, center.y + r + 1):
-		for x in range(center.x - r, center.x + r + 1):
-			if x < 0 or y < 0 or x >= W or y >= H:
-				continue
-			if Vector2(x - center.x, y - center.y).length() > r + 0.3:
-				continue
-			if base_img.get_pixel(x, y).a == 0.0:
-				continue
-			if mask_img.get_pixel(x, y).r > 0.5:
-				continue
-			mask_img.set_pixel(x, y, Color.WHITE)
-			dirty_list.append(Vector2i(x, y))
+	for i in mini(10, keys.size()):
+		var q: Vector2i = keys[randi() % keys.size()]
+		var v := mask_img.get_pixel(q.x, q.y).r
+		if v < 0.5 or q.y + 1 >= H:
+			continue
+		var below := mask_img.get_pixel(q.x, q.y + 1).r
+		if below < v - 0.2 and _paint_px(q.x, q.y + 1, v * 0.8 - below):
 			changed = true
 	if changed:
 		mask_tex.update(mask_img)
@@ -113,13 +154,19 @@ func random_body_point() -> Vector2i:
 
 
 func remove_dirt(n: int) -> void:
+	if dirty.is_empty():
+		return
+	var keys := dirty.keys()
 	for i in n:
-		if dirty_list.is_empty():
-			break
-		var idx := randi() % dirty_list.size()
-		var p: Vector2i = dirty_list[idx]
-		dirty_list.remove_at(idx)
-		mask_img.set_pixel(p.x, p.y, Color.BLACK)
+		var q: Vector2i = keys[randi() % keys.size()]
+		if not dirty.has(q):
+			continue
+		var v := mask_img.get_pixel(q.x, q.y).r - 0.5
+		if v <= 0.05:
+			mask_img.set_pixel(q.x, q.y, Color.BLACK)
+			dirty.erase(q)
+		else:
+			mask_img.set_pixel(q.x, q.y, Color(v, 0, 0))
 	mask_tex.update(mask_img)
 
 
@@ -135,6 +182,8 @@ func take_hit(from_x: float, r: int, count: int) -> bool:
 		add_dirt(random_body_point(), r)
 	damage(8.0)
 	main.sfx.play("hit")
+	# 飛び散って後ろの壁も汚れる
+	main.splat_wall(position + Vector2(-facing * 30.0, -randf_range(40.0, 120.0)), 28.0)
 	vel.x = (1.0 if position.x > from_x else -1.0) * 220.0
 	vel.y = -120.0
 	on_floor = false
@@ -158,6 +207,7 @@ func assist_splash() -> void:
 	add_dirt(random_body_point(), 3)
 	damage(5.0)
 	main.sfx.play("assist")
+	main.splat_wall(position + Vector2(randf_range(-60.0, 60.0), -randf_range(60.0, 160.0)), 34.0)
 	struggle = maxf(struggle - 0.15, 0.0)
 
 
@@ -219,6 +269,10 @@ func _process(delta: float) -> void:
 	attack_cd -= delta
 	attack_timer -= delta
 	hitstun -= delta
+	drip_flow_t -= delta
+	if drip_flow_t <= 0.0:
+		drip_flow_t = 0.08
+		_flow_dirt()
 	match state:
 		"normal":
 			_update_normal(delta)
@@ -267,7 +321,7 @@ func _update_normal(delta: float) -> void:
 		clean_timer += delta
 		if clean_timer > 0.1:
 			clean_timer = 0.0
-			remove_dirt(12)
+			remove_dirt(40)
 			main.sfx.play("wipe", -4.0, 0.3)
 
 	var speed := 140.0 * (1.0 - 0.55 * c)
@@ -357,7 +411,7 @@ func _slip() -> void:
 	# 倒れ込んだ側がべったり汚れる
 	for i in 5:
 		add_dirt(Vector2i(randi_range(30, 98), randi_range(40, 118)), 2)
-	main.add_goop(position.x, 50.0, 0.1)
+	main.add_goop(position.x, 70.0, 0.25)
 	damage(3.0)
 	# 90度回転なのでドットは崩れない
 	sprite.rotation = -PI / 2 * facing
