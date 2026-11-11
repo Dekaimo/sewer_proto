@@ -129,6 +129,7 @@ func take_hit(from_x: float, r: int, count: int) -> bool:
 	for i in count:
 		add_dirt(random_body_point(), r)
 	damage(8.0)
+	main.sfx.play("hit")
 	vel.x = (1.0 if position.x > from_x else -1.0) * 120.0
 	vel.y = -60.0
 	on_floor = false
@@ -141,6 +142,7 @@ func grab(enemy) -> void:
 	state = "grabbed"
 	grabbed_by = enemy
 	struggle = 0.2
+	main.sfx.play("grab")
 	last_dir = 0
 	vel = Vector2.ZERO
 
@@ -149,6 +151,7 @@ func assist_splash() -> void:
 	# もう1体の連携攻撃：大きく汚れて、抵抗ゲージが削られる
 	add_dirt(random_body_point(), 3)
 	damage(5.0)
+	main.sfx.play("assist")
 	struggle = maxf(struggle - 0.15, 0.0)
 
 
@@ -157,6 +160,7 @@ func _escape() -> void:
 	state = "normal"
 	grabbed_by = null
 	invuln = 1.0
+	main.sfx.play("escape")
 	position.y = main.FLOOR_Y - 1
 	on_floor = false
 	if is_instance_valid(e):
@@ -169,6 +173,7 @@ func _escape() -> void:
 func _defeat() -> void:
 	state = "defeated"
 	grabbed_by = null
+	main.sfx.play("defeat")
 	main.on_player_defeated()
 
 
@@ -239,6 +244,7 @@ func _update_normal(delta: float) -> void:
 		if clean_timer > 0.1:
 			clean_timer = 0.0
 			remove_dirt(1)
+			main.sfx.play("wipe", -4.0, 0.3)
 
 	var speed := 75.0 * (1.0 - 0.55 * c)
 	var on_paint: bool = on_floor and main.splat_under(position.x)
@@ -248,6 +254,7 @@ func _update_normal(delta: float) -> void:
 		if floor_timer > 0.6:
 			floor_timer = 0.0
 			add_dirt(Vector2i(randi_range(3, 12), randi_range(27, 31)), 1)
+			main.sfx.play("step_paint", -3.0)
 
 	if hitstun > 0.0:
 		vel.x = move_toward(vel.x, 0.0, 400.0 * delta)
@@ -283,6 +290,7 @@ func _do_attack() -> void:
 	var x0 := position.x + (4.0 if facing > 0 else -26.0)
 	var x1 := x0 + 22.0
 	main.clean_floor(x0, x1)
+	main.sfx.play("mop", -2.0)
 	for e in main.enemies:
 		var ex: float = e.position.x
 		if ex > x0 - 6.0 and ex < x1 + 6.0 and absf(e.position.y - position.y) < 30.0:
@@ -312,6 +320,7 @@ func _update_grabbed(delta: float) -> void:
 		drip_timer = 0.0
 		add_dirt(random_body_point(), 2)
 		damage(1.5)
+		main.sfx.play("grab_loop", -2.0)
 	struggle = clampf(struggle, 0.0, 1.0)
 	if struggle >= 1.0 and state == "grabbed":
 		_escape()

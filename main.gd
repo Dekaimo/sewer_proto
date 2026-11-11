@@ -5,12 +5,14 @@ extends Node2D
 const PlayerScript = preload("res://player.gd")
 const EnemyScript = preload("res://enemy.gd")
 const HudScript = preload("res://hud.gd")
+const SfxScript = preload("res://sfx.gd")
 
 const FLOOR_Y := 150.0
 const ARENA_L := 10.0
 const ARENA_R := 310.0
 
 var player
+var sfx
 var enemies: Array = []
 var floor_splats: Array = []   # {x, w}
 var token_holder = null        # 同時に攻撃できる敵は1体だけ（攻撃権トークン）
@@ -21,6 +23,8 @@ var survive_time := 0.0
 func _ready() -> void:
 	randomize()
 	_setup_input()
+	sfx = SfxScript.new()
+	add_child(sfx)
 	player = PlayerScript.new()
 	player.main = self
 	player.position = Vector2(160, FLOOR_Y)
