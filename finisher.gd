@@ -12,7 +12,7 @@ const INFO := {
 	"hug": {"title": "SUNK IN THE PUDDLE", "sub": "hugged down into the paint", "frames": "wani_swallow", "n": 9, "fps": 7.0, "feet": 253},
 	"shark": {"title": "BURPED OUT", "sub": "only the hat came back", "frames": "fin_shark", "n": 9, "fps": 6.0, "feet": 226},
 	"wani": {"title": "SHOWN OFF", "sub": "held up like a trophy", "frames": "fin_wani", "n": 9, "fps": 6.0, "feet": 232},
-	"duo": {"title": "HIGH FIVE", "sub": "teamwork makes the dream work", "frames": "fin_duo", "n": 9, "fps": 6.0, "feet": 232},
+	"duo": {"title": "HIGH FIVE", "sub": "teamwork makes the dream work", "frames": "fin_duo2", "n": 9, "fps": 6.0, "feet": 232},
 }
 const ORDER := ["hug", "shark", "wani", "duo"]
 const GALLERY := "user://gallery.cfg"
@@ -23,6 +23,9 @@ var t := 0.0
 var pre := 0.0          # 本編の前の「地中でとどめ」の時間（duo）
 var frames: Array[Texture2D] = []
 var sprite: Sprite2D
+var strands: Node2D       # 床から体へ伸びる糸（手前に描く）
+var rise := 0.0           # 床からゆっくり出てくる時間
+var rise_k := 1.0         # 0=まだ床の中 1=全身が出た
 var done := false
 var is_new := false
 
@@ -39,6 +42,10 @@ func setup(k: String, at: Vector2) -> void:
 	if frames.is_empty() and ResourceLoader.exists("res://assets/%s_key.png" % info.frames):
 		frames.append(load("res://assets/%s_key.png" % info.frames))
 	pre = 2.4 if kind == "duo" else 0.0
+	# サメとワニは、最初のコマのまま床から「ネバァ…」と糸を引きながらゆっくり出てくる
+	rise = 1.6 if kind == "shark" or kind == "wani" else 0.0
+	if kind == "duo" and not ResourceLoader.exists("res://assets/fin_duo2_0.png"):
+		rise = 1.6
 	is_new = _record()
 
 
@@ -47,6 +54,9 @@ func _ready() -> void:
 	sprite.centered = false
 	sprite.visible = false
 	add_child(sprite)
+	strands = Node2D.new()
+	strands.draw.connect(_draw_strands)
+	add_child(strands)
 	z_index = 3000
 
 
@@ -67,6 +77,28 @@ func _process(delta: float) -> void:
 		done = true
 		return
 	var info: Dictionary = INFO[kind]
+	strands.queue_redraw()
+	if tt < rise:
+		# 床から少しずつせり上がる（絵の上から見えている分だけ切り出す）
+		rise_k = ease(tt / rise, 0.6)
+		var full: float = info.feet
+		var vh: float = maxf(full * rise_k, 1.0)
+		sprite.visible = true
+		sprite.texture = frames[0]
+		sprite.region_enabled = true
+		sprite.region_rect = Rect2(0, 0, frames[0].get_width(), vh)
+		sprite.offset = Vector2(-frames[0].get_width() / 2.0, -vh)
+		sprite.position = Vector2(sin(tt * 9.0) * 1.5, 0).round()
+		if tt < delta * 1.5:
+			main.zoom_moment(position + Vector2(0, -120), rise + frames.size() / float(info.fps) + 0.8)
+			main.sfx.play("gurgle", 0.0)
+		if fmod(tt, 0.4) < delta:
+			main.sfx.play_any(["gurgle", "grab_loop"], -2.0)
+		return
+	rise_k = 1.0
+	sprite.region_enabled = false
+	sprite.position = Vector2.ZERO
+	tt -= rise
 	var dur: float = frames.size() / float(info.fps)
 	var i := clampi(int(tt * info.fps), 0, frames.size() - 1)
 	sprite.visible = true
@@ -75,8 +107,47 @@ func _process(delta: float) -> void:
 	# 最後のコマで少し止めてから画面を出す
 	if tt > dur + 0.8:
 		done = true
-	if tt < 0.05:
+	if tt < 0.05 and rise == 0.0:
 		main.zoom_moment(position + Vector2(0, -120), dur + 0.8)
+
+
+## 出てくる途中：床と体のあいだに、太い糸が何本も引っ張られて伸びる（伸びきると細くなってちぎれる）
+func _draw_strands() -> void:
+	if not sprite.visible or kind == "hug":
+		return
+	var tt := t - pre
+	var k := rise_k if tt < rise else clampf(1.0 - (tt - rise) / 0.7, 0.0, 1.0)
+	if k <= 0.0:
+		return
+	var dark := Color("5a1240")
+	var pink := Color("ec5a9e")
+	var light := Color("f489bd")
+	# 足元の水たまりの縁
+	draw_set_transform(Vector2(0, 2), 0.0, Vector2(1.0, 0.26))
+	draw_circle(Vector2.ZERO, 110.0, dark)
+	draw_circle(Vector2.ZERO, 104.0, pink)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	var info: Dictionary = INFO[kind]
+	var top: float = -minf(info.feet * rise_k, 120.0)   # 糸がくっついている高さ
+	for i in 7:
+		var x := (i - 3) * 26.0 + sin(i * 1.7) * 8.0
+		var h := top * (0.35 + 0.65 * fmod(i * 0.37, 1.0))
+		if tt >= rise and i % 2 == 0 and tt - rise > 0.25:
+			continue   # 出きったら半分の糸からちぎれていく
+		var thick := (6.0 + 3.0 * (i % 3)) * k
+		var n := 10
+		for j in n:
+			var a := float(j) / n
+			var b := float(j + 1) / n
+			# 真ん中ほど細い（引っ張られて伸びている）
+			var w := thick * (0.3 + 0.7 * absf(a - 0.5) * 2.0)
+			var sway := sin(t * 3.0 + i) * 4.0 * (1.0 - absf(a - 0.5) * 2.0)
+			var y0 := h * a
+			var y1 := h * b
+			draw_rect(Rect2(roundf(x + sway - w * 0.5) - 1, roundf(y1), roundf(w) + 2, roundf(y0 - y1) + 1), dark)
+			draw_rect(Rect2(roundf(x + sway - w * 0.5), roundf(y1), roundf(w), roundf(y0 - y1) + 1), light if j % 4 == 1 else pink)
+		draw_circle(Vector2(x, 0), thick * 0.9 + 2.0, dark)
+		draw_circle(Vector2(x, 0), thick * 0.9, pink)
 
 
 ## とどめの間の小窓の様子（belly_view が読む）

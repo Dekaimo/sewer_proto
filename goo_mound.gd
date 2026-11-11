@@ -76,3 +76,41 @@ static func load_frames() -> Array[Texture2D]:
 		if ResourceLoader.exists(path):
 			arr.append(load(path))
 	return arr
+
+
+## 盛り上がりの再生を不規則にする（暴れる→ぐったり→また暴れる、向きや位置もばらつく）
+class Player extends RefCounted:
+	var acc := 0.0
+	var mode_t := 0.0
+	var speed := 8.0
+	var dir := 1.0
+	var shake := 0.0
+	var flip := false
+	var drift := 0.0
+	var drift_to := 0.0
+	var t := 0.0
+
+	## 戻り値: [コマ番号, ずらし量 Vector2, 左右反転]
+	func step(delta: float, intensity: float) -> Array:
+		t += delta
+		mode_t -= delta
+		if mode_t <= 0.0:
+			if randf() < 0.45 + 0.4 * intensity:
+				# 暴れる：速く、揺れる、ときどき逆回し
+				mode_t = randf_range(0.25, 0.7)
+				speed = randf_range(14.0, 24.0) * (0.8 + intensity * 0.4)
+				shake = randf_range(2.0, 5.0) * (0.6 + intensity)
+				dir = -1.0 if randf() < 0.3 else 1.0
+			else:
+				# ぐったり／力をためる：ゆっくり、ほぼ止まる
+				mode_t = randf_range(0.4, 1.1)
+				speed = randf_range(2.0, 6.0)
+				shake = 0.0
+			if randf() < 0.35:
+				flip = not flip
+			drift_to = randf_range(-14.0, 14.0)
+		drift = move_toward(drift, drift_to, 30.0 * delta)
+		acc += speed * dir * delta
+		var idx := posmod(int(acc), 8)
+		var off := Vector2(drift + sin(t * 41.0) * shake, -absf(sin(t * 23.0)) * shake * 0.6)
+		return [idx, off.round(), flip]

@@ -32,6 +32,7 @@ var eruptions: Array = []   # 噴き出しの見た目 {pos, t}
 var gurgle_t := 0.0
 var mound: Sprite2D
 var mound_frames: Array[Texture2D] = []
+var mound_player = GooMound.Player.new()
 var wander := 0.0
 var sprite: Sprite2D
 var tex_base: Texture2D
@@ -118,8 +119,10 @@ func _process(delta: float) -> void:
 	# 引き回し中：床のドロドロが大きく盛り上がって蠢く（中に獲物）
 	mound.visible = state == "drag" and mound_frames.size() == 8
 	if mound.visible:
-		mound.texture = mound_frames[int(t * (14.0 if caught_wani != null else 10.0)) % 8]
-		mound.flip_h = facing > 0
+		var mp: Array = mound_player.step(get_process_delta_time(), 1.0 if caught_wani != null else 0.5)
+		mound.texture = mound_frames[mp[0]]
+		mound.position = mp[1]
+		mound.flip_h = mp[2]
 		sprite.visible = false
 		collar.visible = false
 	else:
@@ -171,8 +174,10 @@ func _gulp(delta: float, p) -> void:
 	var end := (2.45 if gulped_solo else (1.9 if gulped_combo else 1.25)) if b2 else (0.95 if anims.has("breach") else 0.7)
 	if t >= bite and not has_meta("gulped"):
 		set_meta("gulped", true)
-		main.add_goop(position, 140.0, 0.5)
-		main.splat_wall(Vector2(position.x, main.FLOOR_TOP - 60.0), 50.0)
+		main.add_goop(position, 220.0, 0.7)
+		for i in 5:
+			main.splat_wall(Vector2(position.x + randf_range(-220.0, 220.0), main.FLOOR_TOP - randf_range(10.0, 220.0)), randf_range(35.0, 70.0))
+			main.add_goop(position + Vector2(randf_range(-220, 220), randf_range(-40, 40)), randf_range(40, 100), 0.5)
 		_try_swallow(p, 48.0, B2_MOUTH if b2 else (0.0 if anims.has("breach") else MOUTH_X))
 		gulped_solo = caught_player and caught_wani == null and anims.has("gulp")
 		gulped_combo = caught_player and caught_wani != null

@@ -41,6 +41,7 @@ var gurgle_t := 0.0
 var front: Node2D        # 床の盛り上がりを手前に描く
 var mound: Sprite2D
 var mound_frames: Array[Texture2D] = []
+var mound_player = GooMound.Player.new()
 var anim_t := 0.0
 var sprite: Sprite2D
 var emerge_frames: Array[Texture2D] = []
@@ -104,8 +105,10 @@ func _process(delta: float) -> void:
 		# 盛り上がったドロドロ（沈みはじめは小さめにせり上がる）
 		if mound_frames.size() == 8 and (state == "under" or under_t > 0.75):
 			mound.visible = true
-			mound.texture = mound_frames[int(under_t * 11.0) % 8]
-			mound.flip_h = facing > 0
+			var mp: Array = mound_player.step(delta, 0.7)
+			mound.texture = mound_frames[mp[0]]
+			mound.position = mp[1]
+			mound.flip_h = mp[2]
 		return
 
 	if state == "emerge":
@@ -278,6 +281,11 @@ func _process(delta: float) -> void:
 				t = 0.9
 		"hold":
 			_update_hold_sprite(delta, p)
+			# 締め付けている間も、まわりにペンキがボタボタ広がっていく
+			if fmod(hold_t, 0.5) < delta:
+				main.add_goop(position + Vector2(randf_range(-90, 90), randf_range(-25, 25)), randf_range(50, 100), 0.35)
+				if randf() < 0.5:
+					main.splat_wall(Vector2(position.x + randf_range(-160, 160), main.FLOOR_TOP - randf_range(10, 150)), randf_range(25, 45))
 			# しばらく抱えたら、そのまま床のドロドロの中へ引きずり込む
 			if hold_t > pull_at and slide_v == 0.0 and p.state == "grabbed":
 				state = "pulldown"
@@ -460,7 +468,7 @@ func _update_pull(delta: float) -> void:
 			sprite.visible = false
 			state = "under"
 			under_t = 0.0
-			view_mode = "inside" if randf() < 0.5 else "splat"
+			view_mode = "splat"   # 小窓（胃袋の中）はサメ専用。ワニの地中は床の噴き上がりで見せる
 			p.get_swallowed(self, false)
 		return
 	# 地中：主人公を抱えたまま床の下を這い回る
@@ -504,9 +512,11 @@ func _hug_impact(p) -> void:
 	for i in 7:
 		p.add_dirt(p.random_body_point(), 3)
 	p.damage(6.0)
-	for i in 3:
-		main.splat_wall(Vector2(p.position.x + randf_range(-120.0, 120.0), p.position.y - randf_range(50.0, 220.0)), randf_range(30.0, 55.0))
-	main.add_goop(p.position, 160.0, 0.4)
+	for i in 6:
+		main.splat_wall(Vector2(p.position.x + randf_range(-220.0, 220.0), p.position.y - randf_range(50.0, 260.0)), randf_range(35.0, 70.0))
+	main.add_goop(p.position, 260.0, 0.6)
+	for i in 4:
+		main.add_goop(p.position + Vector2(randf_range(-200, 200), randf_range(-40, 40)), randf_range(40, 90), 0.5)
 	main.sfx.play("assist")
 
 

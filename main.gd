@@ -120,7 +120,11 @@ func _process(delta: float) -> void:
 	_update_mess(delta)
 	if goop_dirty:
 		goop_dirty = false
-		goop_img.set_data(goop_w, goop_h, false, Image.FORMAT_RF, goop.to_byte_array())
+		var bytes := PackedByteArray()
+		bytes.resize(goop.size())
+		for i in goop.size():
+			bytes[i] = int(clampf(goop[i], 0.0, 1.0) * 255.0)
+		goop_img.set_data(goop_w, goop_h, false, Image.FORMAT_R8, bytes)
 		goop_tex.update(goop_img)
 
 
@@ -250,7 +254,8 @@ func _init_goop() -> void:
 	goop_w = int(VIEW_W / GOOP_CX)
 	goop_h = int((VIEW_H - FLOOR_TOP) / GOOP_CY)
 	goop.resize(goop_w * goop_h)
-	goop_img = Image.create(goop_w, goop_h, false, Image.FORMAT_RF)
+	# 8bit（スマホのブラウザでも線形補間できる形式）
+	goop_img = Image.create(goop_w, goop_h, false, Image.FORMAT_R8)
 	goop_tex = ImageTexture.create_from_image(goop_img)
 	# 最初からあちこちにドロドロがある
 	add_goop(Vector2(150, 400), 110.0, 0.8)
@@ -305,7 +310,7 @@ func goop_at(p: Vector2) -> float:
 
 # ---------- 壁のペンキと、全体の汚れの進行 ----------
 func _init_wall() -> void:
-	wall_img = Image.create(int(VIEW_W) / WALL_CELL, int(ceil(FLOOR_TOP / WALL_CELL)), false, Image.FORMAT_RF)
+	wall_img = Image.create(int(VIEW_W) / WALL_CELL, int(ceil(FLOOR_TOP / WALL_CELL)), false, Image.FORMAT_R8)
 	wall_tex = ImageTexture.create_from_image(wall_img)
 	# 最初から少し汚れている
 	for i in 6:
