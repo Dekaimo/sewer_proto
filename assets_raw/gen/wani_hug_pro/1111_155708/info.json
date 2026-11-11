@@ -1,0 +1,26 @@
+{
+  "name": "wani_hug_pro",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "style": "assets/wani_idle.png",
+  "refs": [
+    [
+      "assets/wani_idle.png",
+      "the monster: a huge muscular crocodile made of pink and yellow marbled paint, lower body melts into a puddle, no legs"
+    ],
+    [
+      "assets/cat_0.png",
+      "the small black cat in a purple witch hat, cape and purple eyes. keep its design exactly"
+    ],
+    [
+      "assets_raw/gen/wani_pose_hug2/1111_153907/v2_00.png",
+      "composition and hugging pose to follow"
+    ]
+  ],
+  "desc": "Side view pixel art. The huge pink paint crocodile monster, facing left, hugs the small black witch cat tightly against its chest with both arms. The cat struggles seriously and desperately: pushing against the monster's arm with its paws, body twisting, eyes narrowed in distress, teeth gritted. Not comical. The monster grins. The monster's lower body is a melted paint puddle with no legs. Transparent background.",
+  "generations_before": 1836.0,
+  "generations_after": 1826.0,
+  "used": 10.0
+}

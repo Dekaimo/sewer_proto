@@ -1,0 +1,10 @@
+{
+  "name": "wani_pose_charge_clean",
+  "mode": "edit",
+  "src": "assets_raw/gen/wani_pose_charge/1111_154633/v1_00.png",
+  "variants": 2,
+  "desc": "Remove the paint splashes flying behind its back. Keep everything else exactly the same. Keep the exact same monster design, size and left-facing direction. Its lower body stays a melted puddle of paint with no legs and no feet. The monster has exactly two arms.",
+  "generations_before": 1838.0,
+  "generations_after": 1836.0,
+  "used": 2.0
+}
