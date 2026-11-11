@@ -15,6 +15,7 @@ var stun := 0.0
 var vel_x := 0.0
 var lunge_dir := 1
 var assist_timer := 0.0
+var spread_t := 0.0
 var anim_t := 0.0
 var sprite: Sprite2D
 var emerge_frames: Array[Texture2D] = []
@@ -67,13 +68,19 @@ func _process(delta: float) -> void:
 		_clamp()
 		return
 
+	# 足元の水たまりからドロドロがじわじわ広がる
+	spread_t -= delta
+	if spread_t <= 0.0:
+		spread_t = 1.0
+		main.add_goop(position.x, 150.0, 0.12)
+
 	var dx: float = p.position.x - position.x
 	match state:
 		"approach":
 			var h = main.holding_enemy()
 			if h != null and h != self:
 				state = "assist"
-			elif p.state == "normal":
+			elif p.state == "normal" or p.state == "slipped":
 				# 挟み撃ち：相方と反対側の位置へ回り込む（プレイヤーをすり抜けてよい）
 				var tx: float = clampf(p.position.x + _flank_side(p) * FLANK, main.ARENA_L, main.ARENA_R)
 				var to_slot: float = tx - position.x
@@ -97,9 +104,11 @@ func _process(delta: float) -> void:
 		"lunge":
 			t -= delta
 			position.x += lunge_dir * 280.0 * delta
+			main.add_goop(position.x, 40.0, 0.04)   # 突進した跡にドロドロが残る
 			var close: bool = absf(p.position.x - position.x) < REACH and p.position.y > position.y - 100.0
-			if close and p.state == "normal":
-				if randf() < 0.45 and p.can_be_grabbed():
+			if close and (p.state == "normal" or p.state == "slipped"):
+				# 転んでいるところは確実に掴む
+				if (p.state == "slipped" or randf() < 0.45) and p.can_be_grabbed():
 					p.grab(self)
 					state = "hold"
 				else:

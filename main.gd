@@ -1,6 +1,5 @@
 extends Node2D
-## 試作：下水道の汚れ・拘束・連携の仕組みを確認するためのシーン
-## 絵は仮（四角形）。PixelLabの素材ができたら Sprite に差し替える。
+## 試作：下水道の汚れ・拘束・連携・床のドロドロの仕組みを確認するシーン
 
 const PlayerScript = preload("res://player.gd")
 const EnemyScript = preload("res://enemy.gd")
@@ -18,11 +17,15 @@ const ARENA_R := 930.0
 var player
 var sfx
 var enemies: Array = []
-var floor_splats: Array = []   # {x, w}
+# 床のドロドロ（マリオサンシャインの「らくがき」風）。4pxごとの厚み 0〜1
+const GOOP_CELL := 4.0
+var goop := PackedFloat32Array()
+var goop_img: Image
+var goop_tex: ImageTexture
+var goop_dirty := false
 var token_holder = null        # 同時に攻撃できる敵は1体だけ（攻撃権トークン）
 var game_over := false
 var survive_time := 0.0
-var splat_layer: Node2D
 
 
 func _ready() -> void:
@@ -37,12 +40,12 @@ func _ready() -> void:
 	var fm := ShaderMaterial.new()
 	fm.shader = FloorShader
 	fm.set_shader_parameter("size", fl.size)
+	_init_goop()
+	fm.set_shader_parameter("goop_tex", goop_tex)
+	fm.set_shader_parameter("feet_v", (FLOOR_Y - FLOOR_TOP) / fl.size.y)
 	fl.material = fm
 	fl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(fl)
-	splat_layer = Node2D.new()
-	splat_layer.draw.connect(_draw_splats)
-	add_child(splat_layer)
 	player = PlayerScript.new()
 	player.main = self
 	player.position = Vector2(300, FLOOR_Y)
@@ -66,6 +69,11 @@ func _process(delta: float) -> void:
 			get_tree().reload_current_scene()
 		return
 	survive_time += delta
+	if goop_dirty:
+		goop_dirty = false
+		for i in goop.size():
+			goop_img.set_pixel(i, 0, Color(goop[i], 0, 0))
+		goop_tex.update(goop_img)
 
 
 # ---------- 入力 ----------
@@ -119,26 +127,56 @@ func on_player_defeated(grabber) -> void:
 		e.play_swallow(player)
 
 
-# ---------- 床の汚れ ----------
+# ---------- 床のドロドロ ----------
+func _init_goop() -> void:
+	var n := int(VIEW_W / GOOP_CELL)
+	goop.resize(n)
+	goop_img = Image.create(n, 1, false, Image.FORMAT_RF)
+	goop_tex = ImageTexture.create_from_image(goop_img)
+	# 最初からあちこちにドロドロがある
+	add_goop(150.0, 90.0, 0.8)
+	add_goop(560.0, 60.0, 0.6)
+	add_goop(780.0, 160.0, 1.0)   # ワニの足元
+
+
+## x を中心に幅 w のドロドロを amount だけ足す（中心ほど厚い）
+func add_goop(x: float, w: float, amount: float) -> void:
+	var i0 := int((x - w * 0.5) / GOOP_CELL)
+	var i1 := int((x + w * 0.5) / GOOP_CELL)
+	for i in range(maxi(i0, 0), mini(i1 + 1, goop.size())):
+		var cx := (i + 0.5) * GOOP_CELL
+		var k := 1.0 - absf(cx - x) / (w * 0.5 + 0.01)
+		if k > 0.0:
+			goop[i] = minf(goop[i] + amount * (0.4 + 0.6 * k), 1.0)
+	goop_dirty = true
+
+
+# 互換用：敵の攻撃などで床が汚れる
 func add_floor_splat(x: float, w: float) -> void:
-	floor_splats.append({"x": clampf(x, ARENA_L, ARENA_R), "w": w})
-	if floor_splats.size() > 60:
-		floor_splats.pop_front()
-	splat_layer.queue_redraw()
+	add_goop(x, w * 1.6, 0.5)
 
 
-func clean_floor(x0: float, x1: float) -> int:
-	var before := floor_splats.size()
-	floor_splats = floor_splats.filter(func(s): return s.x + s.w * 0.5 < x0 or s.x - s.w * 0.5 > x1)
-	splat_layer.queue_redraw()
-	return before - floor_splats.size()
+## モップ（筆）で範囲のドロドロを薄くする。消えた量を返す
+func clean_floor(x0: float, x1: float, power := 0.45) -> float:
+	var removed := 0.0
+	for i in range(maxi(int(x0 / GOOP_CELL), 0), mini(int(x1 / GOOP_CELL) + 1, goop.size())):
+		var before := goop[i]
+		goop[i] = maxf(goop[i] - power, 0.0)
+		removed += before - goop[i]
+	goop_dirty = true
+	return removed
+
+
+## 足元のドロドロの厚み（0〜1）
+func goop_at(x: float) -> float:
+	var i := int(x / GOOP_CELL)
+	if i < 0 or i >= goop.size():
+		return 0.0
+	return goop[i]
 
 
 func splat_under(x: float) -> bool:
-	for s in floor_splats:
-		if absf(s.x - x) < s.w * 0.5:
-			return true
-	return false
+	return goop_at(x) > 0.15
 
 
 # ---------- 背景 ----------
@@ -183,14 +221,3 @@ func _draw() -> void:
 		draw_rect(Rect2(x - 1, 92 + dl, 6, 5), c2)
 	# 床との境目の影
 	draw_rect(Rect2(0, FLOOR_TOP - 6, VIEW_W, 6), Color(0, 0, 0, 0.35))
-
-
-# 戦闘中に増える床のペンキ（床シェーダーの上に描く）
-func _draw_splats() -> void:
-	for s in floor_splats:
-		var c := Vector2(s.x, FLOOR_Y + 2)
-		splat_layer.draw_set_transform(c, 0.0, Vector2(1.0, 0.28))
-		splat_layer.draw_circle(Vector2.ZERO, s.w * 0.55, Color("b8357a"))
-		splat_layer.draw_circle(Vector2(0, -4), s.w * 0.45, Color("ec5a9e"))
-		splat_layer.draw_circle(Vector2(s.w * 0.12, -8), s.w * 0.12, Color("f9d84d"))
-	splat_layer.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

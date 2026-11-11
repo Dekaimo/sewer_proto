@@ -28,6 +28,9 @@ func _draw() -> void:
 	_txt(Vector2(800, 30), "TIME %.1f" % main.survive_time)
 	_txt(Vector2(12, 532), "KB: A/D move   Space jump   Z attack   X wipe      Mouse: L attack / L hold walk / R wipe / Wheel jump", Color("aab3ba"), FS_SMALL)
 
+	if p.state == "slipped":
+		_txt(p.position + Vector2(-60, -80), "SLIPPED!  <- ->", Color("f9d84d"))
+
 	if p.state == "grabbed":
 		var pos: Vector2 = p.position + Vector2(-50, -150)
 		_txt(pos + Vector2(-20, -8), "<- -> / SHAKE!", Color("f9d84d"))
