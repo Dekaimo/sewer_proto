@@ -7,6 +7,7 @@ extends Node2D
 const BASE_PATH := "res://assets/same_base.png"
 const OPEN_PATH := "res://assets/same_open.png"
 const FEET_Y := 182          # 絵の中で腹（水たまり）が床に着く行
+const MOUTH_X := 92.0       # 絵の中心から口までの横の距離
 const FIN_H := 52            # 泳いでいるとき床から出ている高さ（絵の上から何行ぶん＝背ビレ）
 
 var main
@@ -42,7 +43,8 @@ func _process(delta: float) -> void:
 	t += delta
 	cd -= delta
 	wander += delta
-	z_index = int(position.y) - 1
+	# 床から飛び出す・飛びかかるときは主人公より手前に描く（呑み込む側なので）
+	z_index = int(position.y) + (3 if state in ["gulp", "leap"] else -1)
 	if main.game_over and state != "drag":
 		state = "swim"
 	var p = main.player
@@ -66,10 +68,12 @@ func _process(delta: float) -> void:
 func _swim(delta: float, p) -> void:
 	if main.game_over:
 		return
-	var target: Vector2 = p.position
+	var raw: Vector2 = p.position - position
+	if absf(raw.x) > MOUTH_X + 10.0:
+		facing = 1 if raw.x > 0 else -1
+	# 口が主人公の真下に来る位置を目指す
+	var target: Vector2 = p.position - Vector2(facing * MOUTH_X, 0.0)
 	var to_p: Vector2 = target - position
-	if absf(to_p.x) > 2.0:
-		facing = 1 if to_p.x > 0 else -1
 	# ドロドロの中は速い。乾いた床も潜って進む（通った跡がドロドロになる）
 	var sp: float = 230.0 if main.goop_at(position) > 0.12 else 120.0
 	if p.state == "grabbed":
@@ -108,8 +112,9 @@ func _start_leap(p) -> void:
 	t = 0.0
 	leap_from = position
 	# 着地点は主人公の今いる場所（動けば外せる）
-	leap_to = p.position
-	facing = 1 if leap_to.x > position.x else -1
+	facing = 1 if p.position.x > position.x else -1
+	leap_to = p.position - Vector2(facing * MOUTH_X, 0.0)
+	leap_to.x = clampf(leap_to.x, main.ARENA_L, main.ARENA_R)
 	main.sfx.play("grab", -2.0)
 
 
@@ -130,7 +135,8 @@ func _leap(delta: float, p) -> void:
 
 # ---------- 呑み込み判定 ----------
 func _try_swallow(p, r: float) -> void:
-	var near: bool = absf(p.position.x - position.x) < r and absf(p.position.y - position.y) < 30.0 and p.z < 60.0
+	var mouth: float = position.x + facing * MOUTH_X
+	var near: bool = absf(p.position.x - mouth) < r and absf(p.position.y - position.y) < 30.0 and p.z < 60.0
 	if not near:
 		return
 	if p.state == "grabbed" and is_instance_valid(p.grabbed_by):
@@ -223,7 +229,7 @@ func _draw() -> void:
 		return
 	# 泳いだ跡の波と泡
 	var tt := t
-	draw_set_transform(Vector2(0, 2), 0.0, Vector2(1.0, 0.28))
+	draw_set_transform(Vector2(0, 2), 0.0, Vector2(1.6, 0.28))
 	draw_circle(Vector2.ZERO, 46.0 if state != "drag" else 70.0, Color(0.45, 0.08, 0.30, 0.6))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	var n := 4 if state != "drag" else 9
