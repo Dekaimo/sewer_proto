@@ -3,6 +3,10 @@ extends Node2D
 var main
 
 
+func _ready() -> void:
+	scale = Vector2(2, 2)   # 320x180 基準で描いて2倍表示
+
+
 func _process(_delta: float) -> void:
 	queue_redraw()
 
@@ -21,10 +25,10 @@ func _draw() -> void:
 	draw_rect(Rect2(6, 26, 80, 3), Color("3a3a3a"))
 	draw_rect(Rect2(6, 26, 80 * c, 3), Color("ec5a9e"))
 	_txt(Vector2(230, 10), "TIME %.1f" % main.survive_time)
-	_txt(Vector2(2, 176), "KB: AD move/Space jump/Z mop/X wipe  Mouse: L click mop, L hold walk, R wipe, Wheel jump", Color("8a949c"))
+	_txt(Vector2(2, 176), "KB: AD move/Space jump/Z attack/X wipe  Mouse: L attack, L hold walk, R wipe, Wheel jump", Color("8a949c"))
 
 	if p.state == "grabbed":
-		var pos: Vector2 = p.position + Vector2(-16, -44)
+		var pos: Vector2 = p.position / 2.0 + Vector2(-16, -70)
 		_txt(pos + Vector2(-12, -3), "<- -> / SHAKE!", Color("f9d84d"))
 		draw_rect(Rect2(pos.x, pos.y, 32, 3), Color("3a3a3a"))
 		draw_rect(Rect2(pos.x, pos.y, 32 * p.struggle, 3), Color("bfefff"))

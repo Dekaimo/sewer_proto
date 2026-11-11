@@ -7,9 +7,9 @@ const EnemyScript = preload("res://enemy.gd")
 const HudScript = preload("res://hud.gd")
 const SfxScript = preload("res://sfx.gd")
 
-const FLOOR_Y := 150.0
-const ARENA_L := 10.0
-const ARENA_R := 310.0
+const FLOOR_Y := 316.0
+const ARENA_L := 20.0
+const ARENA_R := 620.0
 
 var player
 var sfx
@@ -27,9 +27,10 @@ func _ready() -> void:
 	add_child(sfx)
 	player = PlayerScript.new()
 	player.main = self
-	player.position = Vector2(160, FLOOR_Y)
+	player.position = Vector2(320, FLOOR_Y)
+	player.z_index = 2
 	add_child(player)
-	for x in [50.0, 280.0]:
+	for x in [110.0, 530.0]:
 		var e = EnemyScript.new()
 		e.main = self
 		e.position = Vector2(x, FLOOR_Y)
@@ -88,8 +89,16 @@ func holding_enemy():
 	return null
 
 
-func on_player_defeated() -> void:
+func on_player_defeated(grabber) -> void:
 	game_over = true
+	# とどめ演出：掴んでいた敵（いなければ一番近い敵）が抱えて沈む
+	var e = grabber
+	if e == null or not is_instance_valid(e):
+		for c in enemies:
+			if e == null or absf(c.position.x - player.position.x) < absf(e.position.x - player.position.x):
+				e = c
+	if e != null:
+		e.play_swallow(player)
 
 
 # ---------- 床の汚れ ----------
@@ -116,24 +125,24 @@ func splat_under(x: float) -> bool:
 
 # ---------- 背景 ----------
 func _draw() -> void:
-	draw_rect(Rect2(0, 0, 320, 180), Color("1b1f24"))
+	draw_rect(Rect2(0, 0, 640, 360), Color("1b1f24"))
 	# レンガ
-	for row in range(0, 9):
-		var y := 10 + row * 14
-		var off := 0 if row % 2 == 0 else 12
-		for col in range(-1, 14):
-			draw_rect(Rect2(col * 24 + off, y, 23, 13), Color("262c33"))
+	for row in range(0, 14):
+		var y := 20 + row * 21
+		var off := 0 if row % 2 == 0 else 18
+		for col in range(-1, 19):
+			draw_rect(Rect2(col * 36 + off, y, 34, 19), Color("262c33"))
 	# 配管
-	draw_rect(Rect2(0, 30, 320, 6), Color("3a4148"))
-	draw_rect(Rect2(0, 31, 320, 1), Color("525b63"))
+	draw_rect(Rect2(0, 50, 640, 10), Color("3a4148"))
+	draw_rect(Rect2(0, 51, 640, 2), Color("525b63"))
 	# 床
-	draw_rect(Rect2(0, FLOOR_Y, 320, 30), Color("30363c"))
-	draw_rect(Rect2(0, FLOOR_Y, 320, 1), Color("4b545c"))
+	draw_rect(Rect2(0, FLOOR_Y, 640, 44), Color("30363c"))
+	draw_rect(Rect2(0, FLOOR_Y, 640, 2), Color("4b545c"))
 	# 水路
-	draw_rect(Rect2(0, 166, 320, 14), Color("1d3a3a"))
-	draw_rect(Rect2(0, 166, 320, 1), Color("2f5b58"))
+	draw_rect(Rect2(0, 340, 640, 20), Color("1d3a3a"))
+	draw_rect(Rect2(0, 340, 640, 2), Color("2f5b58"))
 	# 床のペンキ
 	for s in floor_splats:
 		var x0 = s.x - s.w * 0.5
-		draw_rect(Rect2(x0, FLOOR_Y - 1, s.w, 3), Color("ec5a9e"))
-		draw_rect(Rect2(x0 + s.w * 0.3, FLOOR_Y, s.w * 0.3, 1), Color("f9d84d"))
+		draw_rect(Rect2(x0, FLOOR_Y - 2, s.w, 6), Color("ec5a9e"))
+		draw_rect(Rect2(x0 + s.w * 0.3, FLOOR_Y, s.w * 0.3, 2), Color("f9d84d"))
