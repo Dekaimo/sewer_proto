@@ -22,6 +22,9 @@ var player
 var sfx
 var enemies: Array = []
 var sharks: Array = []
+var cam: Camera2D
+var zoom_t := 0.0
+var zoom_focus := Vector2.ZERO
 var shark_spawn_t := 9.0   # ペンキサメが現れるまで
 # 床のドロドロ（マリオサンシャインの「らくがき」風）。床全体をマス目に分けた厚み 0〜1
 const GOOP_CX := 6.0   # 1マスの横幅
@@ -85,13 +88,22 @@ func _ready() -> void:
 		enemies.append(e)
 	var hud = HudScript.new()
 	hud.main = self
-	hud.z_index = 4000
-	add_child(hud)
+	# HUDはカメラのズームの影響を受けないように別レイヤーへ
+	var layer := CanvasLayer.new()
+	layer.layer = 10
+	add_child(layer)
+	layer.add_child(hud)
+	cam = Camera2D.new()
+	cam.anchor_mode = Camera2D.ANCHOR_MODE_FIXED_TOP_LEFT
+	add_child(cam)
+	cam.make_current()
 
 
 func _process(delta: float) -> void:
+	_update_zoom(delta)
 	if game_over:
 		if Input.is_action_just_pressed("restart"):
+			Engine.time_scale = 1.0
 			get_tree().reload_current_scene()
 		return
 	survive_time += delta
@@ -145,6 +157,34 @@ func holding_enemy():
 		if e.state == "hold":
 			return e
 	return null
+
+
+## 呑み込まれる瞬間などに、その場所へ一瞬ズームしてスローにする
+func zoom_moment(focus: Vector2, dur := 0.7) -> void:
+	zoom_focus = focus
+	zoom_t = dur
+	Engine.time_scale = 0.45
+
+
+func _update_zoom(delta: float) -> void:
+	# スロー中でも実時間で戻るように補正
+	var real: float = delta / maxf(Engine.time_scale, 0.01)
+	var target_zoom := 1.0
+	if zoom_t > 0.0:
+		zoom_t -= real
+		target_zoom = 2.0   # ドット絵がきれいに見える整数倍
+		if zoom_t <= 0.0:
+			Engine.time_scale = 1.0
+	var z: float = lerpf(cam.zoom.x, target_zoom, clampf(real * 14.0, 0.0, 1.0))
+	if absf(z - target_zoom) < 0.02:
+		z = target_zoom
+	cam.zoom = Vector2(z, z)
+	# 左上基準のカメラ：注目点が画面中央に来るように、画面の外に出ない範囲で寄せる
+	var view := Vector2(VIEW_W, VIEW_H) / z
+	var tl := zoom_focus - view * 0.5 if z > 1.01 else Vector2.ZERO
+	tl.x = clampf(tl.x, 0.0, VIEW_W - view.x)
+	tl.y = clampf(tl.y, 0.0, VIEW_H - view.y)
+	cam.position = tl
 
 
 func _spawn_shark() -> void:

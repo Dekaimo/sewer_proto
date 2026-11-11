@@ -43,8 +43,13 @@ func _process(delta: float) -> void:
 	t += delta
 	cd -= delta
 	wander += delta
-	# 床から飛び出す・飛びかかるときは主人公より手前に描く（呑み込む側なので）
-	z_index = int(position.y) + (3 if state in ["gulp", "leap"] else -1)
+	# 飛びかかるときは主人公より手前、下から飛び出すときは主人公の後ろ（大口の中に主人公が見える）
+	if state == "leap":
+		z_index = int(position.y) + 3
+	elif state == "gulp":
+		z_index = main.player.z_index - 1
+	else:
+		z_index = int(position.y) - 2
 	if main.game_over and state != "drag":
 		state = "swim"
 	var p = main.player
@@ -91,6 +96,8 @@ func _swim(delta: float, p) -> void:
 		state = "gulp"
 		t = 0.0
 		main.sfx.play("grab", -4.0)
+		# 飛び出す瞬間から寄って、呑まれるところを見せる
+		main.zoom_moment(Vector2(position.x + facing * MOUTH_X, position.y - 70.0), 1.0)
 
 
 # ---------- 真下から丸呑み ----------
@@ -139,6 +146,8 @@ func _try_swallow(p, r: float) -> void:
 	var near: bool = absf(p.position.x - mouth) < r and absf(p.position.y - position.y) < 30.0 and p.z < 60.0
 	if not near:
 		return
+	if main.zoom_t <= 0.0 and near:
+		main.zoom_moment(Vector2(mouth, p.position.y - 60.0))
 	if p.state == "grabbed" and is_instance_valid(p.grabbed_by):
 		# ワニごと丸呑み（地中で2対1が始まる）
 		caught_wani = p.grabbed_by
