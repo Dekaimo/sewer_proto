@@ -44,7 +44,7 @@ func _process(delta: float) -> void:
 	t += delta
 	var p = main.player
 	var shark = p.swallower if p.state == "swallowed" else null
-	visible = shark != null and is_instance_valid(shark) and shark.view_mode == "inside" and shark.state == "drag"
+	visible = shark != null and is_instance_valid(shark) and shark.view_mode == "inside" and shark.is_dragging()
 	queue_redraw()
 	if not visible:
 		return
@@ -58,9 +58,14 @@ func _process(delta: float) -> void:
 	var tex: Texture2D
 	var mat: Material
 	var feet := 0.0
-	if p.swallow_combo and shark.caught_wani != null and is_instance_valid(shark.caught_wani):
-		# ワニに抱え込まれたまま（抱きつきの絵を流用）
-		var w = shark.caught_wani
+	var holder = null
+	if shark.has_method("get_swallowed"):
+		holder = shark   # ワニに地中へ引きずり込まれている
+	elif p.swallow_combo and shark.caught_wani != null and is_instance_valid(shark.caught_wani):
+		holder = shark.caught_wani   # サメの中で、ワニに抱え込まれたまま
+	if holder != null:
+		# 抱きつきの絵を流用
+		var w = holder
 		var f := int(t * 8.0) % 16
 		tex = w.anims["hug"][f if f < 9 else 16 - f]
 		w.hug_mat.set_shader_parameter("cat_mask", w.anim_masks["hug"][f if f < 9 else 16 - f])

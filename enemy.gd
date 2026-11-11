@@ -25,11 +25,19 @@ var pose := {}
 var anims := {}          # 生成したアニメ（コマ配列）
 var anim_masks := {}     # 2体が1枚に描かれたコマの、主人公部分のマスク
 const HUG_SHADER = preload("res://hug_dirt.gdshader")
+const GooMound = preload("res://goo_mound.gd")
 var hug_mat: ShaderMaterial
 var hold_t := 0.0
 var last_x := 0.0
 var last_y := 0.0
 var swallowed_by = null
+var pull_at := 5.0        # 抱きついてから引きずり込むまで
+var under_t := 0.0
+var wander := 0.0
+var view_mode := "inside" # 地中の見せ方（サメと同じ）
+var erupt_t := 0.0
+var gurgle_t := 0.0
+var front: Node2D        # 床の盛り上がりを手前に描く
 var anim_t := 0.0
 var sprite: Sprite2D
 var emerge_frames: Array[Texture2D] = []
@@ -59,14 +67,17 @@ func _ready() -> void:
 	hug_mat.shader = HUG_SHADER
 	sprite = Sprite2D.new()
 	sprite.texture = emerge_frames[0]
+	front = Node2D.new()
+	front.draw.connect(_draw_front)
 	sprite.centered = false
 	sprite.offset = Vector2(-128, -FEET_Y - 1)
 	add_child(sprite)
+	add_child(front)
 	anim_t = -randf_range(0.0, 0.6)   # 2体の出現タイミングを少しずらす
 
 
 func active() -> bool:
-	return not state in ["emerge", "swallow", "idle", "sink", "lurk", "ambush", "swallowed"]
+	return not state in ["emerge", "swallow", "idle", "sink", "lurk", "ambush", "swallowed", "pulldown", "under"]
 
 
 func _process(delta: float) -> void:
@@ -75,6 +86,12 @@ func _process(delta: float) -> void:
 	sprite.flip_h = facing > 0
 	sprite.scale = Vector2.ONE
 	sprite.position = Vector2.ZERO
+	sprite.region_enabled = false
+	sprite.offset = Vector2(-128, -FEET_Y - 1)
+	front.queue_redraw()
+	if state == "pulldown" or state == "under":
+		_update_pull(delta)
+		return
 
 	if state == "emerge":
 		# 水たまりから形成 → マッスルポーズを決めてから戦闘開始
@@ -230,6 +247,12 @@ func _process(delta: float) -> void:
 				t = 0.9
 		"hold":
 			_update_hold_sprite(delta, p)
+			# しばらく抱えたら、そのまま床のドロドロの中へ引きずり込む
+			if hold_t > pull_at and slide_v == 0.0 and p.state == "grabbed":
+				state = "pulldown"
+				under_t = 0.0
+				main.sfx.play("defeat", -3.0)
+				return
 			# 抱きついた勢いのままジュルジュル滑ってから止まる（ドロドロが厚いほど長く滑る）
 			if slide_v != 0.0:
 				var g: float = main.goop_at(position)
@@ -353,6 +376,7 @@ func _draw() -> void:
 func _start_hold() -> void:
 	state = "hold"
 	hold_t = 0.0
+	pull_at = randf_range(3.5, 6.5)
 	sprite.material = hug_mat
 	main.player.sprite.visible = false
 	main.player.hidden_in_hug = true
@@ -378,6 +402,68 @@ func _update_hold_sprite(delta: float, p) -> void:
 		idx = f if f < 9 else 16 - f
 	sprite.texture = anims[key][idx]
 	hug_mat.set_shader_parameter("cat_mask", anim_masks[key][idx])
+
+
+# ---------- 引きずり込みと地中攻撃 ----------
+func is_dragging() -> bool:
+	return state == "under"
+
+
+func _update_pull(delta: float) -> void:
+	var p = main.player
+	under_t += delta
+	if state == "pulldown":
+		# 抱えたまま、床に沈んでいく（絵の下側から床に呑まれる）
+		_update_hold_sprite(delta, p)
+		var k := clampf(under_t / 1.4, 0.0, 1.0)
+		var vh := lerpf(float(FEET_Y), 0.0, k * k)
+		sprite.region_enabled = true
+		sprite.region_rect = Rect2(0, 0, 256, maxf(vh, 1.0))
+		sprite.offset = Vector2(-128, -maxf(vh, 1.0))
+		sprite.position.y = sin(under_t * 30.0) * 1.5
+		main.add_goop(position, 120.0, 0.04)
+		if p.state != "grabbed":
+			return
+		if k >= 1.0:
+			_end_hold()
+			sprite.visible = false
+			state = "under"
+			under_t = 0.0
+			view_mode = "inside" if randf() < 0.5 else "splat"
+			p.get_swallowed(self, false)
+		return
+	# 地中：主人公を抱えたまま床の下を這い回る
+	if p.state != "swallowed" or p.swallower != self:
+		sprite.visible = true
+		state = "emerge"
+		anim_t = 0.6
+		return
+	wander += delta
+	var dir := Vector2(cos(wander * 0.6), sin(wander * 1.1) * 0.5)
+	position += dir * 45.0 * delta
+	_clamp()
+	main.add_goop(position, 60.0, 0.05)
+	gurgle_t -= delta
+	if gurgle_t <= 0.0:
+		gurgle_t = randf_range(0.35, 0.7)
+		main.sfx.play_any(["gurgle", "grab_loop"], -2.0)
+	if view_mode == "splat":
+		erupt_t -= delta
+		if erupt_t <= 0.0:
+			erupt_t = randf_range(0.3, 0.7)
+			var at := position + Vector2(randf_range(-60.0, 60.0), randf_range(-10.0, 10.0))
+			main.add_goop(at, randf_range(60.0, 110.0), 0.5)
+			main.splat_wall(Vector2(at.x + randf_range(-80.0, 80.0), main.FLOOR_TOP - randf_range(10.0, 170.0)), randf_range(30.0, 55.0))
+			main.sfx.play("hit", -6.0)
+
+
+## 床に沈んでいく境目・地中で暴れている盛り上がりを、絵より手前に描く
+func _draw_front() -> void:
+	if state == "pulldown":
+		var k := clampf(under_t / 1.4, 0.0, 1.0)
+		GooMound.draw(front, under_t, 120.0 + 60.0 * k, 0.4 + 0.6 * k)
+	elif state == "under":
+		GooMound.draw(front, under_t, 140.0, 0.8)
 
 
 ## 抱きつかれた瞬間：勢いでペンキが派手に飛び散る
@@ -453,6 +539,14 @@ func on_hit(dir: int) -> void:
 
 
 func on_escaped() -> void:
+	if state == "under" or state == "pulldown":
+		# 地中から脱出された：床から形成し直す
+		_end_hold()
+		sprite.visible = true
+		main.release_token(self)
+		state = "emerge"
+		anim_t = 0.6
+		return
 	_end_hold()
 	stun = 1.2
 	vel_x = -facing * 150.0

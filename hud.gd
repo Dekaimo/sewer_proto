@@ -34,7 +34,8 @@ func _draw() -> void:
 	if p.state == "swallowed":
 		# 地中：画面全体がドロドロに沈む
 		draw_rect(Rect2(0, 0, 960, 540), Color(0.45, 0.05, 0.28, 0.22))
-		var label := "2 vs 1 !!   <- ->" if p.swallow_combo else "SWALLOWED!   <- ->"
+		var dragged: bool = p.swallower != null and p.swallower.has_method("get_swallowed")
+		var label := "2 vs 1 !!   <- ->" if p.swallow_combo else ("DRAGGED UNDER!   <- ->" if dragged else "SWALLOWED!   <- ->")
 		var pos2: Vector2 = Vector2(clampf(p.position.x - 70.0, 10.0, 800.0), p.position.y - 90.0)
 		_txt(pos2 + Vector2(0, -12), label, Color("f9d84d"))
 		draw_rect(Rect2(pos2.x, pos2.y, 120, 8), Color("3a3a3a"))

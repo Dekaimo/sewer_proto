@@ -63,6 +63,10 @@ func _ready() -> void:
 	cd = 2.0
 
 
+func is_dragging() -> bool:
+	return state == "drag"
+
+
 func underground() -> bool:
 	return state in ["swim", "drag", "stunned"]
 
