@@ -1,0 +1,22 @@
+{
+  "name": "same_base_pro",
+  "mode": "gen",
+  "w": 256,
+  "h": 160,
+  "variants": 1,
+  "style": "assets/wani_idle.png",
+  "refs": [
+    [
+      "assets_raw/user/same_side.png",
+      "the character design: a fat grinning shark made of glossy pink paint with yellow marble streaks, dripping, sitting in a paint puddle"
+    ],
+    [
+      "assets/wani_idle.png",
+      "pixel art style, outline, shading and palette to match"
+    ]
+  ],
+  "desc": "Side view pixel art sprite of a big chubby shark monster made of thick glossy pink paint with yellow marbled streaks, facing left, mouth closed in a sly toothy grin, half-lidded eyes, dorsal fin up, paint dripping from its belly and fins, its belly melting into a small paint puddle. Transparent background. Same pixel art style as the reference crocodile.",
+  "generations_before": 1817.0,
+  "generations_after": 1807.0,
+  "used": 10.0
+}
