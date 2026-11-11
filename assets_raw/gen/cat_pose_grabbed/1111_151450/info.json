@@ -1,0 +1,10 @@
+{
+  "name": "cat_pose_grabbed",
+  "mode": "edit",
+  "src": "assets/cat_0.png",
+  "variants": 2,
+  "desc": "same cat, same size, now being squeezed: arms pinned to its sides, body squished, legs dangling, eyes squeezed shut, struggling, hat tilted",
+  "generations_before": 1856.0,
+  "generations_after": 1854.0,
+  "used": 2.0
+}

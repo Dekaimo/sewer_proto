@@ -1,0 +1,10 @@
+{
+  "name": "wani_pose_hug",
+  "mode": "edit",
+  "src": "assets/wani_idle.png",
+  "variants": 2,
+  "desc": "same monster, same size and facing left, now hugging tightly: both thick arms wrapped around in front of its chest in a crushing bear hug around empty space, leaning forward, grinning. keep the melted puddle base",
+  "generations_before": 1858.0,
+  "generations_after": 1856.0,
+  "used": 2.0
+}

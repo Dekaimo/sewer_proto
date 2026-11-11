@@ -1,0 +1,10 @@
+{
+  "name": "wani_pose_windup",
+  "mode": "edit",
+  "src": "assets/wani_idle.png",
+  "variants": 2,
+  "desc": "same monster, same size and facing left, now leaning back and crouching low to gather strength, both arms pulled back behind its body, tense bulging muscles, grinning. keep the melted puddle base",
+  "generations_before": 1862.0,
+  "generations_after": 1860.0,
+  "used": 2.0
+}

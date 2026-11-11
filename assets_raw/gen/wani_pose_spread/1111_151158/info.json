@@ -1,0 +1,10 @@
+{
+  "name": "wani_pose_spread",
+  "mode": "edit",
+  "src": "assets/wani_idle.png",
+  "variants": 2,
+  "desc": "same monster, same size and facing left, now lunging forward to the left with both arms spread wide open as if about to hug, body leaning forward, mouth open, paint drips flying. keep the melted puddle base",
+  "generations_before": 1860.0,
+  "generations_after": 1858.0,
+  "used": 2.0
+}
