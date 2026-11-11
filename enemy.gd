@@ -524,7 +524,8 @@ func get_swallowed(shark) -> void:
 	main.release_token(self)
 	state = "swallowed"
 	swallowed_by = shark
-	swallow_t = 0.0
+	# サメ側に「ワニごと呑み込む」アニメがあれば、そちらに2体とも描かれているので自分はすぐ消える
+	swallow_t = 0.8 if shark.anims.has("combo") else 0.0
 	# 抱えた主人公ごと、サメの口の中へ沈んでいく姿を少しだけ見せる（抱きつきの絵のまま）
 	sprite.material = hug_mat
 	sprite.visible = true

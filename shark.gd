@@ -48,7 +48,7 @@ var cut_on := false
 func _ready() -> void:
 	tex_base = load(BASE_PATH) if ResourceLoader.exists(BASE_PATH) else null
 	tex_open = load(OPEN_PATH) if ResourceLoader.exists(OPEN_PATH) else tex_base
-	for k in ["breach", "sink", "dive", "breach2", "sink2", "gulp", "struggle"]:
+	for k in ["breach", "sink", "dive", "breach2", "sink2", "gulp", "struggle", "combo"]:
 		var arr: Array[Texture2D] = []
 		for i in 9:
 			var path := "res://assets/same_%s_%d.png" % [k, i]
@@ -394,6 +394,12 @@ func _gulp_pose() -> Array:
 		var k := t / 0.5
 		var lift := -16.0 * sin(clampf((k - 0.6) / 0.4, 0.0, 1.0) * PI)   # 出きる直前にぐっと伸び上がる
 		return [b[clampi(int(k * 9.0), 0, 8)], Vector2(0, lift)]
+	if gulped_combo and anims.has("combo"):
+		# ワニごと：ワニと主人公をまとめて口に収め、何度も呑み下して腹がパンパンに膨れる → 沈む
+		if t < 1.6:
+			var kc := (t - 0.5) / 1.1
+			return [anims["combo"][clampi(int(kc * 9.0), 0, 8)], Vector2(sin(t * 50.0) * (3.0 if kc < 0.5 else 1.0), 0).round()]
+		return [s[clampi(2 + int((t - 1.6) / 0.3 * 7.0), 2, 8)], Vector2.ZERO]
 	if gulped_combo:
 		# ワニごと：大口を開けたまま覆いかぶさり、2体を押し込むようにガクガク揺れてから、口を閉じて沈む
 		if t < 1.3:

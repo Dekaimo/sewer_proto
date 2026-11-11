@@ -55,11 +55,11 @@ func _draw() -> void:
 		if f != null:
 			title = f.INFO[f.kind].title
 			sub = f.INFO[f.kind].sub
-		_txt(Vector2(480 - title.length() * 10, 200), title, Color("ec5a9e"), 36)
+		_txt(Vector2(300 - title.length() * 10, 200), title, Color("ec5a9e"), 36)
 		if sub != "":
-			_txt(Vector2(480 - sub.length() * 5, 236), sub, Color("f4b6d4"), 18)
+			_txt(Vector2(300 - sub.length() * 5, 236), sub, Color("f4b6d4"), 18)
 		if f != null and f.is_new:
-			_txt(Vector2(480 + title.length() * 10 + 10, 190), "NEW!", Color("f9d84d"), 22)
-		_txt(Vector2(400, 290), "Lasted %.1f sec" % main.survive_time)
-		_txt(Vector2(380, 320), "Defeats collected  %d / %d" % [f.collected() if f else 0, f.ORDER.size() if f else 4], Color("aab3ba"))
-		_txt(Vector2(405, 360), "R : try again", Color("aab3ba"))
+			_txt(Vector2(300 + title.length() * 10 + 10, 190), "NEW!", Color("f9d84d"), 22)
+		_txt(Vector2(220, 290), "Lasted %.1f sec" % main.survive_time)
+		_txt(Vector2(200, 320), "Defeats collected  %d / %d" % [f.collected() if f else 0, f.ORDER.size() if f else 4], Color("aab3ba"))
+		_txt(Vector2(225, 360), "R : try again", Color("aab3ba"))

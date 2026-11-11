@@ -230,7 +230,8 @@ func _start_finisher(kind: String, at: Vector2) -> void:
 	finisher = FinisherScript.new()
 	finisher.main = self
 	add_child(finisher)
-	finisher.setup(kind, Vector2(clampf(at.x, 140.0, VIEW_W - 140.0), clampf(at.y, DEPTH_MIN, DEPTH_MAX)))
+	# 演出は画面の右寄りで見せる（左側にゲームオーバーの文字を出すので）
+	finisher.setup(kind, Vector2(clampf(at.x, 620.0, VIEW_W - 150.0), clampf(at.y, DEPTH_MIN, DEPTH_MAX)))
 	if kind == "hug":
 		# 地上の負け：今まで通り、ワニが抱えて水たまりに沈む絵をそのまま使う
 		for c in enemies:
