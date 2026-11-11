@@ -1,0 +1,12 @@
+{
+  "name": "anim_goo_mound",
+  "mode": "anim",
+  "src": "assets/wani_emerge_2.png",
+  "last": "assets/wani_emerge_2.png",
+  "frames": 8,
+  "subject": "a mound of thick pink and yellow marbled liquid paint bulging up from a puddle on the floor",
+  "desc": "The paint mound churns and heaves: lumps bulge out and sink back as if something is struggling inside, thick goo squelching, bubbles swelling and popping, strings of paint stretching. It stays in place. Loop.",
+  "generations_before": 1697.0,
+  "generations_after": 1696.0,
+  "used": 1.0
+}

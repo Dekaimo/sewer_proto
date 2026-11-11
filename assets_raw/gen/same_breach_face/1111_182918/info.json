@@ -1,0 +1,10 @@
+{
+  "name": "same_breach_face",
+  "mode": "edit",
+  "src": "assets_raw/gen/same_key_breach2/1111_182436/v1_00.png",
+  "variants": 2,
+  "desc": "Change only the shark's eye: make it a half-lidded, droopy, dopey eye with a smug mocking look, like it is laughing at its prey. Keep everything else exactly the same.",
+  "generations_before": 1699.0,
+  "generations_after": 1697.0,
+  "used": 2.0
+}
