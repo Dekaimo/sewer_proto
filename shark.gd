@@ -7,7 +7,10 @@ extends Node2D
 const BASE_PATH := "res://assets/same_base.png"
 const OPEN_PATH := "res://assets/same_open.png"
 const FEET_Y := 182          # 絵の中で腹（水たまり）が床に着く行
-const MOUTH_X := 92.0       # 絵の中心から口までの横の距離
+const MOUTH_X := 92.0       # 横向きの絵の中心から口までの横の距離（アニメが無いとき用）
+const BREACH_FEET := 218     # 突き上げ・沈むアニメで水たまりが床に着く行
+const DIVE_FEET := 236       # 急降下アニメ
+const DIVE_MOUTH := 68.0     # 急降下の1コマ目で、絵の中心から口までの横の距離
 const FIN_H := 52            # 泳いでいるとき床から出ている高さ（絵の上から何行ぶん＝背ビレ）
 
 var main
@@ -27,6 +30,8 @@ var wander := 0.0
 var sprite: Sprite2D
 var tex_base: Texture2D
 var tex_open: Texture2D
+var anims := {}           # breach / sink / dive（各9コマ）
+var tex_leap: Texture2D
 var img_cache := {}       # 切れ目の幅を調べるための画像
 var collar: Node2D        # 床との境目に重ねるドロドロ（画像の切れ目を隠す）
 var cut_l := 0.0
@@ -37,6 +42,16 @@ var cut_on := false
 func _ready() -> void:
 	tex_base = load(BASE_PATH) if ResourceLoader.exists(BASE_PATH) else null
 	tex_open = load(OPEN_PATH) if ResourceLoader.exists(OPEN_PATH) else tex_base
+	for k in ["breach", "sink", "dive"]:
+		var arr: Array[Texture2D] = []
+		for i in 9:
+			var path := "res://assets/same_%s_%d.png" % [k, i]
+			if ResourceLoader.exists(path):
+				arr.append(load(path))
+		if arr.size() == 9:
+			anims[k] = arr
+	if ResourceLoader.exists("res://assets/same_leap.png"):
+		tex_leap = load("res://assets/same_leap.png")
 	sprite = Sprite2D.new()
 	sprite.centered = false
 	add_child(sprite)
@@ -55,7 +70,7 @@ func _process(delta: float) -> void:
 	cd -= delta
 	wander += delta
 	# 飛びかかるときは主人公より手前、下から飛び出すときは主人公の後ろ（大口の中に主人公が見える）
-	if state == "leap":
+	if state == "leap" or state == "splash":
 		z_index = int(position.y) + 3
 	elif state == "gulp":
 		z_index = main.player.z_index - 1
@@ -74,6 +89,9 @@ func _process(delta: float) -> void:
 			_gulp(delta, p)
 		"leap":
 			_leap(delta, p)
+		"splash":
+			if t > 0.6:
+				_sink_after_attack()
 		"drag":
 			_drag(delta, p)
 	for er in eruptions:
@@ -91,7 +109,8 @@ func _swim(delta: float, p) -> void:
 	if absf(raw.x) > MOUTH_X + 10.0:
 		facing = 1 if raw.x > 0 else -1
 	# 口が主人公の真下に来る位置を目指す
-	var target: Vector2 = p.position - Vector2(facing * MOUTH_X, 0.0)
+	var mx: float = 0.0 if anims.has("breach") else MOUTH_X   # 突き上げアニメは口が真上＝中心
+	var target: Vector2 = p.position - Vector2(facing * mx, 0.0)
 	var to_p: Vector2 = target - position
 	# ドロドロの中は速い。乾いた床も潜って進む（通った跡がドロドロになる）
 	var sp: float = 120.0 if main.goop_at(position) > 0.12 else 65.0
@@ -111,18 +130,20 @@ func _swim(delta: float, p) -> void:
 		t = 0.0
 		main.sfx.play("grab", -4.0)
 		# 飛び出す瞬間から寄って、呑まれるところを見せる
-		main.zoom_moment(Vector2(position.x + facing * MOUTH_X, position.y - 70.0), 1.0)
+		main.zoom_moment(Vector2(position.x + facing * (0.0 if anims.has("breach") else MOUTH_X), position.y - 90.0), 1.1)
 
 
 # ---------- 真下から丸呑み ----------
 func _gulp(delta: float, p) -> void:
-	# 0〜0.3秒：大口を開けて床から飛び出す／0.3秒：呑む／〜0.7秒：沈む
-	if t >= 0.3 and not has_meta("gulped"):
+	# 突き上げ（0〜0.45秒、0.36秒で呑む）→ 口を閉じて沈む（〜0.95秒）
+	var bite := 0.36 if anims.has("breach") else 0.3
+	var end := 0.95 if anims.has("breach") else 0.7
+	if t >= bite and not has_meta("gulped"):
 		set_meta("gulped", true)
 		main.add_goop(position, 140.0, 0.5)
 		main.splat_wall(Vector2(position.x, main.FLOOR_TOP - 60.0), 50.0)
-		_try_swallow(p, 48.0)
-	if t > 0.7:
+		_try_swallow(p, 48.0, 0.0 if anims.has("breach") else MOUTH_X)
+	if t > end:
 		remove_meta("gulped")
 		_sink_after_attack()
 
@@ -134,7 +155,8 @@ func _start_leap(p) -> void:
 	leap_from = position
 	# 着地点は主人公の今いる場所（動けば外せる）
 	facing = 1 if p.position.x > position.x else -1
-	leap_to = p.position - Vector2(facing * MOUTH_X, 0.0)
+	var mo: float = DIVE_MOUTH if anims.has("dive") else MOUTH_X
+	leap_to = p.position - Vector2(facing * mo, 0.0)
 	leap_to.x = clampf(leap_to.x, main.ARENA_L, main.ARENA_R)
 	main.sfx.play("grab", -2.0)
 
@@ -144,19 +166,24 @@ func _leap(delta: float, p) -> void:
 	var k := clampf(t / dur, 0.0, 1.0)
 	position = leap_from.lerp(leap_to, k)
 	z = sin(k * PI) * 240.0
-	if k >= 1.0:
+	if k >= 1.0 and state == "leap":
 		z = 0.0
 		main.add_goop(position, 220.0, 0.7)
 		for i in 3:
 			main.splat_wall(Vector2(position.x + randf_range(-160.0, 160.0), main.FLOOR_TOP - randf_range(20.0, 160.0)), randf_range(40.0, 70.0))
 		main.sfx.play("assist")
-		_try_swallow(p, 70.0)
-		_sink_after_attack()
+		_try_swallow(p, 70.0, DIVE_MOUTH if anims.has("dive") else MOUTH_X)
+		if anims.has("dive"):
+			# 頭からドボンと沈むアニメを見せてから地中へ
+			state = "splash"
+			t = 0.0
+		else:
+			_sink_after_attack()
 
 
 # ---------- 呑み込み判定 ----------
-func _try_swallow(p, r: float) -> void:
-	var mouth: float = position.x + facing * MOUTH_X
+func _try_swallow(p, r: float, mouth_off: float) -> void:
+	var mouth: float = position.x + facing * mouth_off
 	var near: bool = absf(p.position.x - mouth) < r and absf(p.position.y - position.y) < 30.0 and p.z < 60.0
 	if not near:
 		return
@@ -223,6 +250,31 @@ func _clamp() -> void:
 func _update_sprite() -> void:
 	if tex_base == null:
 		sprite.visible = false
+		return
+	# 生成したアニメがある場面は、コマをそのまま再生する（接地面のベトベトも絵に描いてある）
+	var frame: Texture2D = null
+	var feet := 0.0
+	if state == "gulp" and anims.has("breach"):
+		if t < 0.45:
+			frame = anims["breach"][clampi(int(t / 0.45 * 9.0), 0, 8)]
+		else:
+			frame = anims["sink"][clampi(int((t - 0.45) / 0.5 * 9.0), 0, 8)]
+		feet = BREACH_FEET
+	elif state == "splash" and anims.has("dive"):
+		frame = anims["dive"][clampi(int(t / 0.6 * 9.0), 0, 8)]
+		feet = DIVE_FEET
+	elif state == "leap" and tex_leap != null:
+		frame = tex_leap
+		feet = 128.0 + 60.0   # 空中：絵の中心より少し下が影の真上
+	if frame != null:
+		sprite.visible = true
+		sprite.texture = frame
+		sprite.region_enabled = false
+		sprite.flip_h = facing > 0
+		sprite.offset = Vector2(-frame.get_width() / 2.0, -feet)
+		sprite.position = Vector2(0, -z)
+		cut_on = false
+		collar.queue_redraw()
 		return
 	var tex: Texture2D = tex_base
 	var vis_h := 0.0         # 床から上に見えている高さ
