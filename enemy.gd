@@ -19,6 +19,9 @@ var spread_t := 0.0
 var ambush_cd := 4.0     # 床に潜って奇襲するまでの待ち
 var lurk_t := 0.0
 var ambush_done := false
+var slide_v := 0.0       # 抱きつきの勢いで掴んだあと滑る速さ
+# ポーズ絵（生成できたものだけ使う。無ければ待機絵）
+var pose := {}
 var anim_t := 0.0
 var sprite: Sprite2D
 var emerge_frames: Array[Texture2D] = []
@@ -29,6 +32,9 @@ func _ready() -> void:
 	for i in 9:
 		emerge_frames.append(load("res://assets/wani_emerge_%d.png" % i))
 		swallow_frames.append(load("res://assets/wani_swallow_%d.png" % i))
+	for k in ["windup", "spread", "hug"]:
+		var path := "res://assets/wani_pose_%s.png" % k
+		pose[k] = load(path) if ResourceLoader.exists(path) else IDLE
 	sprite = Sprite2D.new()
 	sprite.texture = emerge_frames[0]
 	sprite.centered = false
@@ -99,8 +105,13 @@ func _process(delta: float) -> void:
 				if absf(to_slot) > 6.0:
 					position.x += signf(to_slot) * 60.0 * delta
 				elif main.request_token(self):
-					state = "windup"
-					t = 0.5
+					# 抱きつき突進（本命）か、普通の殴り
+					if randf() < 0.6:
+						state = "hug_windup"
+						t = 0.85
+					else:
+						state = "windup"
+						t = 0.5
 			dx = p.position.x - position.x
 			if absf(dx) > 2.0:
 				facing = 1 if dx > 0 else -1
@@ -119,8 +130,8 @@ func _process(delta: float) -> void:
 			main.add_goop(position.x, 40.0, 0.04)   # 突進した跡にドロドロが残る
 			var close: bool = absf(p.position.x - position.x) < REACH and p.position.y > position.y - 100.0
 			if close and (p.state == "normal" or p.state == "slipped"):
-				# 転んでいるところは確実に掴む
-				if (p.state == "slipped" or randf() < 0.45) and p.can_be_grabbed():
+				# 殴りは被弾のみ。転んでいるところだけは掴む
+				if p.state == "slipped" and p.can_be_grabbed():
 					p.grab(self)
 					state = "hold"
 				else:
@@ -138,7 +149,51 @@ func _process(delta: float) -> void:
 			if t <= 0.0:
 				main.release_token(self)
 				state = "approach"
+		"hug_windup":
+			# 後ろにググッと体重をかけて力を溜める
+			t -= delta
+			sprite.texture = pose["windup"]
+			var k: float = clampf(1.0 - t / 0.85, 0.0, 1.0)
+			sprite.position.x = -facing * 14.0 * k
+			sprite.scale = Vector2(1.0 + 0.03 * k, 1.0 - 0.03 * k)
+			if t < 0.2:
+				sprite.position.x += sin(anim_t * 70.0) * 2.0   # 震えて、来るぞ
+			if t <= 0.0:
+				state = "charge"
+				t = 0.55
+				lunge_dir = facing
+				main.sfx.play("grab", -6.0)
+		"charge":
+			# 両腕を広げて突進
+			t -= delta
+			sprite.texture = pose["spread"]
+			position.x += lunge_dir * 380.0 * delta
+			main.add_goop(position.x, 40.0, 0.05)
+			var hit: bool = absf(p.position.x - position.x) < REACH + 10.0 and p.position.y > position.y - 110.0
+			if hit and p.can_be_grabbed():
+				p.grab(self)
+				_hug_impact(p)
+				state = "hold"
+				slide_v = lunge_dir * 300.0
+			elif t <= 0.0:
+				# 空振り：勢い余ってつんのめる
+				main.add_floor_splat(position.x + lunge_dir * 50.0, 40.0)
+				main.splat_wall(Vector2(position.x + lunge_dir * 80.0, position.y - randf_range(60.0, 180.0)), 36.0)
+				state = "recover"
+				t = 0.9
 		"hold":
+			sprite.texture = pose["hug"]
+			# 抱きついた勢いのままジュルジュル滑ってから止まる（ドロドロが厚いほど長く滑る）
+			if slide_v != 0.0:
+				var g: float = main.goop_at(position.x)
+				slide_v = move_toward(slide_v, 0.0, lerpf(900.0, 260.0, g) * delta)
+				position.x += slide_v * delta
+				main.add_goop(position.x, 50.0, 0.06)
+				if absf(slide_v) > 60.0 and randf() < 0.3:
+					p.add_dirt(p.random_body_point(), 1)
+				if position.x <= main.ARENA_L or position.x >= main.ARENA_R:
+					slide_v = 0.0
+					main.splat_wall(Vector2(position.x, position.y - 120.0), 60.0)
 			# 掴んでいる間はゆっくり脈打つ
 			sprite.scale = Vector2(1.0, 1.0 + sin(anim_t * 5.0) * 0.015)
 			if p.state != "grabbed" or p.grabbed_by != self:
@@ -246,6 +301,17 @@ func _draw() -> void:
 		draw_arc(Vector2(bx, -2.0 - ph * 10.0), r, PI * 1.1, PI * 1.6, 6, Color(1, 0.9, 0.95, c.a), 1.0)
 
 
+## 抱きつかれた瞬間：勢いでペンキが派手に飛び散る
+func _hug_impact(p) -> void:
+	for i in 7:
+		p.add_dirt(p.random_body_point(), 3)
+	p.damage(6.0)
+	for i in 3:
+		main.splat_wall(Vector2(p.position.x + randf_range(-120.0, 120.0), p.position.y - randf_range(50.0, 220.0)), randf_range(30.0, 55.0))
+	main.add_goop(p.position.x, 160.0, 0.4)
+	main.sfx.play("assist")
+
+
 ## とどめ：プレイヤーを抱えて水たまりに沈む
 func play_swallow(p) -> void:
 	state = "swallow"
@@ -275,7 +341,7 @@ func on_hit(dir: int) -> void:
 		return
 	stun = 0.5
 	vel_x = dir * 220.0
-	if state == "windup" or state == "lunge":
+	if state == "windup" or state == "lunge" or state == "hug_windup":
 		main.release_token(self)
 		state = "approach"
 
