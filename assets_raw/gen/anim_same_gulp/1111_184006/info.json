@@ -1,0 +1,12 @@
+{
+  "name": "anim_same_gulp",
+  "mode": "anim",
+  "src": "assets_raw/gen/same_gulp_input.png",
+  "frames": 8,
+  "variants": 2,
+  "subject": "a big chubby shark made of thick glossy pink paint with yellow marble streaks, bursting up out of a paint puddle, swallowing a small black witch cat",
+  "desc": "The shark's jaws close around the small black cat standing in its mouth and gulp it down whole: the cat sinks into the gaping mouth feet first and disappears, the jaws snap shut, its throat bulges as it swallows, paint goo splattering. Thick sticky paint stretches in strings and clings to its body, globs dripping.",
+  "generations_before": 1695.0,
+  "generations_after": 1692.0,
+  "used": 3.0
+}

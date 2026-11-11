@@ -1,0 +1,12 @@
+{
+  "name": "anim_same_sink2",
+  "mode": "anim",
+  "src": "assets_raw/gen/same_breach_key2.png",
+  "last": "assets_raw/gen/same_puddle.png",
+  "frames": 8,
+  "subject": "a big chubby shark made of thick glossy pink paint with yellow marble streaks, bursting up out of a paint puddle",
+  "desc": "The shark snaps its mouth shut with a satisfied gulp and slides back down into the paint puddle, sinking out of sight. Thick sticky paint stretches in strings and clings to its body, globs dripping.",
+  "generations_before": 1695.0,
+  "generations_after": 1695.0,
+  "used": 0.0
+}
