@@ -24,7 +24,7 @@ const WALK := [
 const W := 128
 const H := 128
 const FEET_Y := 119          # 絵の中で足が接地している行
-const HP_MAX := 100.0
+const HP_MAX := 250.0
 const DIRT_R := 5            # 汚れの塗り半径の倍率
 
 var main

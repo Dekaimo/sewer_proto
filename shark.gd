@@ -75,12 +75,12 @@ func _swim(delta: float, p) -> void:
 	var target: Vector2 = p.position - Vector2(facing * MOUTH_X, 0.0)
 	var to_p: Vector2 = target - position
 	# ドロドロの中は速い。乾いた床も潜って進む（通った跡がドロドロになる）
-	var sp: float = 230.0 if main.goop_at(position) > 0.12 else 120.0
+	var sp: float = 120.0 if main.goop_at(position) > 0.12 else 65.0
 	if p.state == "grabbed":
 		sp *= 1.3   # ワニに捕まっている獲物には一直線
 	var can_hunt: bool = p.state in ["normal", "slipped", "grabbed"] and cd <= 0.0
 	# 遠くにいれば大ジャンプ
-	if can_hunt and to_p.length() > 360.0 and p.state != "grabbed":
+	if can_hunt and to_p.length() > 320.0 and p.state != "grabbed":
 		_start_leap(p)
 		return
 	position += to_p.normalized() * Vector2(1.0, 0.6) * sp * delta if to_p.length() > 4.0 else Vector2.ZERO

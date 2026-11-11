@@ -150,8 +150,9 @@ func holding_enemy():
 func _spawn_shark() -> void:
 	var s = SharkScript.new()
 	s.main = self
-	# 主人公から遠い方の端から、床の下を泳いでくる
-	var x := ARENA_L + 20.0 if player.position.x > VIEW_W * 0.5 else ARENA_R - 20.0
+	# ワニと反対側の端から、床の下を泳いでくる（挟み撃ち）
+	var ref_x: float = enemies[0].position.x if not enemies.is_empty() else VIEW_W
+	var x := ARENA_L + 20.0 if ref_x > player.position.x else ARENA_R - 20.0
 	s.position = Vector2(x, randf_range(DEPTH_MIN + 20.0, DEPTH_MAX - 20.0))
 	add_child(s)
 	sharks.append(s)

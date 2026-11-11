@@ -96,15 +96,15 @@ func _process(delta: float) -> void:
 		var j := clampi(int(anim_t * 7.0), 0, 8)
 		sprite.texture = swallow_frames[j]
 		return
-	if main.game_over:
-		state = "idle"
-		sprite.visible = true
-		return
 	if state == "swallowed":
 		# サメの腹の中（主人公と一緒に地中）
 		if is_instance_valid(swallowed_by):
 			position = swallowed_by.position
 		sprite.visible = false
+		return
+	if main.game_over:
+		state = "idle"
+		sprite.visible = true
 		return
 	if state == "sink" or state == "lurk" or state == "ambush":
 		_update_ambush(delta)

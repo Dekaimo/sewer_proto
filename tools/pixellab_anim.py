@@ -61,6 +61,18 @@ def run_job(j: dict) -> None:
                 "no_background": True, "reference_images": [ref(r[0], r[1]) for r in j.get("refs", [])]}
         if j.get("style"):
             body["style_image"] = ref(j["style"], "pixel art style")
+    elif j.get("mode") == "editv2":
+        # 512pxまでの1枚を編集。ref があれば「その絵の画風に合わせる」、無ければ文章で編集
+        path = "/edit-images-v2"
+        im = Image.open(j["src"])
+        body = {"edit_images": [{"image": b64img(j["src"]), "width": im.width, "height": im.height}],
+                "image_size": {"width": im.width, "height": im.height}, "no_background": True,
+                "method": "edit_with_reference" if j.get("ref") else "edit_with_text"}
+        if j.get("ref"):
+            r = Image.open(j["ref"])
+            body["reference_image"] = {"image": b64img(j["ref"]), "width": r.width, "height": r.height}
+        if j.get("desc"):
+            body["description"] = j["desc"]
     elif j.get("mode", "anim") == "edit":
         path = "/edit-image-pixen"
         body = {"image": b64img(j["src"]), "description": j["desc"], "no_background": True}
