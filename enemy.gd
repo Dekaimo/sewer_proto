@@ -26,12 +26,14 @@ var anim_t := 0.0
 var sprite: Sprite2D
 var emerge_frames: Array[Texture2D] = []
 var swallow_frames: Array[Texture2D] = []
+var flex_frames: Array[Texture2D] = []
 
 
 func _ready() -> void:
 	for i in 9:
 		emerge_frames.append(load("res://assets/wani_emerge_%d.png" % i))
 		swallow_frames.append(load("res://assets/wani_swallow_%d.png" % i))
+		flex_frames.append(load("res://assets/wani_flex_%d.png" % i))
 	for k in ["windup", "spread", "hug"]:
 		var path := "res://assets/wani_pose_%s.png" % k
 		pose[k] = load(path) if ResourceLoader.exists(path) else IDLE
@@ -54,9 +56,18 @@ func _process(delta: float) -> void:
 	sprite.position = Vector2.ZERO
 
 	if state == "emerge":
-		var i := clampi(int(anim_t * 10.0), 0, 8)
-		sprite.texture = emerge_frames[i]
-		if anim_t > 1.1:
+		# 水たまりから形成 → マッスルポーズを決めてから戦闘開始
+		if anim_t < 0.9:
+			sprite.texture = emerge_frames[clampi(int(anim_t * 10.0), 0, 8)]
+		else:
+			var fi := clampi(int((anim_t - 0.9) * 8.0), 0, 8)
+			# ポーズ（5〜6コマ目）で少し溜める
+			if anim_t - 0.9 > 0.6 and anim_t - 0.9 < 1.2:
+				fi = 5
+			elif anim_t - 0.9 >= 1.2:
+				fi = clampi(6 + int((anim_t - 2.1) * 8.0), 6, 8)
+			sprite.texture = flex_frames[fi]
+		if anim_t > 2.6:
 			state = "approach"
 			sprite.texture = IDLE
 		return
