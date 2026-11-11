@@ -352,6 +352,12 @@ func _update_grabbed(delta: float) -> void:
 
 
 func _draw() -> void:
+	# 足元の影（ジャンプ中も床に残す）
+	if state != "defeated":
+		var gy: float = main.FLOOR_Y - position.y
+		draw_set_transform(Vector2(0, gy), 0.0, Vector2(1.0, 0.25))
+		draw_circle(Vector2.ZERO, 30.0, Color(0, 0, 0, 0.35))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	if cleaning and state == "normal":
 		var t := Time.get_ticks_msec() / 120
 		for i in 3:

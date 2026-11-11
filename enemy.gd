@@ -3,7 +3,7 @@ extends Node2D
 ## 絵は 256x256。元絵は左向き。
 
 const IDLE = preload("res://assets/wani_idle.png")
-const FEET_Y := 253
+const FEET_Y := 232      # 水たまりの中ほどを足元の線に合わせる（床に広がって見えるように）
 const FLANK := 95.0       # 挟み撃ちのときにプレイヤーから取る距離
 const REACH := 60.0       # 突進が当たる距離
 
