@@ -16,6 +16,9 @@ var vel_x := 0.0
 var lunge_dir := 1
 var assist_timer := 0.0
 var spread_t := 0.0
+var ambush_cd := 4.0     # 床に潜って奇襲するまでの待ち
+var lurk_t := 0.0
+var ambush_done := false
 var anim_t := 0.0
 var sprite: Sprite2D
 var emerge_frames: Array[Texture2D] = []
@@ -35,7 +38,7 @@ func _ready() -> void:
 
 
 func active() -> bool:
-	return state != "emerge" and state != "swallow" and state != "idle"
+	return not state in ["emerge", "swallow", "idle", "sink", "lurk", "ambush"]
 
 
 func _process(delta: float) -> void:
@@ -57,7 +60,12 @@ func _process(delta: float) -> void:
 		return
 	if main.game_over:
 		state = "idle"
+		sprite.visible = true
 		return
+	if state == "sink" or state == "lurk" or state == "ambush":
+		_update_ambush(delta)
+		return
+	sprite.texture = IDLE
 
 	var p = main.player
 	stun -= delta
@@ -80,6 +88,10 @@ func _process(delta: float) -> void:
 			var h = main.holding_enemy()
 			if h != null and h != self:
 				state = "assist"
+			elif (p.state == "normal" or p.state == "slipped") and _want_ambush(delta, p) and main.request_token(self):
+				# ドロドロに潜って、プレイヤーの足元から飛び出す
+				state = "sink"
+				anim_t = 0.0
 			elif p.state == "normal" or p.state == "slipped":
 				# 挟み撃ち：相方と反対側の位置へ回り込む（プレイヤーをすり抜けてよい）
 				var tx: float = clampf(p.position.x + _flank_side(p) * FLANK, main.ARENA_L, main.ARENA_R)
@@ -149,6 +161,89 @@ func _process(delta: float) -> void:
 					p.assist_splash()
 					main.add_floor_splat(p.position.x, 30.0)
 	_clamp()
+
+
+# ---------- 床に潜っての奇襲 ----------
+func _want_ambush(delta: float, p) -> bool:
+	ambush_cd -= delta
+	if ambush_cd > 0.0:
+		return false
+	# プレイヤーがドロドロの上にいる、または遠くにいるときに狙う
+	var on_goop: bool = main.goop_at(p.position.x) > 0.25
+	var far: bool = absf(p.position.x - position.x) > 260.0
+	if on_goop or far:
+		ambush_cd = randf_range(5.0, 9.0)
+		return true
+	return false
+
+
+func _update_ambush(delta: float) -> void:
+	var p = main.player
+	match state:
+		"sink":
+			# 出現アニメを逆再生して床に溶ける
+			var i := 8 - clampi(int(anim_t * 14.0), 0, 8)
+			sprite.texture = emerge_frames[i]
+			if anim_t > 0.7:
+				state = "lurk"
+				lurk_t = 0.0
+				sprite.visible = false
+		"lurk":
+			# 床の下を移動。ドロドロのある所しか通れない。泡だけが見える
+			lurk_t += delta
+			var dx: float = p.position.x - position.x
+			# ドロドロの中は速く、乾いた床はゆっくり（通った跡がドロドロになる）
+			var sp: float = 200.0 if main.goop_at(position.x) > 0.12 else 70.0
+			if absf(dx) > 4.0:
+				position.x += signf(dx) * sp * delta
+				main.add_goop(position.x, 36.0, 0.04)
+			var under: bool = absf(dx) < 10.0 and p.state != "grabbed"
+			if (under and lurk_t > 0.6) or lurk_t > 4.5:
+				state = "ambush"
+				anim_t = 0.0
+				ambush_done = false
+				sprite.visible = true
+				facing = 1 if dx >= 0 else -1
+				main.sfx.play("grab", -2.0)
+			queue_redraw()
+		"ambush":
+			var j := clampi(int(anim_t * 16.0), 0, 8)
+			sprite.texture = emerge_frames[j]
+			if j >= 4 and not ambush_done:
+				ambush_done = true
+				main.add_goop(position.x, 90.0, 0.3)
+				main.splat_wall(Vector2(position.x, position.y - randf_range(60.0, 180.0)), 40.0)
+				var close: bool = absf(p.position.x - position.x) < REACH and p.position.y > position.y - 120.0
+				if close and p.can_be_grabbed():
+					p.grab(self)
+					state = "hold"
+					sprite.texture = IDLE
+					queue_redraw()
+					return
+			if anim_t > 0.6:
+				state = "recover"
+				t = 0.5
+				sprite.texture = IDLE
+				queue_redraw()
+
+
+func _draw() -> void:
+	# 潜っている間の泡（ここにいる、というサイン）
+	if state != "lurk":
+		return
+	var tt := Time.get_ticks_msec() / 1000.0
+	draw_set_transform(Vector2(0, 4), 0.0, Vector2(1.0, 0.3))
+	draw_circle(Vector2.ZERO, 34.0, Color(0.55, 0.12, 0.35, 0.55))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	for k in 5:
+		var ph := fmod(tt * 1.6 + k * 0.37, 1.0)
+		var bx := sin(k * 2.3 + tt * 1.3) * 26.0
+		var r := 4.0 + 6.0 * ph
+		var c := Color("ec5a9e") if k % 2 == 0 else Color("f9d84d")
+		c.a = 1.0 - ph * 0.7
+		draw_circle(Vector2(bx, -2.0 - ph * 10.0), r + 1.0, Color(0.35, 0.05, 0.2, c.a))
+		draw_circle(Vector2(bx, -2.0 - ph * 10.0), r, c)
+		draw_arc(Vector2(bx, -2.0 - ph * 10.0), r, PI * 1.1, PI * 1.6, 6, Color(1, 0.9, 0.95, c.a), 1.0)
 
 
 ## とどめ：プレイヤーを抱えて水たまりに沈む

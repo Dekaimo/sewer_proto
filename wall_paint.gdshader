@@ -33,6 +33,8 @@ void fragment() {
 		col *= 0.65 + 0.4 * clamp(m, 0.0, 1.0);
 		if (mn < th) col = vec3(0.45, 0.10, 0.30);   // 縁取り
 		else if (m > 0.85 && marble > 0.1 && marble < 0.35) col = vec3(1.0, 0.82, 0.92);   // てかり
+		// 壁は奥なので沈めて、床とキャラを目立たせる
+		col = mix(col, vec3(dot(col, vec3(0.3, 0.59, 0.11))), 0.25) * 0.55;
 		COLOR = vec4(col, 1.0);
 	}
 }

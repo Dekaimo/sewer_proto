@@ -316,7 +316,7 @@ func _draw() -> void:
 	for i in 22:
 		var x := rng.randf_range(0, VIEW_W)
 		var dl := rng.randf_range(8, 120)
-		var c2 := Color("ec5a9e") if rng.randf() < 0.75 else Color("f9d84d")
+		var c2 := Color("7d3a5c") if rng.randf() < 0.75 else Color("847334")
 		draw_rect(Rect2(x, 92, rng.randf_range(2, 6), dl), c2)
 		draw_rect(Rect2(x - 1, 92 + dl, 6, 5), c2)
 	# 床との境目の影
