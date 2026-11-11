@@ -7,9 +7,11 @@ const EnemyScript = preload("res://enemy.gd")
 const HudScript = preload("res://hud.gd")
 const SfxScript = preload("res://sfx.gd")
 
-const FLOOR_Y := 316.0
-const ARENA_L := 20.0
-const ARENA_R := 620.0
+const VIEW_W := 960.0
+const VIEW_H := 540.0
+const FLOOR_Y := 476.0
+const ARENA_L := 30.0
+const ARENA_R := 930.0
 
 var player
 var sfx
@@ -27,10 +29,10 @@ func _ready() -> void:
 	add_child(sfx)
 	player = PlayerScript.new()
 	player.main = self
-	player.position = Vector2(320, FLOOR_Y)
+	player.position = Vector2(300, FLOOR_Y)
 	player.z_index = 2
 	add_child(player)
-	for x in [110.0, 530.0]:
+	for x in [760.0]:   # ペンキワニは1体（2体目は別の敵として後で追加）
 		var e = EnemyScript.new()
 		e.main = self
 		e.position = Vector2(x, FLOOR_Y)
@@ -125,22 +127,22 @@ func splat_under(x: float) -> bool:
 
 # ---------- 背景 ----------
 func _draw() -> void:
-	draw_rect(Rect2(0, 0, 640, 360), Color("1b1f24"))
+	draw_rect(Rect2(0, 0, VIEW_W, VIEW_H), Color("1b1f24"))
 	# レンガ
-	for row in range(0, 14):
-		var y := 20 + row * 21
+	for row in range(0, 22):
+		var y := 30 + row * 21
 		var off := 0 if row % 2 == 0 else 18
-		for col in range(-1, 19):
+		for col in range(-1, 28):
 			draw_rect(Rect2(col * 36 + off, y, 34, 19), Color("262c33"))
 	# 配管
-	draw_rect(Rect2(0, 50, 640, 10), Color("3a4148"))
-	draw_rect(Rect2(0, 51, 640, 2), Color("525b63"))
+	draw_rect(Rect2(0, 80, VIEW_W, 10), Color("3a4148"))
+	draw_rect(Rect2(0, 81, VIEW_W, 2), Color("525b63"))
 	# 床
-	draw_rect(Rect2(0, FLOOR_Y, 640, 44), Color("30363c"))
-	draw_rect(Rect2(0, FLOOR_Y, 640, 2), Color("4b545c"))
+	draw_rect(Rect2(0, FLOOR_Y, VIEW_W, VIEW_H - FLOOR_Y), Color("30363c"))
+	draw_rect(Rect2(0, FLOOR_Y, VIEW_W, 2), Color("4b545c"))
 	# 水路
-	draw_rect(Rect2(0, 340, 640, 20), Color("1d3a3a"))
-	draw_rect(Rect2(0, 340, 640, 2), Color("2f5b58"))
+	draw_rect(Rect2(0, VIEW_H - 28, VIEW_W, 28), Color("1d3a3a"))
+	draw_rect(Rect2(0, VIEW_H - 28, VIEW_W, 2), Color("2f5b58"))
 	# 床のペンキ
 	for s in floor_splats:
 		var x0 = s.x - s.w * 0.5
