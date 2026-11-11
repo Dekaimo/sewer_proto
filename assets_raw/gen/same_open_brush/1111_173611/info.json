@@ -1,0 +1,10 @@
+{
+  "name": "same_open_brush",
+  "mode": "editv2",
+  "src": "assets_raw/gen/same_open_raw.png",
+  "variants": 1,
+  "desc": "Clean up the pixel art to match a polished game sprite: crisp continuous dark outline, smooth clean shading bands with no noisy or stray pixels, bright glossy highlights like wet paint. Keep the exact pose, design, size and left-facing side view. Inside the gaping mouth make it a filthy gooey paint gullet: the tongue is a drooping blob of thick pink paint, globs of yellow and pink paint pooling and sliding down the throat, only a few short sticky strands between the jaws.",
+  "generations_before": 1758.0,
+  "generations_after": 1743.0,
+  "used": 15.0
+}

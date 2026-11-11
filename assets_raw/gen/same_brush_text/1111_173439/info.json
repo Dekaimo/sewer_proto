@@ -1,0 +1,10 @@
+{
+  "name": "same_brush_text",
+  "mode": "editv2",
+  "src": "assets_raw/gen/same_base_pro2/1111_170518/v1_00.png",
+  "variants": 1,
+  "desc": "Clean up the pixel art to match a polished game sprite: crisp continuous dark outline, smooth clean shading bands with no noisy or stray pixels, bright glossy highlights like wet paint. Keep the exact pose, design, size and left-facing side view.",
+  "generations_before": 1773.0,
+  "generations_after": 1758.0,
+  "used": 15.0
+}

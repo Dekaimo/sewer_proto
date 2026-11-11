@@ -1,0 +1,10 @@
+{
+  "name": "same_brush_ref",
+  "mode": "editv2",
+  "src": "assets_raw/gen/same_base_pro2/1111_170518/v1_00.png",
+  "ref": "assets/wani_idle.png",
+  "variants": 1,
+  "generations_before": 1788.0,
+  "generations_after": 1773.0,
+  "used": 15.0
+}
