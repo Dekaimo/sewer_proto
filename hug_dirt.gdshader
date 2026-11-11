@@ -1,8 +1,10 @@
 shader_type canvas_item;
-// 抱きつき中の1枚絵（ワニ＋主人公）用。主人公の部分（彩度の低い灰色・紫）にだけ、
-// 汚れ率 contamination に応じてマーブルのペンキを乗せる。ワニのピンクには触らない。
+// 抱きつき中の1枚絵（ワニ＋主人公）用。cat_mask（白=主人公）の部分にだけ、
+// 汚れ率 contamination に応じてマーブルのペンキを乗せる。
+// マスクはコマごとに tools/make_hug_masks.py で作る（色に頼らないので、どんな色の敵でも使える）。
 
 uniform float contamination = 0.0;
+uniform sampler2D cat_mask : filter_nearest;
 uniform vec4 pink : source_color = vec4(1.0, 0.30, 0.66, 1.0);
 uniform vec4 pink_dark : source_color = vec4(0.58, 0.14, 0.38, 1.0);
 uniform vec4 yellow : source_color = vec4(1.0, 0.90, 0.20, 1.0);
@@ -24,9 +26,7 @@ void fragment() {
 		float mn = min(c.r, min(c.g, c.b));
 		float sat = mx > 0.0 ? (mx - mn) / mx : 0.0;
 		// ワニ（明るいピンク・黄色）以外 = 主人公の灰色・紫・黒
-		// 主人公 = 灰色（低彩度）か、青〜紫（青が赤より強い）。ワニのピンク・濃い赤紫・黄色は赤が強いので除外される
-		bool is_cat = (sat < 0.28 && mx > 0.12) || (c.b >= c.r && c.b > c.g && mx > 0.12);
-		if (is_cat) {
+		if (texture(cat_mask, UV).r > 0.5) {
 			vec2 p = floor(UV / TEXTURE_PIXEL_SIZE);
 			float n = noise(p / 6.0) * 0.7 + noise(p / 2.5) * 0.3;
 			// 下に垂れていくように、上ほど少し汚れにくく

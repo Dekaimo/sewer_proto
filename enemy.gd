@@ -23,6 +23,7 @@ var slide_v := 0.0       # 抱きつきの勢いで掴んだあと滑る速さ
 # ポーズ絵（生成できたものだけ使う。無ければ待機絵）
 var pose := {}
 var anims := {}          # 生成したアニメ（コマ配列）
+var anim_masks := {}     # 2体が1枚に描かれたコマの、主人公部分のマスク
 const HUG_SHADER = preload("res://hug_dirt.gdshader")
 var hug_mat: ShaderMaterial
 var hold_t := 0.0
@@ -44,9 +45,13 @@ func _ready() -> void:
 	var counts := {"windup": 8, "charge": 6, "grab": 6, "hug": 9}
 	for k in counts:
 		var arr: Array[Texture2D] = []
+		var masks: Array[Texture2D] = []
 		for i in counts[k]:
 			arr.append(load("res://assets/wani_%s_%d.png" % [k, i]))
+			var mp := "res://assets/masks/wani_%s_%d_mask.png" % [k, i]
+			masks.append(load(mp) if ResourceLoader.exists(mp) else null)
 		anims[k] = arr
+		anim_masks[k] = masks
 	hug_mat = ShaderMaterial.new()
 	hug_mat.shader = HUG_SHADER
 	sprite = Sprite2D.new()
@@ -341,13 +346,18 @@ func _end_hold() -> void:
 func _update_hold_sprite(delta: float, p) -> void:
 	hold_t += delta
 	hug_mat.set_shader_parameter("contamination", p.contamination())
+	var key := "grab"
+	var idx := 0
 	if hold_t < 0.5:
 		# 捕まえた瞬間：ベチャッと抱え込む
-		sprite.texture = anims["grab"][clampi(int(hold_t * 12.0), 0, 5)]
+		idx = clampi(int(hold_t * 12.0), 0, 5)
 	else:
 		# 抱えたまま、ゆっくりこねるように締め付ける（往復で再生）
+		key = "hug"
 		var f := int((hold_t - 0.5) * 8.0) % 16
-		sprite.texture = anims["hug"][f if f < 9 else 16 - f]
+		idx = f if f < 9 else 16 - f
+	sprite.texture = anims[key][idx]
+	hug_mat.set_shader_parameter("cat_mask", anim_masks[key][idx])
 
 
 ## 抱きつかれた瞬間：勢いでペンキが派手に飛び散る
