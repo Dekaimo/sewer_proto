@@ -210,6 +210,14 @@ func _spawn_shark() -> void:
 
 func on_player_defeated(grabber) -> void:
 	game_over = true
+	if player.crucifier != null and is_instance_valid(player.crucifier):
+		# 晒し上げられたまま力尽きた：ワニはそのまま揺らし続け、画面にはその姿が残る
+		var fin = FinisherScript.new()
+		fin.main = self
+		add_child(fin)
+		fin.setup("crucify", player.crucifier.position)
+		finisher = fin
+		return
 	var sw = player.swallower
 	if sw != null and is_instance_valid(sw):
 		# 地中で力尽きた：相手ごとのフィニッシュ演出

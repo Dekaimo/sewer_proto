@@ -42,6 +42,13 @@ var front: Node2D        # 床の盛り上がりを手前に描く
 var mound: Sprite2D
 var mound_frames: Array[Texture2D] = []
 var mound_player = GooMound.Player.new()
+var cru_t := 0.0
+var cru_frames := {}
+var cru_masks := {}
+var drip_vis: Array = []
+var sway := Vector2.ZERO     # 晒し上げ中の揺れ
+var sway_v := Vector2.ZERO
+var jolt_t := 0.0
 var anim_t := 0.0
 var sprite: Sprite2D
 var emerge_frames: Array[Texture2D] = []
@@ -67,6 +74,23 @@ func _ready() -> void:
 			masks.append(load(mp) if ResourceLoader.exists(mp) else null)
 		anims[k] = arr
 		anim_masks[k] = masks
+	for k in ["pillar", "crucify"]:
+		var pth := "res://assets/wani_%s.png" % k
+		if ResourceLoader.exists(pth):
+			cru_frames[k] = load(pth)
+			var mp := "res://assets/masks/wani_%s_mask.png" % k
+			if ResourceLoader.exists(mp):
+				cru_masks[k] = load(mp)
+	var morph: Array[Texture2D] = []
+	for i in 8:
+		var pth2 := "res://assets/wani_morph_%d.png" % i
+		if ResourceLoader.exists(pth2):
+			morph.append(load(pth2))
+			var mp2 := "res://assets/masks/wani_morph_%d_mask.png" % i
+			if ResourceLoader.exists(mp2):
+				cru_masks["morph_%d" % i] = load(mp2)
+	if morph.size() > 0:
+		cru_frames["morph"] = morph
 	hug_mat = ShaderMaterial.new()
 	hug_mat.shader = HUG_SHADER
 	sprite = Sprite2D.new()
@@ -87,7 +111,7 @@ func _ready() -> void:
 
 
 func active() -> bool:
-	return not state in ["emerge", "swallow", "idle", "sink", "lurk", "ambush", "swallowed", "pulldown", "under"]
+	return not state in ["emerge", "swallow", "idle", "sink", "lurk", "ambush", "swallowed", "pulldown", "under", "pillar", "crucify"]
 
 
 func _process(delta: float) -> void:
@@ -153,9 +177,15 @@ func _process(delta: float) -> void:
 		sprite.material = null
 		sprite.visible = false
 		return
+	if main.game_over and state == "crucify":
+		_update_crucify(delta)   # 力尽きても揺らし続ける
+		return
 	if main.game_over:
 		state = "idle"
 		sprite.visible = true
+		return
+	if state == "pillar" or state == "crucify":
+		_update_crucify(delta)
 		return
 	if state == "sink" or state == "lurk" or state == "ambush":
 		_update_ambush(delta)
@@ -366,6 +396,10 @@ func _update_ambush(delta: float) -> void:
 			if to_p.length() > 4.0:
 				position += to_p.normalized() * Vector2(1.0, 0.6) * sp * delta
 				main.add_goop(position, 36.0, 0.04)
+			# 泡の上をジャンプで越えようとした → 真下から粘液の柱で突き上げて磔にする
+			if p.z > 25.0 and absf(dx) < 70.0 and absf(to_p.y) < 30.0 and p.state == "normal" and p.invuln <= 0.0:
+				_start_pillar(p)
+				return
 			var under: bool = to_p.length() < 12.0 and p.state != "grabbed"
 			if (under and lurk_t > 0.6) or lurk_t > 4.5:
 				state = "ambush"
@@ -393,6 +427,96 @@ func _update_ambush(delta: float) -> void:
 				t = 0.5
 				sprite.texture = IDLE
 				queue_redraw()
+
+
+# ---------- 磔（ジャンプで越えようとしたときの罰） ----------
+func _start_pillar(p) -> void:
+	state = "pillar"
+	cru_t = 0.0
+	position.x = p.position.x
+	position.y = p.position.y
+	sprite.visible = true
+	main.release_token(self)
+	main.request_token(self)
+	p.get_crucified(self)
+	main.sfx.play("assist", 2.0)
+	main.sfx.play("grab", 0.0)
+	main.zoom_moment(position + Vector2(0, -150), 1.2)
+	main.add_goop(position, 220.0, 0.8)
+	for i in 5:
+		main.splat_wall(Vector2(position.x + randf_range(-220, 220), main.FLOOR_TOP - randf_range(10, 240)), randf_range(40, 75))
+
+
+func _update_crucify(delta: float) -> void:
+	var p = main.player
+	cru_t += delta
+	sprite.material = hug_mat
+	hug_mat.set_shader_parameter("contamination", p.contamination())
+	var has_art: bool = cru_frames.has("pillar") and cru_frames.has("crucify")
+	if (p.state != "crucified" and p.state != "defeated") or p.crucifier != self:
+		_end_hold()
+		sprite.position = Vector2.ZERO
+		sprite.visible = true
+		state = "emerge"
+		anim_t = 0.6
+		return
+	if state == "pillar":
+		# 柱がものすごい勢いでせり上がる（下から見えている分を増やす）
+		var k := clampf(cru_t / 0.35, 0.0, 1.0)
+		var tex: Texture2D = cru_frames["pillar"] if has_art else IDLE
+		var h: float = 253.0 * ease(k, 0.3)
+		sprite.texture = tex
+		_set_mask("pillar")
+		sprite.region_enabled = true
+		sprite.region_rect = Rect2(0, 0, 256, maxf(h, 1.0))
+		sprite.offset = Vector2(-128, -maxf(h, 1.0))
+		sprite.position = Vector2(sin(cru_t * 80.0) * 3.0, 0).round()
+		# 柱のまま少し震えてから、ワニの体に変わる
+		if cru_t > 1.1:
+			state = "crucify"
+			cru_t = 0.0
+			main.sfx.play("grab_loop", 2.0)
+			main.add_goop(position, 160.0, 0.5)
+		return
+	# 晒し上げ：十字のポーズのままネットリぐらぐら揺らす。ときどきガクンと揺さぶる
+	sprite.region_enabled = false
+	sprite.offset = Vector2(-128, -FEET_Y - 1)
+	var transform_k := clampf(cru_t / 0.45, 0.0, 1.0)
+	if has_art and cru_frames.has("morph") and transform_k < 1.0:
+		var arr: Array = cru_frames["morph"]
+		sprite.texture = arr[clampi(int(transform_k * arr.size()), 0, arr.size() - 1)]
+		_set_mask("morph", clampi(int(transform_k * arr.size()), 0, arr.size() - 1))
+	else:
+		sprite.texture = cru_frames["crucify"] if has_art else IDLE
+		_set_mask("crucify")
+	jolt_t -= delta
+	var target := Vector2(sin(cru_t * 1.3) * 10.0, sin(cru_t * 2.1) * 3.0)
+	if jolt_t <= 0.0:
+		jolt_t = randf_range(1.0, 2.6)
+		sway_v += Vector2(randf_range(-260, 260), randf_range(-120, -40))
+		main.sfx.play_any(["gurgle", "grab_loop"], 0.0)
+		for i in 3:
+			p.add_dirt(p.random_body_point(), 2)
+	sway_v += (target - sway) * 30.0 * delta
+	sway_v *= exp(-3.0 * delta)
+	sway += sway_v * delta
+	sprite.position = sway.round()
+	# 揺れるたびにネバネバが垂れ落ちて、根元に溜まる
+	if fmod(cru_t, 0.25) < delta:
+		main.add_goop(position + Vector2(randf_range(-50, 50), randf_range(-15, 15)), randf_range(40, 80), 0.3)
+	drip_vis.append({"x": randf_range(-70.0, 70.0) + sway.x, "y": -randf_range(120.0, 200.0), "v": 0.0})
+	if drip_vis.size() > 30:
+		drip_vis.pop_front()
+	for d in drip_vis:
+		d.v += 400.0 * delta
+		d.y += d.v * delta
+	drip_vis = drip_vis.filter(func(d): return d.y < 0.0)
+	front.queue_redraw()
+
+
+func _set_mask(key: String, idx := -1) -> void:
+	var m = cru_masks.get(key if idx < 0 else "%s_%d" % [key, idx])
+	hug_mat.set_shader_parameter("cat_mask", m)
 
 
 func _draw() -> void:
@@ -501,6 +625,11 @@ func _update_pull(delta: float) -> void:
 
 ## 床に沈んでいく境目・地中で暴れている盛り上がりを、絵より手前に描く
 func _draw_front() -> void:
+	if state == "crucify":
+		for d in drip_vis:
+			front.draw_rect(Rect2(roundf(d.x) - 2, roundf(d.y) - 7, 5, 9), Color("5a1240"))
+			front.draw_rect(Rect2(roundf(d.x) - 1, roundf(d.y) - 6, 3, 7), Color("ec5a9e"))
+		return
 	if mound_frames.size() == 8:
 		return   # 生成したドット絵の盛り上がりを使う
 	if state == "pulldown":
@@ -588,6 +717,14 @@ func on_hit(dir: int) -> void:
 
 
 func on_escaped() -> void:
+	if state == "pillar" or state == "crucify":
+		_end_hold()
+		sprite.position = Vector2.ZERO
+		main.release_token(self)
+		state = "recover"
+		t = 1.0
+		stun = 1.2
+		return
 	if state == "under" or state == "pulldown":
 		# 地中から脱出された：床から形成し直す
 		_end_hold()

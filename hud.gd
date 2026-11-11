@@ -41,6 +41,12 @@ func _draw() -> void:
 		draw_rect(Rect2(pos2.x, pos2.y, 120, 8), Color("3a3a3a"))
 		draw_rect(Rect2(pos2.x, pos2.y, 120 * p.struggle, 8), Color("bfefff"))
 
+	if p.state == "crucified":
+		var pos3: Vector2 = Vector2(clampf(p.position.x - 60.0, 10.0, 820.0), 120.0)
+		_txt(pos3 + Vector2(-10, -12), "PUT ON DISPLAY!  <- ->", Color("f9d84d"))
+		draw_rect(Rect2(pos3.x, pos3.y, 120, 8), Color("3a3a3a"))
+		draw_rect(Rect2(pos3.x, pos3.y, 120 * p.struggle, 8), Color("bfefff"))
+
 	if p.state == "grabbed":
 		var pos: Vector2 = p.position + Vector2(-50, -150)
 		_txt(pos + Vector2(-20, -8), "<- -> / SHAKE!", Color("f9d84d"))

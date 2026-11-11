@@ -36,6 +36,7 @@ var opaque_px: Array[Vector2i] = []
 
 var state := "normal"   # normal / slipped / grabbed / swallowed / defeated
 var swallower = null     # 呑み込んでいるサメ
+var crucifier = null     # 磔にしているワニ
 var swallow_combo := false   # ワニごと呑まれた（地中で2対1）
 var slip_t := 0.0
 var hidden_in_hug := false   # 抱きつきの1枚絵に描かれている間は自分を表示しない       # 転んでいる残り時間
@@ -246,7 +247,10 @@ func _escape() -> void:
 
 
 func _defeat() -> void:
+	var was_crucified := state == "crucified"
 	state = "defeated"
+	if was_crucified:
+		hidden_in_hug = true
 	main.sfx.play("defeat")
 	main.on_player_defeated(grabbed_by)
 	grabbed_by = null
@@ -271,7 +275,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				lmb_held = false
 		elif mb.pressed and (mb.button_index == MOUSE_BUTTON_MIDDLE or mb.button_index == MOUSE_BUTTON_WHEEL_UP):
 			queued_jump = true
-	elif event is InputEventMouseMotion and (state == "grabbed" or state == "swallowed"):
+	elif event is InputEventMouseMotion and (state == "grabbed" or state == "swallowed" or state == "crucified"):
 		var rx: float = (event as InputEventMouseMotion).relative.x
 		if absf(rx) >= 4.0:
 			var d := 1 if rx > 0 else -1
@@ -301,11 +305,15 @@ func _process(delta: float) -> void:
 			_update_grabbed(delta)
 		"swallowed":
 			_update_swallowed(delta)
+		"crucified":
+			_update_crucified(delta)
 	_update_frame(delta)
 	z_index = int(position.y)   # 手前にいるほど前に描く
 	sprite.flip_h = facing < 0
-	if state != "grabbed":
+	if state != "grabbed" and state != "crucified":
 		hidden_in_hug = false
+	if state == "crucified":
+		hidden_in_hug = true
 	sprite.visible = state != "defeated" and state != "swallowed" and not hidden_in_hug and not (invuln > 0.0 and state == "normal" and int(invuln * 20) % 2 == 0)
 	queue_redraw()
 
@@ -487,6 +495,63 @@ func _update_swallowed(delta: float) -> void:
 		main.add_goop(position, 120.0, 0.4)
 		main.sfx.play("escape")
 		s.on_escaped()
+
+
+# ---------- 磔 ----------
+func get_crucified(w) -> void:
+	state = "crucified"
+	crucifier = w
+	grabbed_by = null
+	hidden_in_hug = true
+	struggle = 0.15
+	last_dir = 0
+	vel = Vector2.ZERO
+	vz = 0.0
+	z = 0.0
+	on_floor = true
+	position = w.position
+	for i in 6:
+		add_dirt(random_body_point(), 3)
+	damage(8.0)
+
+
+func _update_crucified(delta: float) -> void:
+	if not is_instance_valid(crucifier):
+		state = "normal"
+		return
+	position = crucifier.position + Vector2(0, 1)
+	# 腕を括られているので抜けにくい
+	struggle -= 0.12 * delta
+	var d := 0
+	if Input.is_action_just_pressed("left"):
+		d = -1
+	elif Input.is_action_just_pressed("right"):
+		d = 1
+	if d != 0 and d != last_dir:
+		struggle += 0.06
+		last_dir = d
+	drip_timer += delta
+	if drip_timer > 0.3:
+		drip_timer = 0.0
+		# 上から垂れてくるので、上の方から汚れていく
+		var pt: Vector2i = random_body_point()
+		add_dirt(Vector2i(pt.x, mini(pt.y, randi_range(10, 70))), 2)
+		damage(1.2)
+	struggle = clampf(struggle, 0.0, 1.0)
+	if struggle >= 1.0:
+		var w = crucifier
+		crucifier = null
+		state = "normal"
+		hidden_in_hug = false
+		invuln = 1.2
+		on_floor = false
+		z = 120.0
+		vz = 0.0
+		vel = Vector2(randf_range(-120.0, 120.0), 0.0)
+		main.sfx.play("escape")
+		main.add_goop(position, 100.0, 0.3)
+		if is_instance_valid(w):
+			w.on_escaped()
 
 
 # ---------- 転倒 ----------

@@ -12,9 +12,10 @@ const INFO := {
 	"hug": {"title": "SUNK IN THE PUDDLE", "sub": "hugged down into the paint", "frames": "wani_swallow", "n": 9, "fps": 7.0, "feet": 253},
 	"shark": {"title": "BURPED OUT", "sub": "only the hat came back", "frames": "fin_shark", "n": 9, "fps": 6.0, "feet": 226},
 	"wani": {"title": "SHOWN OFF", "sub": "held up like a trophy", "frames": "fin_wani", "n": 9, "fps": 6.0, "feet": 232},
+	"crucify": {"title": "PUT ON DISPLAY", "sub": "should have stayed on the ground", "frames": "none", "n": 0, "fps": 6.0, "feet": 253},
 	"duo": {"title": "SPAT OUT", "sub": "the crocodile walked out. you didn't.", "frames": "fin_vomit", "n": 9, "fps": 7.0, "feet": 226},
 }
-const ORDER := ["hug", "shark", "wani", "duo"]
+const ORDER := ["hug", "shark", "wani", "crucify", "duo"]
 const GALLERY := "user://gallery.cfg"
 
 var main
@@ -85,6 +86,12 @@ func _process(delta: float) -> void:
 			main.sfx.play("hit", -2.0)
 		return
 	var tt := t - pre
+	if kind == "crucify":
+		# 晒されたまま最後にガクンと大きく揺さぶられる → しばらく見せてから画面
+		if tt < 0.05:
+			main.zoom_moment(position + Vector2(0, -140), 2.6)
+		done = tt > 2.6
+		return
 	if frames.is_empty():
 		done = true
 		return
