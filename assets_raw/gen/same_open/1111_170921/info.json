@@ -1,0 +1,10 @@
+{
+  "name": "same_open",
+  "mode": "edit",
+  "src": "assets_raw/gen/same_head_crop.png",
+  "variants": 2,
+  "desc": "Open the shark's mouth extremely wide, a huge gaping maw stretched open to swallow something whole, rows of teeth and a dark pink gullet with strings of paint goo stretching between the jaws. Keep the same design, colors, pixel style, size and left-facing side view.",
+  "generations_before": 1790.0,
+  "generations_after": 1788.0,
+  "used": 2.0
+}
