@@ -1,0 +1,21 @@
+{
+  "name": "key_fin_wani",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "style": "assets/wani_idle.png",
+  "refs": [
+    [
+      "assets/wani_idle.png",
+      "the muscular pink paint crocodile monster, keep design"
+    ],
+    [
+      "assets/cat_0.png",
+      "the small black cat in a purple witch hat with a star and bell, purple cape. Keep its design"
+    ]
+  ],
+  "desc": "From a churning puddle of pink paint, the muscular pink paint crocodile monster's head and one thick arm rise up; the arm holds the small black witch cat up by the scruff like a trophy, the cat limp, completely covered and dripping with pink and yellow paint, eyes swirly and dazed. The crocodile grins mockingly, showing it off. Pixel art, same style, palette, outline and shading as the references. Transparent background.",
+  "generations_before": 1679.0,
+  "generations_after": 1669.0,
+  "used": 10.0
+}

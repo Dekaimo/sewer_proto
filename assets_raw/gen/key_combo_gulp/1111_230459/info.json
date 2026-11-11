@@ -1,0 +1,21 @@
+{
+  "name": "key_combo_gulp",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "style": "assets/same_open.png",
+  "refs": [
+    [
+      "assets_raw/gen/same_breach_key2.png",
+      "the shark: big chubby shark made of glossy pink paint with yellow marble streaks, dopey half-lidded smug eyes, enormous gaping mouth with a drooping paint tongue. Keep this design and pixel style"
+    ],
+    [
+      "assets/wani_hug_0.png",
+      "the muscular pink paint crocodile monster (lower body melted into a puddle) hugging the small black witch cat. Keep their designs"
+    ]
+  ],
+  "desc": "The giant pink paint shark bursts up from a paint puddle below and engulfs the muscular pink paint crocodile monster together with the small black cat it is hugging: both are already half inside the shark's enormous gaping jaws, the upper jaw closing down over the crocodile's head and the cat, thick paint goo stretching between the teeth. The shark looks smug and dopey. The crocodile is smaller than the shark here. Pixel art, same style, palette, outline and shading as the references. Transparent background.",
+  "generations_before": 1689.0,
+  "generations_after": 1679.0,
+  "used": 10.0
+}

@@ -1,0 +1,25 @@
+{
+  "name": "key_fin_duo",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "style": "assets/wani_idle.png",
+  "refs": [
+    [
+      "assets/wani_idle.png",
+      "the muscular pink paint crocodile monster, keep design"
+    ],
+    [
+      "assets_raw/gen/same_breach_key2.png",
+      "the shark: big chubby shark made of glossy pink paint with yellow marble streaks, dopey half-lidded smug eyes, enormous gaping mouth with a drooping paint tongue. Keep this design and pixel style"
+    ],
+    [
+      "assets/cat_0.png",
+      "the small black cat in a purple witch hat with a star and bell, purple cape. Keep its design"
+    ]
+  ],
+  "desc": "The muscular pink paint crocodile monster and the chubby pink paint shark rise side by side out of a big paint puddle and high-five each other triumphantly, grinning; between them only the small black witch cat's paint-soaked hat and limp tail stick out of the goo. Mocking, victorious mood. Pixel art, same style, palette, outline and shading as the references. Transparent background.",
+  "generations_before": 1669.0,
+  "generations_after": 1659.0,
+  "used": 10.0
+}
