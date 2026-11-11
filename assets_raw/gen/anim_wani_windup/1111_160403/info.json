@@ -1,0 +1,13 @@
+{
+  "name": "anim_wani_windup",
+  "mode": "anim",
+  "src": "assets/wani_idle.png",
+  "last": "assets_raw/gen/wani_pose_windup2/1111_153515/v2_00.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge muscular crocodile monster made of thick pink and yellow marbled liquid paint, its lower body melting into a puddle",
+  "desc": "Slowly arches its upper body backward, chest thrust out, head tilting up, elbows pulled back to gather strength. Emphasize thick, sticky, viscous goo: paint stretching in strings, sagging, dripping and oozing with every movement.",
+  "generations_before": 1824.0,
+  "generations_after": 1824.0,
+  "used": 0.0
+}
