@@ -48,7 +48,7 @@ var cut_on := false
 func _ready() -> void:
 	tex_base = load(BASE_PATH) if ResourceLoader.exists(BASE_PATH) else null
 	tex_open = load(OPEN_PATH) if ResourceLoader.exists(OPEN_PATH) else tex_base
-	for k in ["breach", "sink", "dive", "breach2", "sink2", "gulp"]:
+	for k in ["breach", "sink", "dive", "breach2", "sink2", "gulp", "struggle"]:
 		var arr: Array[Texture2D] = []
 		for i in 9:
 			var path := "res://assets/same_%s_%d.png" % [k, i]
@@ -89,7 +89,8 @@ func _process(delta: float) -> void:
 	if state == "leap" or state == "splash":
 		z_index = int(position.y) + 3
 	elif state == "gulp":
-		z_index = main.player.z_index - 1
+		# 下から突き上げるときは獲物の後ろ。ワニごと呑むときは手前から覆いかぶさる
+		z_index = main.player.z_index - 1 if not gulped_combo else int(position.y) + 300
 	else:
 		z_index = int(position.y) - 2
 	if main.game_over and state != "drag":
@@ -160,22 +161,29 @@ func _swim(delta: float, p) -> void:
 
 # ---------- 真下から丸呑み ----------
 var gulped_solo := false   # 1人を呑み込んだ（呑み込みのコマを見せる）
+var gulped_combo := false  # ワニごと呑み込んだ
 
 
 func _gulp(delta: float, p) -> void:
 	# 突き上げ（0〜0.45秒、0.4秒で呑む）→ 呑み込むコマ（1人のとき）→ 口を閉じて沈む
 	var b2: bool = anims.has("breach2")
-	var bite := 0.4 if b2 else (0.36 if anims.has("breach") else 0.3)
-	var end := (1.6 if gulped_solo else 0.95) if b2 else (0.95 if anims.has("breach") else 0.7)
+	var bite := 0.45 if b2 else (0.36 if anims.has("breach") else 0.3)
+	var end := (2.45 if gulped_solo else (1.9 if gulped_combo else 1.25)) if b2 else (0.95 if anims.has("breach") else 0.7)
 	if t >= bite and not has_meta("gulped"):
 		set_meta("gulped", true)
 		main.add_goop(position, 140.0, 0.5)
 		main.splat_wall(Vector2(position.x, main.FLOOR_TOP - 60.0), 50.0)
 		_try_swallow(p, 48.0, B2_MOUTH if b2 else (0.0 if anims.has("breach") else MOUTH_X))
 		gulped_solo = caught_player and caught_wani == null and anims.has("gulp")
+		gulped_combo = caught_player and caught_wani != null
+		if gulped_combo:
+			main.zoom_moment(Vector2(position.x + facing * B2_MOUTH, position.y - 110.0), 1.6)
+		if gulped_solo:
+			main.zoom_moment(Vector2(position.x + facing * B2_MOUTH, position.y - 110.0), 2.0)
 	if t > end:
 		remove_meta("gulped")
 		gulped_solo = false
+		gulped_combo = false
 		_sink_after_attack()
 
 
@@ -291,22 +299,14 @@ func _update_sprite() -> void:
 	var frame: Texture2D = null
 	var feet := 0.0
 	if state == "gulp" and anims.has("breach2"):
-		# 大きいアホ面版：突き上げ → （呑んだら）丸呑みのコマ → 沈む。絵は右向き
-		if t < 0.45:
-			frame = anims["breach2"][clampi(int(t / 0.45 * 9.0), 0, 8)]
-		elif gulped_solo and t < 1.15:
-			frame = anims["gulp"][clampi(1 + int((t - 0.45) / 0.7 * 8.0), 1, 8)]
-		elif gulped_solo:
-			frame = anims["sink2"][clampi(2 + int((t - 1.15) / 0.45 * 7.0), 2, 8)]
-		else:
-			frame = anims["sink2"][clampi(int((t - 0.45) / 0.5 * 9.0), 0, 8)]
-		feet = B2_FEET
+		var off := _gulp_pose()
+		frame = off[0]
 		sprite.visible = true
 		sprite.texture = frame
 		sprite.region_enabled = false
 		sprite.flip_h = facing < 0
-		sprite.offset = Vector2(-frame.get_width() / 2.0, -feet)
-		sprite.position = Vector2.ZERO
+		sprite.offset = Vector2(-frame.get_width() / 2.0, -B2_FEET)
+		sprite.position = Vector2(off[1].x * facing, off[1].y).round()
 		cut_on = false
 		collar.queue_redraw()
 		return
@@ -381,6 +381,47 @@ func _update_sprite() -> void:
 	# 泳いでいるときはゆらゆら
 	if underground():
 		sprite.position.y += sin(t * 6.0) * 2.0
+
+
+## 丸呑みの振り付け：どのコマを出して、どれだけずらすか [Texture2D, Vector2]
+## 突き上げ（勢いあまって少し浮く）→ 口に入れたまま暴れる獲物を噛みしめる → 頭を振って2回で呑み込む
+## → 頬を膨らませてニヤける → 沈む。外したときは空中で口をパクッと閉じて沈む。
+func _gulp_pose() -> Array:
+	var b: Array = anims["breach2"]
+	var g: Array = anims["gulp"]
+	var s: Array = anims["sink2"]
+	if t < 0.5:
+		var k := t / 0.5
+		var lift := -16.0 * sin(clampf((k - 0.6) / 0.4, 0.0, 1.0) * PI)   # 出きる直前にぐっと伸び上がる
+		return [b[clampi(int(k * 9.0), 0, 8)], Vector2(0, lift)]
+	if gulped_combo:
+		# ワニごと：大口を開けたまま覆いかぶさり、2体を押し込むようにガクガク揺れてから、口を閉じて沈む
+		if t < 1.3:
+			var k5 := (t - 0.5) / 0.8
+			return [b[8], Vector2(sin(t * 60.0) * 4.0, -8.0 + k5 * 14.0)]
+		return [s[clampi(int((t - 1.3) / 0.6 * 9.0), 0, 8)], Vector2(0, 6.0)]
+	if not gulped_solo:
+		# 空振り：口を閉じて、悔しそうにブルッと震えてから沈む
+		if t < 0.78:
+			return [s[1], Vector2(sin(t * 70.0) * 2.0, -6.0)]
+		return [s[clampi(1 + int((t - 0.78) / 0.47 * 8.0), 1, 8)], Vector2.ZERO]
+	if t < 0.72:
+		# 口に入った瞬間：噛みついてガクガク揺れる
+		return [g[1 if t < 0.6 else 2], Vector2(sin(t * 90.0) * 3.0, -4.0)]
+	if t < 1.52:
+		# 暴れる獲物を、頭を振りながら呑み下していく
+		var k2 := (t - 0.72) / 0.8
+		var sway := Vector2(sin(k2 * TAU * 2.0) * 5.0, -absf(sin(k2 * TAU * 2.0)) * 6.0)
+		if anims.has("struggle"):
+			return [anims["struggle"][clampi(int(k2 * 9.0), 0, 8)], sway]
+		return [g[clampi(2 + int(k2 * 3.0), 2, 4)], sway]
+	if t < 2.0:
+		# 頬を膨らませて、もぐもぐ、ニヤァ…（小さく弾む）
+		var k3 := (t - 1.52) / 0.48
+		return [g[clampi(4 + int(k3 * 5.0), 4, 8)], Vector2(0, -absf(sin(k3 * TAU * 1.5)) * 4.0)]
+	# 満足げに、前のめりに沈んでいく
+	var k4 := (t - 2.0) / 0.45
+	return [s[clampi(2 + int(k4 * 7.0), 2, 8)], Vector2(k4 * 10.0, 0)]
 
 
 func _img(tex: Texture2D) -> Image:

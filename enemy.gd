@@ -31,6 +31,7 @@ var hold_t := 0.0
 var last_x := 0.0
 var last_y := 0.0
 var swallowed_by = null
+var swallow_t := 0.0
 var pull_at := 5.0        # 抱きついてから引きずり込むまで
 var under_t := 0.0
 var wander := 0.0
@@ -128,9 +129,25 @@ func _process(delta: float) -> void:
 		sprite.texture = swallow_frames[j]
 		return
 	if state == "swallowed":
+		swallow_t += delta
+		if swallow_t < 0.8:
+			# サメの大口に呑まれながら、主人公を抱えたままガクガク沈んでいく
+			var k := swallow_t / 0.8
+			var f := int(swallow_t * 14.0) % 9
+			sprite.texture = anims["hug"][f]
+			hug_mat.set_shader_parameter("cat_mask", anim_masks["hug"][f])
+			hug_mat.set_shader_parameter("contamination", main.player.contamination())
+			var vh := lerpf(float(FEET_Y), 0.0, pow(k, 1.6))
+			sprite.region_enabled = true
+			sprite.region_rect = Rect2(0, 0, 256, maxf(vh, 1.0))
+			sprite.offset = Vector2(-128, -maxf(vh, 1.0))
+			sprite.position = Vector2(sin(swallow_t * 80.0) * 3.0, 0).round()
+			sprite.visible = true
+			return
 		# サメの腹の中（主人公と一緒に地中）
 		if is_instance_valid(swallowed_by):
 			position = swallowed_by.position
+		sprite.material = null
 		sprite.visible = false
 		return
 	if main.game_over:
@@ -504,11 +521,13 @@ func play_swallow(p) -> void:
 
 # ---------- サメにまとめて呑まれる ----------
 func get_swallowed(shark) -> void:
-	_end_hold()
 	main.release_token(self)
 	state = "swallowed"
 	swallowed_by = shark
-	sprite.visible = false
+	swallow_t = 0.0
+	# 抱えた主人公ごと、サメの口の中へ沈んでいく姿を少しだけ見せる（抱きつきの絵のまま）
+	sprite.material = hug_mat
+	sprite.visible = true
 
 
 ## 主人公が脱出したら、ワニも吐き出されて床から形成し直す
