@@ -7,6 +7,7 @@ const HudScript = preload("res://hud.gd")
 const SfxScript = preload("res://sfx.gd")
 const SharkScript = preload("res://shark.gd")
 const BellyScript = preload("res://belly_view.gd")
+const FinisherScript = preload("res://finisher.gd")
 const FloorShader = preload("res://floor.gdshader")
 const WallShader = preload("res://wall_paint.gdshader")
 
@@ -23,6 +24,7 @@ var player
 var sfx
 var enemies: Array = []
 var sharks: Array = []
+var finisher = null   # フィニッシュ演出（終わるまでゲームオーバー画面は出さない）
 var cam: Camera2D
 var zoom_t := 0.0
 var zoom_focus := Vector2.ZERO
@@ -204,16 +206,42 @@ func _spawn_shark() -> void:
 
 func on_player_defeated(grabber) -> void:
 	game_over = true
-	if player.state == "swallowed" or player.swallower != null:
-		return   # 地中で力尽きた：沈んだまま終わる
-	# とどめ演出：掴んでいた敵（いなければ一番近い敵）が抱えて沈む
+	var sw = player.swallower
+	if sw != null and is_instance_valid(sw):
+		# 地中で力尽きた：相手ごとのフィニッシュ演出
+		var kind := "wani" if sw.has_method("get_swallowed") else ("duo" if player.swallow_combo else "shark")
+		var at: Vector2 = sw.position
+		if kind == "duo" or kind == "shark":
+			if sw.caught_wani != null and is_instance_valid(sw.caught_wani):
+				sw.caught_wani.visible = false
+		sw.visible = false
+		_start_finisher(kind, at)
+		return
+	# 地上で力尽きた：掴んでいた敵（いなければ一番近い敵）の位置で、抱えて沈む演出
 	var e = grabber
 	if e == null or not is_instance_valid(e):
 		for c in enemies:
 			if e == null or absf(c.position.x - player.position.x) < absf(e.position.x - player.position.x):
 				e = c
-	if e != null:
-		e.play_swallow(player)
+	_start_finisher("hug", e.position if e != null else player.position)
+
+
+func _start_finisher(kind: String, at: Vector2) -> void:
+	finisher = FinisherScript.new()
+	finisher.main = self
+	add_child(finisher)
+	finisher.setup(kind, Vector2(clampf(at.x, 140.0, VIEW_W - 140.0), clampf(at.y, DEPTH_MIN, DEPTH_MAX)))
+	if kind == "hug":
+		# 地上の負け：今まで通り、ワニが抱えて水たまりに沈む絵をそのまま使う
+		for c in enemies:
+			c.visible = false
+	for s in sharks:
+		if kind == "hug":
+			s.visible = false
+
+
+func finisher_done() -> bool:
+	return finisher == null or finisher.done
 
 
 # ---------- 床のドロドロ ----------

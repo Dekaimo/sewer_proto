@@ -47,8 +47,19 @@ func _draw() -> void:
 		draw_rect(Rect2(pos.x, pos.y, 100, 8), Color("3a3a3a"))
 		draw_rect(Rect2(pos.x, pos.y, 100 * p.struggle, 8), Color("bfefff"))
 
-	if main.game_over:
+	if main.game_over and main.finisher_done():
 		draw_rect(Rect2(0, 0, 960, 540), Color(0, 0, 0, 0.45))
-		_txt(Vector2(370, 230), "OVERWHELMED...", Color("ec5a9e"), 32)
-		_txt(Vector2(395, 270), "Lasted %.1f sec" % main.survive_time)
-		_txt(Vector2(405, 305), "R : try again", Color("aab3ba"))
+		var f = main.finisher
+		var title := "OVERWHELMED..."
+		var sub := ""
+		if f != null:
+			title = f.INFO[f.kind].title
+			sub = f.INFO[f.kind].sub
+		_txt(Vector2(480 - title.length() * 10, 200), title, Color("ec5a9e"), 36)
+		if sub != "":
+			_txt(Vector2(480 - sub.length() * 5, 236), sub, Color("f4b6d4"), 18)
+		if f != null and f.is_new:
+			_txt(Vector2(480 + title.length() * 10 + 10, 190), "NEW!", Color("f9d84d"), 22)
+		_txt(Vector2(400, 290), "Lasted %.1f sec" % main.survive_time)
+		_txt(Vector2(380, 320), "Defeats collected  %d / %d" % [f.collected() if f else 0, f.ORDER.size() if f else 4], Color("aab3ba"))
+		_txt(Vector2(405, 360), "R : try again", Color("aab3ba"))
