@@ -1,0 +1,47 @@
+name: PixelLab animate
+
+on:
+  workflow_dispatch:
+    inputs:
+      name: {description: "保存名（例: cat_walk）", required: true}
+      src: {description: "元絵のパス", required: true, default: "assets/cat_0.png"}
+      desc: {description: "動きの説明（英語）", required: true}
+      frames: {description: "コマ数（4の倍数）", default: "4"}
+      last: {description: "最後のポーズの絵（任意）", default: ""}
+      direction: {description: "向き（east/west, 任意）", default: ""}
+      subject: {description: "何の絵か（任意）", default: ""}
+      variants: {description: "パターン数", default: "1"}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pixellab
+  cancel-in-progress: false
+
+jobs:
+  animate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install pillow -q
+      - name: Animate
+        env:
+          PIXELLAB_API_KEY: ${{ secrets.PIXELLAB_API_KEY }}
+          NAME: ${{ inputs.name }}
+          SRC: ${{ inputs.src }}
+          DESC: ${{ inputs.desc }}
+          FRAMES: ${{ inputs.frames }}
+          LAST: ${{ inputs.last }}
+          DIRECTION: ${{ inputs.direction }}
+          SUBJECT: ${{ inputs.subject }}
+          VARIANTS: ${{ inputs.variants }}
+        run: python3 tools/pixellab_anim.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898273+github-actions[bot]@users.noreply.github.com"
+          git add assets_raw/gen
+          git diff --cached --quiet && exit 0
+          git commit -m "PixelLab: ${{ inputs.name }}"
+          git pull --rebase -q && git push
