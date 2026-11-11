@@ -28,6 +28,8 @@ var view_mode := "inside"   # 地中の見せ方：inside=体内の小窓 / spla
 var erupt_t := 0.0
 var eruptions: Array = []   # 噴き出しの見た目 {pos, t}
 var gurgle_t := 0.0
+var mound: Sprite2D
+var mound_frames: Array[Texture2D] = []
 var wander := 0.0
 var sprite: Sprite2D
 var tex_base: Texture2D
@@ -60,6 +62,12 @@ func _ready() -> void:
 	collar = Node2D.new()
 	collar.draw.connect(_draw_collar)
 	add_child(collar)
+	mound_frames = GooMound.load_frames()
+	mound = Sprite2D.new()
+	mound.centered = false
+	mound.offset = Vector2(-128, -232)
+	mound.visible = false
+	add_child(mound)
 	cd = 2.0
 
 
@@ -104,6 +112,15 @@ func _process(delta: float) -> void:
 		er.t += delta
 	eruptions = eruptions.filter(func(er): return er.t < 0.6)
 	_update_sprite()
+	# 引き回し中：床のドロドロが大きく盛り上がって蠢く（中に獲物）
+	mound.visible = state == "drag" and mound_frames.size() == 8
+	if mound.visible:
+		mound.texture = mound_frames[int(t * (14.0 if caught_wani != null else 10.0)) % 8]
+		mound.flip_h = facing > 0
+		sprite.visible = false
+		collar.visible = false
+	else:
+		collar.visible = true
 	queue_redraw()
 
 
@@ -404,8 +421,8 @@ func _draw() -> void:
 	if not underground():
 		return
 	if state == "drag":
-		# 中で暴れている：ドロドロが大きく盛り上がって蠢く（2対1はさらに激しく）
-		GooMound.draw(self, t, 150.0, 1.0 if caught_wani != null else 0.5)
+		if mound_frames.size() < 8:
+			GooMound.draw(self, t, 150.0, 1.0 if caught_wani != null else 0.5)
 		return
 	# 泳いだ跡の波と泡
 	var tt := t

@@ -38,6 +38,8 @@ var view_mode := "inside" # 地中の見せ方（サメと同じ）
 var erupt_t := 0.0
 var gurgle_t := 0.0
 var front: Node2D        # 床の盛り上がりを手前に描く
+var mound: Sprite2D
+var mound_frames: Array[Texture2D] = []
 var anim_t := 0.0
 var sprite: Sprite2D
 var emerge_frames: Array[Texture2D] = []
@@ -73,6 +75,12 @@ func _ready() -> void:
 	sprite.offset = Vector2(-128, -FEET_Y - 1)
 	add_child(sprite)
 	add_child(front)
+	mound_frames = GooMound.load_frames()
+	mound = Sprite2D.new()
+	mound.centered = false
+	mound.offset = Vector2(-128, -232)
+	mound.visible = false
+	add_child(mound)
 	anim_t = -randf_range(0.0, 0.6)   # 2体の出現タイミングを少しずらす
 
 
@@ -89,8 +97,14 @@ func _process(delta: float) -> void:
 	sprite.region_enabled = false
 	sprite.offset = Vector2(-128, -FEET_Y - 1)
 	front.queue_redraw()
+	mound.visible = false
 	if state == "pulldown" or state == "under":
 		_update_pull(delta)
+		# 盛り上がったドロドロ（沈みはじめは小さめにせり上がる）
+		if mound_frames.size() == 8 and (state == "under" or under_t > 0.75):
+			mound.visible = true
+			mound.texture = mound_frames[int(under_t * 11.0) % 8]
+			mound.flip_h = facing > 0
 		return
 
 	if state == "emerge":
@@ -459,6 +473,8 @@ func _update_pull(delta: float) -> void:
 
 ## 床に沈んでいく境目・地中で暴れている盛り上がりを、絵より手前に描く
 func _draw_front() -> void:
+	if mound_frames.size() == 8:
+		return   # 生成したドット絵の盛り上がりを使う
 	if state == "pulldown":
 		var k := clampf(under_t / 1.4, 0.0, 1.0)
 		GooMound.draw(front, under_t, 120.0 + 60.0 * k, 0.4 + 0.6 * k)

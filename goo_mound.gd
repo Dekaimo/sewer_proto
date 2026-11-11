@@ -1,4 +1,5 @@
 extends RefCounted
+## ※ 今は生成したドット絵（assets/goo_mound_*.png）を Sprite で出している。これは絵が無いときの予備。
 ## 地中で何かが暴れているときの、床の盛り上がり（ドロドロがグチュグチュ蠢く）。
 ## サメの引き回しとワニの引きずり込みの両方から呼ぶ。描くのは呼び出し元の CanvasItem。
 ## ドット絵になじむよう、輪郭（濃い色）→本体（ピンク）→影→小さなてかり の順に重ねる。
@@ -65,3 +66,13 @@ static func draw(ci: CanvasItem, t: float, size: float, violent: float) -> void:
 		c2.a = 1.0 - ph4 * 0.6
 		ci.draw_circle(Vector2(bx2, by).round(), rr2 + 1.5, Color(DARK, c2.a))
 		ci.draw_circle(Vector2(bx2, by).round(), rr2, c2)
+
+
+## 生成したドット絵の盛り上がり（8コマ）を読み込む
+static func load_frames() -> Array[Texture2D]:
+	var arr: Array[Texture2D] = []
+	for i in 8:
+		var path := "res://assets/goo_mound_%d.png" % i
+		if ResourceLoader.exists(path):
+			arr.append(load(path))
+	return arr
