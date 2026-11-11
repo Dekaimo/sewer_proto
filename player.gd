@@ -222,6 +222,7 @@ func _escape() -> void:
 	var e = grabbed_by
 	state = "normal"
 	grabbed_by = null
+	hidden_in_hug = false   # 抱きつきの絵から自分の表示に戻す
 	invuln = 1.0
 	main.sfx.play("escape")
 	position.y = main.FLOOR_Y - 1
@@ -289,6 +290,8 @@ func _process(delta: float) -> void:
 			_update_grabbed(delta)
 	_update_frame(delta)
 	sprite.flip_h = facing < 0
+	if state != "grabbed":
+		hidden_in_hug = false
 	sprite.visible = state != "defeated" and not hidden_in_hug and not (invuln > 0.0 and state == "normal" and int(invuln * 20) % 2 == 0)
 	queue_redraw()
 

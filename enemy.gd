@@ -407,6 +407,7 @@ func on_hit(dir: int) -> void:
 
 
 func on_escaped() -> void:
+	_end_hold()
 	stun = 1.2
 	vel_x = -facing * 150.0
 	state = "recover"
