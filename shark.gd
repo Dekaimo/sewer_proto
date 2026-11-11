@@ -10,6 +10,8 @@ const OPEN_PATH := "res://assets/same_open.png"
 const FEET_Y := 182          # 絵の中で腹（水たまり）が床に着く行
 const MOUTH_X := 92.0       # 横向きの絵の中心から口までの横の距離（アニメが無いとき用）
 const BREACH_FEET := 218     # 突き上げ・沈むアニメで水たまりが床に着く行
+const B2_FEET := 226         # 大きいアホ面版の突き上げ（右向きの絵）
+const B2_MOUTH := 68.0       # その口の位置（絵の中心から前へ）
 const DIVE_FEET := 236       # 急降下アニメ
 const DIVE_MOUTH := 68.0     # 急降下の1コマ目で、絵の中心から口までの横の距離
 const FIN_H := 52            # 泳いでいるとき床から出ている高さ（絵の上から何行ぶん＝背ビレ）
@@ -46,7 +48,7 @@ var cut_on := false
 func _ready() -> void:
 	tex_base = load(BASE_PATH) if ResourceLoader.exists(BASE_PATH) else null
 	tex_open = load(OPEN_PATH) if ResourceLoader.exists(OPEN_PATH) else tex_base
-	for k in ["breach", "sink", "dive"]:
+	for k in ["breach", "sink", "dive", "breach2", "sink2", "gulp"]:
 		var arr: Array[Texture2D] = []
 		for i in 9:
 			var path := "res://assets/same_%s_%d.png" % [k, i]
@@ -132,7 +134,7 @@ func _swim(delta: float, p) -> void:
 	if absf(raw.x) > MOUTH_X + 10.0:
 		facing = 1 if raw.x > 0 else -1
 	# 口が主人公の真下に来る位置を目指す
-	var mx: float = 0.0 if anims.has("breach") else MOUTH_X   # 突き上げアニメは口が真上＝中心
+	var mx: float = B2_MOUTH if anims.has("breach2") else (0.0 if anims.has("breach") else MOUTH_X)
 	var target: Vector2 = p.position - Vector2(facing * mx, 0.0)
 	var to_p: Vector2 = target - position
 	# ドロドロの中は速い。乾いた床も潜って進む（通った跡がドロドロになる）
@@ -153,21 +155,27 @@ func _swim(delta: float, p) -> void:
 		t = 0.0
 		main.sfx.play("grab", -4.0)
 		# 飛び出す瞬間から寄って、呑まれるところを見せる
-		main.zoom_moment(Vector2(position.x + facing * (0.0 if anims.has("breach") else MOUTH_X), position.y - 90.0), 1.1)
+		main.zoom_moment(Vector2(position.x + facing * mx, position.y - 100.0), 1.5)
 
 
 # ---------- 真下から丸呑み ----------
+var gulped_solo := false   # 1人を呑み込んだ（呑み込みのコマを見せる）
+
+
 func _gulp(delta: float, p) -> void:
-	# 突き上げ（0〜0.45秒、0.36秒で呑む）→ 口を閉じて沈む（〜0.95秒）
-	var bite := 0.36 if anims.has("breach") else 0.3
-	var end := 0.95 if anims.has("breach") else 0.7
+	# 突き上げ（0〜0.45秒、0.4秒で呑む）→ 呑み込むコマ（1人のとき）→ 口を閉じて沈む
+	var b2: bool = anims.has("breach2")
+	var bite := 0.4 if b2 else (0.36 if anims.has("breach") else 0.3)
+	var end := (1.6 if gulped_solo else 0.95) if b2 else (0.95 if anims.has("breach") else 0.7)
 	if t >= bite and not has_meta("gulped"):
 		set_meta("gulped", true)
 		main.add_goop(position, 140.0, 0.5)
 		main.splat_wall(Vector2(position.x, main.FLOOR_TOP - 60.0), 50.0)
-		_try_swallow(p, 48.0, 0.0 if anims.has("breach") else MOUTH_X)
+		_try_swallow(p, 48.0, B2_MOUTH if b2 else (0.0 if anims.has("breach") else MOUTH_X))
+		gulped_solo = caught_player and caught_wani == null and anims.has("gulp")
 	if t > end:
 		remove_meta("gulped")
+		gulped_solo = false
 		_sink_after_attack()
 
 
@@ -282,6 +290,26 @@ func _update_sprite() -> void:
 	# 生成したアニメがある場面は、コマをそのまま再生する（接地面のベトベトも絵に描いてある）
 	var frame: Texture2D = null
 	var feet := 0.0
+	if state == "gulp" and anims.has("breach2"):
+		# 大きいアホ面版：突き上げ → （呑んだら）丸呑みのコマ → 沈む。絵は右向き
+		if t < 0.45:
+			frame = anims["breach2"][clampi(int(t / 0.45 * 9.0), 0, 8)]
+		elif gulped_solo and t < 1.15:
+			frame = anims["gulp"][clampi(1 + int((t - 0.45) / 0.7 * 8.0), 1, 8)]
+		elif gulped_solo:
+			frame = anims["sink2"][clampi(2 + int((t - 1.15) / 0.45 * 7.0), 2, 8)]
+		else:
+			frame = anims["sink2"][clampi(int((t - 0.45) / 0.5 * 9.0), 0, 8)]
+		feet = B2_FEET
+		sprite.visible = true
+		sprite.texture = frame
+		sprite.region_enabled = false
+		sprite.flip_h = facing < 0
+		sprite.offset = Vector2(-frame.get_width() / 2.0, -feet)
+		sprite.position = Vector2.ZERO
+		cut_on = false
+		collar.queue_redraw()
+		return
 	if state == "gulp" and anims.has("breach"):
 		if t < 0.45:
 			frame = anims["breach"][clampi(int(t / 0.45 * 9.0), 0, 8)]
