@@ -51,7 +51,17 @@ def run_job(j: dict) -> None:
     out = Path("assets_raw/gen") / name / stamp
     out.mkdir(parents=True, exist_ok=True)
     before = remaining()
-    if j.get("mode", "anim") == "edit":
+    if j.get("mode") == "gen":
+        # 高品質の1枚絵（Pro）。refs は [[パス, 使い方の説明], ...]
+        path = "/generate-image-v2"
+        def ref(pth, use):
+            im = Image.open(pth)
+            return {"image": b64img(pth), "size": {"width": im.width, "height": im.height}, "usage_description": use}
+        body = {"description": j["desc"], "image_size": {"width": int(j.get("w", 256)), "height": int(j.get("h", 256))},
+                "no_background": True, "reference_images": [ref(r[0], r[1]) for r in j.get("refs", [])]}
+        if j.get("style"):
+            body["style_image"] = ref(j["style"], "pixel art style")
+    elif j.get("mode", "anim") == "edit":
         path = "/edit-image-pixen"
         body = {"image": b64img(j["src"]), "description": j["desc"], "no_background": True}
     else:
