@@ -50,6 +50,6 @@ func play(ev: String, vol_db := 0.0, min_gap := 0.0) -> void:
 	var a := players[next_voice]
 	next_voice = (next_voice + 1) % VOICES
 	a.stream = bank.pick_random()
-	a.pitch_scale = randf_range(0.88, 1.12)
+	a.pitch_scale = randf_range(0.78, 0.98)
 	a.volume_db = vol_db + randf_range(-2.0, 1.0)
 	a.play()
