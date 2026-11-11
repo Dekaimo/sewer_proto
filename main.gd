@@ -5,6 +5,7 @@ const PlayerScript = preload("res://player.gd")
 const EnemyScript = preload("res://enemy.gd")
 const HudScript = preload("res://hud.gd")
 const SfxScript = preload("res://sfx.gd")
+const SharkScript = preload("res://shark.gd")
 const FloorShader = preload("res://floor.gdshader")
 const WallShader = preload("res://wall_paint.gdshader")
 
@@ -20,6 +21,8 @@ const ARENA_R := 930.0
 var player
 var sfx
 var enemies: Array = []
+var sharks: Array = []
+var shark_spawn_t := 9.0   # ペンキサメが現れるまで
 # 床のドロドロ（マリオサンシャインの「らくがき」風）。床全体をマス目に分けた厚み 0〜1
 const GOOP_CX := 6.0   # 1マスの横幅
 const GOOP_CY := 3.0   # 1マスの縦幅（床は奥行きが潰れて見えるので半分）
@@ -92,6 +95,10 @@ func _process(delta: float) -> void:
 			get_tree().reload_current_scene()
 		return
 	survive_time += delta
+	if shark_spawn_t > 0.0:
+		shark_spawn_t -= delta
+		if shark_spawn_t <= 0.0:
+			_spawn_shark()
 	_update_mess(delta)
 	if goop_dirty:
 		goop_dirty = false
@@ -140,8 +147,20 @@ func holding_enemy():
 	return null
 
 
+func _spawn_shark() -> void:
+	var s = SharkScript.new()
+	s.main = self
+	# 主人公から遠い方の端から、床の下を泳いでくる
+	var x := ARENA_L + 20.0 if player.position.x > VIEW_W * 0.5 else ARENA_R - 20.0
+	s.position = Vector2(x, randf_range(DEPTH_MIN + 20.0, DEPTH_MAX - 20.0))
+	add_child(s)
+	sharks.append(s)
+
+
 func on_player_defeated(grabber) -> void:
 	game_over = true
+	if player.state == "swallowed" or player.swallower != null:
+		return   # 地中で力尽きた：沈んだまま終わる
 	# とどめ演出：掴んでいた敵（いなければ一番近い敵）が抱えて沈む
 	var e = grabber
 	if e == null or not is_instance_valid(e):

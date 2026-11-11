@@ -64,6 +64,8 @@ def run_job(j: dict) -> None:
     elif j.get("mode", "anim") == "edit":
         path = "/edit-image-pixen"
         body = {"image": b64img(j["src"]), "description": j["desc"], "no_background": True}
+        if j.get("w"):
+            body["width"], body["height"] = int(j["w"]), int(j["h"])
     else:
         path = "/animate-pixminimax"
         body = {"first_frame": b64img(j["src"]), "description": j["desc"],

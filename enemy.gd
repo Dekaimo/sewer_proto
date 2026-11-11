@@ -29,6 +29,7 @@ var hug_mat: ShaderMaterial
 var hold_t := 0.0
 var last_x := 0.0
 var last_y := 0.0
+var swallowed_by = null
 var anim_t := 0.0
 var sprite: Sprite2D
 var emerge_frames: Array[Texture2D] = []
@@ -65,7 +66,7 @@ func _ready() -> void:
 
 
 func active() -> bool:
-	return not state in ["emerge", "swallow", "idle", "sink", "lurk", "ambush"]
+	return not state in ["emerge", "swallow", "idle", "sink", "lurk", "ambush", "swallowed"]
 
 
 func _process(delta: float) -> void:
@@ -98,6 +99,12 @@ func _process(delta: float) -> void:
 	if main.game_over:
 		state = "idle"
 		sprite.visible = true
+		return
+	if state == "swallowed":
+		# サメの腹の中（主人公と一緒に地中）
+		if is_instance_valid(swallowed_by):
+			position = swallowed_by.position
+		sprite.visible = false
 		return
 	if state == "sink" or state == "lurk" or state == "ambush":
 		_update_ambush(delta)
@@ -391,6 +398,26 @@ func play_swallow(p) -> void:
 	anim_t = 0.0
 	position.x = clampf(p.position.x - facing * 10.0, main.ARENA_L, main.ARENA_R)
 	position.y = p.position.y
+
+
+# ---------- サメにまとめて呑まれる ----------
+func get_swallowed(shark) -> void:
+	_end_hold()
+	main.release_token(self)
+	state = "swallowed"
+	swallowed_by = shark
+	sprite.visible = false
+
+
+## 主人公が脱出したら、ワニも吐き出されて床から形成し直す
+func spit_out(pos: Vector2) -> void:
+	swallowed_by = null
+	position = pos
+	_clamp()
+	sprite.visible = true
+	state = "emerge"
+	anim_t = 0.6   # 水たまりから少し盛り上がったところから
+	stun = 0.0
 
 
 ## 1体目は今いる側、2体目以降は1体目の反対側を受け持つ

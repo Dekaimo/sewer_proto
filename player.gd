@@ -34,7 +34,9 @@ var mask_img: Image
 var mask_tex: ImageTexture
 var opaque_px: Array[Vector2i] = []
 
-var state := "normal"   # normal / slipped / grabbed / defeated
+var state := "normal"   # normal / slipped / grabbed / swallowed / defeated
+var swallower = null     # 呑み込んでいるサメ
+var swallow_combo := false   # ワニごと呑まれた（地中で2対1）
 var slip_t := 0.0
 var hidden_in_hug := false   # 抱きつきの1枚絵に描かれている間は自分を表示しない       # 転んでいる残り時間
 var vel := Vector2.ZERO
@@ -269,7 +271,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				lmb_held = false
 		elif mb.pressed and (mb.button_index == MOUSE_BUTTON_MIDDLE or mb.button_index == MOUSE_BUTTON_WHEEL_UP):
 			queued_jump = true
-	elif event is InputEventMouseMotion and state == "grabbed":
+	elif event is InputEventMouseMotion and (state == "grabbed" or state == "swallowed"):
 		var rx: float = (event as InputEventMouseMotion).relative.x
 		if absf(rx) >= 4.0:
 			var d := 1 if rx > 0 else -1
@@ -297,12 +299,14 @@ func _process(delta: float) -> void:
 			_update_slipped(delta)
 		"grabbed":
 			_update_grabbed(delta)
+		"swallowed":
+			_update_swallowed(delta)
 	_update_frame(delta)
 	z_index = int(position.y)   # 手前にいるほど前に描く
 	sprite.flip_h = facing < 0
 	if state != "grabbed":
 		hidden_in_hug = false
-	sprite.visible = state != "defeated" and not hidden_in_hug and not (invuln > 0.0 and state == "normal" and int(invuln * 20) % 2 == 0)
+	sprite.visible = state != "defeated" and state != "swallowed" and not hidden_in_hug and not (invuln > 0.0 and state == "normal" and int(invuln * 20) % 2 == 0)
 	queue_redraw()
 
 
@@ -427,6 +431,64 @@ func _do_attack() -> void:
 				add_dirt(Vector2i(64 + facing * 30, randi_range(60, 90)), 1)  # 跳ね返り
 
 
+# ---------- サメに丸呑みされる ----------
+func get_swallowed(shark, combo: bool) -> bool:
+	if state == "grabbed" and is_instance_valid(grabbed_by):
+		grabbed_by = null
+	state = "swallowed"
+	swallower = shark
+	swallow_combo = combo
+	hidden_in_hug = false
+	sprite.rotation = 0.0
+	struggle = 0.1
+	last_dir = 0
+	vel = Vector2.ZERO
+	z = 0.0
+	# 呑まれた瞬間に全身ドロドロ
+	for i in (10 if combo else 6):
+		add_dirt(random_body_point(), 3)
+	damage(6.0)
+	main.sfx.play("defeat", -4.0)
+	return true
+
+
+func _update_swallowed(delta: float) -> void:
+	if not is_instance_valid(swallower):
+		state = "normal"
+		return
+	position = swallower.position
+	# 2対1のときは抜け出しにくく、汚れるのも速い
+	struggle -= (0.2 if swallow_combo else 0.15) * delta
+	var d := 0
+	if Input.is_action_just_pressed("left"):
+		d = -1
+	elif Input.is_action_just_pressed("right"):
+		d = 1
+	if d != 0 and d != last_dir:
+		struggle += 0.05 if swallow_combo else 0.07
+		last_dir = d
+	drip_timer += delta
+	if drip_timer > (0.14 if swallow_combo else 0.24):
+		drip_timer = 0.0
+		add_dirt(random_body_point(), 2)
+		damage(2.0 if swallow_combo else 1.2)
+		if state == "swallowed":
+			main.sfx.play("grab_loop", -4.0, 0.3)
+	struggle = clampf(struggle, 0.0, 1.0)
+	if struggle >= 1.0 and state == "swallowed":
+		# 床から飛び出して脱出
+		state = "normal"
+		var s = swallower
+		swallower = null
+		invuln = 1.4
+		on_floor = false
+		vz = 320.0
+		vel = Vector2(randf_range(-160.0, 160.0), 0.0)
+		main.add_goop(position, 120.0, 0.4)
+		main.sfx.play("escape")
+		s.on_escaped()
+
+
 # ---------- 転倒 ----------
 func _slip() -> void:
 	state = "slipped"
@@ -503,7 +565,7 @@ func _update_grabbed(delta: float) -> void:
 
 func _draw() -> void:
 	# 足元の影（ジャンプ中も床に残す）
-	if state != "defeated" and not hidden_in_hug:
+	if state != "defeated" and state != "swallowed" and not hidden_in_hug:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.25))
 		draw_circle(Vector2.ZERO, 30.0, Color(0, 0, 0, 0.35))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
