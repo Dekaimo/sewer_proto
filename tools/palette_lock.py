@@ -57,10 +57,11 @@ def _stats(im):
     return out
 
 
-def lock(src, dst=None, strength=1.0):
+def lock(src, dst=None, strength=1.0, stats_from=None):
+    """stats_from を渡すと、その絵の色の傾向を基準にずらす（アニメの全コマを同じずらし方にして、ちらつきを防ぐ）"""
     master = _stats(Image.open(MASTER).convert("RGBA"))
     im = Image.open(src).convert("RGBA")
-    mine = _stats(im)
+    mine = _stats(Image.open(stats_from).convert("RGBA")) if stats_from else _stats(im)
     px = im.load()
     cache = {}
     for y in range(im.height):
@@ -87,6 +88,12 @@ def lock(src, dst=None, strength=1.0):
                     cache[c] = (round(rr * 255), round(gg * 255), round(bb * 255))
             px[x, y] = cache[c] + (a,)
     im.save(dst or src)
+
+
+def lock_frames(srcs, dsts, key):
+    """アニメ用：全コマを key（代表の1枚）の傾向で同じようにずらす"""
+    for s, d in zip(srcs, dsts):
+        lock(s, d, stats_from=key)
 
 
 if __name__ == "__main__":
