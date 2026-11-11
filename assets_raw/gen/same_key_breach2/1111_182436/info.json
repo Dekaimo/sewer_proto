@@ -1,0 +1,22 @@
+{
+  "name": "same_key_breach2",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "style": "assets/same_open.png",
+  "refs": [
+    [
+      "assets/same_open.png",
+      "the shark's goofy dumb face when it gapes: huge stupid wide-open mouth, half-lidded dopey eyes, drooping paint tongue, filthy gooey pink gullet. Copy this face exactly"
+    ],
+    [
+      "assets/same_base.png",
+      "the chubby shark body made of glossy pink paint with yellow marble streaks, same design and pixel style"
+    ]
+  ],
+  "desc": "Big chubby paint shark bursting straight up out of a pink paint puddle, filling almost the whole image: its huge fat front half rises vertically, snout pointing up, with an enormous stupid gaping mouth wide open toward the sky, half-lidded dopey eyes and a drooling paint tongue, a mocking derpy look. Thick sticky paint clings and stretches around its body where it comes out of the puddle at the bottom. Side view. Pixel art, same style, palette, outline and shading as the references. Transparent background.",
+  "generations_before": 1709.0,
+  "generations_after": 1699.0,
+  "used": 10.0
+}
