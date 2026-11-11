@@ -1,0 +1,13 @@
+{
+  "name": "anim_same_dive",
+  "mode": "anim",
+  "src": "assets_raw/gen/same_key_dive/1111_175026/v1_00.png",
+  "last": "assets_raw/gen/same_puddle.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a chubby shark made of thick glossy pink paint with yellow marble streaks",
+  "desc": "The shark plunges head first down into the paint puddle and disappears into it, its tail sinking last, paint splashing up. Thick sticky viscous paint stretches in strings and clings to its body, globs dripping and sliding.",
+  "generations_before": 1711.0,
+  "generations_after": 1710.0,
+  "used": 1.0
+}

@@ -1,0 +1,12 @@
+{
+  "name": "anim_same_breach",
+  "mode": "anim",
+  "src": "assets_raw/gen/same_puddle.png",
+  "last": "assets_raw/gen/same_key_breach/1111_174811/v1_00.png",
+  "frames": 8,
+  "subject": "a chubby shark made of thick glossy pink paint with yellow marble streaks",
+  "desc": "The shark bursts straight up out of the paint puddle with its mouth gaping open toward the sky, rising fast. Thick sticky viscous paint stretches in strings and clings to its body, globs dripping and sliding.",
+  "generations_before": 1713.0,
+  "generations_after": 1712.0,
+  "used": 1.0
+}

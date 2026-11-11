@@ -1,0 +1,12 @@
+{
+  "name": "anim_same_fin",
+  "mode": "anim",
+  "src": "assets_raw/gen/same_fin_crop.png",
+  "last": "assets_raw/gen/same_fin_crop.png",
+  "frames": 8,
+  "subject": "the dorsal fin of a shark made of glossy pink paint, sticking out of the floor",
+  "desc": "The fin wobbles and sways side to side as it cuts through thick paint, goo dripping down it. Loop.",
+  "generations_before": 1710.0,
+  "generations_after": 1710.0,
+  "used": 0.0
+}
