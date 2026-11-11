@@ -1,0 +1,9 @@
+{
+  "desc": "walking forward to the right, a calm steady walk cycle, legs alternating, tail swaying",
+  "src": "assets/cat_0.png",
+  "frames": 4,
+  "variants": 1,
+  "generations_before": 1863.0,
+  "generations_after": 1862.0,
+  "used": 1.0
+}
