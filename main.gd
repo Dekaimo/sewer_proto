@@ -6,6 +6,7 @@ const EnemyScript = preload("res://enemy.gd")
 const HudScript = preload("res://hud.gd")
 const SfxScript = preload("res://sfx.gd")
 const SharkScript = preload("res://shark.gd")
+const BellyScript = preload("res://belly_view.gd")
 const FloorShader = preload("res://floor.gdshader")
 const WallShader = preload("res://wall_paint.gdshader")
 
@@ -93,6 +94,9 @@ func _ready() -> void:
 	layer.layer = 10
 	add_child(layer)
 	layer.add_child(hud)
+	var belly = BellyScript.new()
+	belly.main = self
+	layer.add_child(belly)
 	cam = Camera2D.new()
 	cam.anchor_mode = Camera2D.ANCHOR_MODE_FIXED_TOP_LEFT
 	add_child(cam)

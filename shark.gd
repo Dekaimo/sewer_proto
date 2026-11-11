@@ -20,6 +20,9 @@ var leap_to := Vector2.ZERO
 var z := 0.0
 var caught_player := false
 var caught_wani = null
+var view_mode := "inside"   # 地中の見せ方：inside=体内の小窓 / splat=見せずにペンキが噴き出すだけ
+var erupt_t := 0.0
+var eruptions: Array = []   # 噴き出しの見た目 {pos, t}
 var wander := 0.0
 var sprite: Sprite2D
 var tex_base: Texture2D
@@ -73,6 +76,9 @@ func _process(delta: float) -> void:
 			_leap(delta, p)
 		"drag":
 			_drag(delta, p)
+	for er in eruptions:
+		er.t += delta
+	eruptions = eruptions.filter(func(er): return er.t < 0.6)
 	_update_sprite()
 	queue_redraw()
 
@@ -169,6 +175,7 @@ func _sink_after_attack() -> void:
 	if caught_player:
 		state = "drag"
 		t = 0.0
+		view_mode = "inside" if randf() < 0.5 else "splat"
 	else:
 		state = "swim"
 		cd = randf_range(2.5, 4.0)
@@ -184,6 +191,16 @@ func _drag(delta: float, p) -> void:
 	_clamp()
 	facing = 1 if dir.x > 0 else -1
 	main.add_goop(position, 50.0, 0.05)
+	if view_mode == "splat":
+		# 中で何をされているかは見せず、床を突き破ってペンキが何度も噴き出す
+		erupt_t -= delta
+		if erupt_t <= 0.0:
+			erupt_t = randf_range(0.25, 0.6) * (0.7 if caught_wani != null else 1.0)
+			var at := position + Vector2(randf_range(-70.0, 70.0), randf_range(-12.0, 12.0))
+			main.add_goop(at, randf_range(60.0, 120.0), 0.5)
+			main.splat_wall(Vector2(at.x + randf_range(-80.0, 80.0), main.FLOOR_TOP - randf_range(10.0, 170.0)), randf_range(30.0, 60.0))
+			main.sfx.play("hit", -6.0)
+			eruptions.append({"pos": at, "t": 0.0})
 
 
 ## 主人公が自力で脱出したとき
@@ -308,6 +325,19 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO, 70.0, Color(0, 0, 0, 0.35))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		return
+	# 床を突き破るペンキの柱（地中で何かされている）
+	for er in eruptions:
+		var k: float = er.t / 0.6
+		var base: Vector2 = er.pos - position
+		var hgt: float = sin(k * PI) * 110.0
+		var w: float = 18.0 * (1.0 - k * 0.5)
+		draw_rect(Rect2(base.x - w * 0.5, base.y - hgt, w, hgt), Color("5a1240"))
+		draw_rect(Rect2(base.x - w * 0.5 + 3, base.y - hgt + 2, w - 6, hgt - 2), Color("ec5a9e"))
+		draw_rect(Rect2(base.x - 2, base.y - hgt + 4, 4, hgt * 0.6), Color("f9d84d"))
+		for j in 6:
+			var a := j * 1.05 + k * 2.0
+			var d := Vector2(cos(a), -absf(sin(a))) * (20.0 + 90.0 * k)
+			draw_circle(base + Vector2(0, -hgt) + d, 6.0 * (1.0 - k) + 1.0, Color("ec5a9e") if j % 2 else Color("f9d84d"))
 	if not underground():
 		return
 	# 泳いだ跡の波と泡
