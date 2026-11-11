@@ -2,7 +2,7 @@ extends Node
 ## 効果音。res://sfx/<イベント名>/ に .ogg / .wav / .mp3 を置くと、その中からランダムに鳴る。
 ## ファイルが無いイベントは何も鳴らない。毎回ピッチと音量を少し揺らして単調さを消す。
 
-const EVENTS := ["hit", "grab", "grab_loop", "assist", "step_paint", "mop", "wipe", "escape", "defeat"]
+const EVENTS := ["hit", "grab", "grab_loop", "assist", "step_paint", "mop", "wipe", "escape", "defeat", "gurgle"]
 const VOICES := 10
 
 var banks := {}
@@ -53,3 +53,11 @@ func play(ev: String, vol_db := 0.0, min_gap := 0.0) -> void:
 	a.pitch_scale = randf_range(0.88, 1.12)
 	a.volume_db = vol_db + randf_range(-2.0, 1.0)
 	a.play()
+
+
+## 候補の中で、音が用意されている最初のイベントを鳴らす（新しい音がまだ無いときの代わり）
+func play_any(evs: Array, vol_db := 0.0, min_gap := 0.0) -> void:
+	for ev in evs:
+		if not (banks.get(ev, []) as Array).is_empty():
+			play(ev, vol_db, min_gap)
+			return

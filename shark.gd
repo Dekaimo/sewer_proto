@@ -5,6 +5,7 @@ extends Node2D
 ## 絵は assets/same_base.png（閉じ口）と assets/same_open.png（大口）。無ければ仮の図形で描く。
 
 const BASE_PATH := "res://assets/same_base.png"
+const GooMound = preload("res://goo_mound.gd")
 const OPEN_PATH := "res://assets/same_open.png"
 const FEET_Y := 182          # 絵の中で腹（水たまり）が床に着く行
 const MOUTH_X := 92.0       # 横向きの絵の中心から口までの横の距離（アニメが無いとき用）
@@ -26,6 +27,7 @@ var caught_wani = null
 var view_mode := "inside"   # 地中の見せ方：inside=体内の小窓 / splat=見せずにペンキが噴き出すだけ
 var erupt_t := 0.0
 var eruptions: Array = []   # 噴き出しの見た目 {pos, t}
+var gurgle_t := 0.0
 var wander := 0.0
 var sprite: Sprite2D
 var tex_base: Texture2D
@@ -218,6 +220,11 @@ func _drag(delta: float, p) -> void:
 	_clamp()
 	facing = 1 if dir.x > 0 else -1
 	main.add_goop(position, 50.0, 0.05)
+	# グチュグチュ音
+	gurgle_t -= delta
+	if gurgle_t <= 0.0:
+		gurgle_t = randf_range(0.35, 0.7)
+		main.sfx.play_any(["gurgle", "grab_loop"], -2.0)
 	if view_mode == "splat":
 		# 中で何をされているかは見せず、床を突き破ってペンキが何度も噴き出す
 		erupt_t -= delta
@@ -391,6 +398,10 @@ func _draw() -> void:
 			var d := Vector2(cos(a), -absf(sin(a))) * (20.0 + 90.0 * k)
 			draw_circle(base + Vector2(0, -hgt) + d, 6.0 * (1.0 - k) + 1.0, Color("ec5a9e") if j % 2 else Color("f9d84d"))
 	if not underground():
+		return
+	if state == "drag":
+		# 中で暴れている：ドロドロが大きく盛り上がって蠢く（2対1はさらに激しく）
+		GooMound.draw(self, t, 150.0, 1.0 if caught_wani != null else 0.5)
 		return
 	# 泳いだ跡の波と泡
 	var tt := t

@@ -22,6 +22,7 @@ PROMPTS = {
     "wipe": ("sticky slime being slowly smeared and wiped off, gooey stretch", 0.8),
     "escape": ("pulling out of thick sticky slime, long gooey stretch and suction release", 1.2),
     "defeat": ("slowly sinking into thick viscous slime, deep gloopy gurgling ooze", 2.5),
+    "gurgle": ("muffled thick goo churning and squelching underground, slimy bubbling gurgles, something struggling inside sticky slime", 1.6),
 }
 
 

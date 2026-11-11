@@ -74,11 +74,15 @@ func _process(delta: float) -> void:
 		feet = 119.0
 	content.texture = tex
 	content.material = mat
-	# 等倍のまま、見せたい部分（主人公のあたり）が小窓の中央に来るように置く＝体内のアップ
-	content.scale = Vector2(1.0 + 0.10 * sq, 1.0 - 0.08 * sq)
+	# 等倍のまま横倒しにして（胃袋の中で寝かされている）、見せたい部分が小窓の中央に来るように置く
+	content.centered = true
+	content.rotation = -PI / 2.0   # 90度なのでドットは崩れない
+	content.scale = Vector2(1.0 - 0.08 * sq, 1.0 + 0.10 * sq)
 	content.flip_h = false
 	var focus := Vector2(110.0, 140.0) if tex.get_height() > 160 else Vector2(64.0, 70.0)
-	content.position = Vector2(W * 0.5, H * 0.55) - focus * content.scale + Vector2(sin(t * 9.0) * 2.0, 0.0)
+	var off: Vector2 = (focus - tex.get_size() * 0.5) * content.scale
+	off = off.rotated(content.rotation)
+	content.position = Vector2(W * 0.5, H * 0.52) - off + Vector2(sin(t * 9.0) * 2.0, cos(t * 7.0) * 1.5)
 
 
 func _draw() -> void:
