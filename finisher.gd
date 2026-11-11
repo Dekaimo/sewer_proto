@@ -12,7 +12,7 @@ const INFO := {
 	"hug": {"title": "SUNK IN THE PUDDLE", "sub": "hugged down into the paint", "frames": "wani_swallow", "n": 9, "fps": 7.0, "feet": 253},
 	"shark": {"title": "BURPED OUT", "sub": "only the hat came back", "frames": "fin_shark", "n": 9, "fps": 6.0, "feet": 226},
 	"wani": {"title": "SHOWN OFF", "sub": "held up like a trophy", "frames": "fin_wani", "n": 9, "fps": 6.0, "feet": 232},
-	"duo": {"title": "HIGH FIVE", "sub": "teamwork makes the dream work", "frames": "fin_duo2", "n": 9, "fps": 6.0, "feet": 232},
+	"duo": {"title": "SPAT OUT", "sub": "the crocodile walked out. you didn't.", "frames": "fin_vomit", "n": 9, "fps": 7.0, "feet": 226},
 }
 const ORDER := ["hug", "shark", "wani", "duo"]
 const GALLERY := "user://gallery.cfg"
@@ -26,6 +26,9 @@ var sprite: Sprite2D
 var strands: Node2D       # 床から体へ伸びる糸（手前に描く）
 var rise := 0.0           # 床からゆっくり出てくる時間
 var rise_k := 1.0         # 0=まだ床の中 1=全身が出た
+var wani_frames: Array[Texture2D] = []   # 2対1：吐き出されたペンキから出てくるワニ（形成→マッスルポーズ）
+var wani_sprite: Sprite2D
+var vomited := false
 var done := false
 var is_new := false
 
@@ -42,10 +45,14 @@ func setup(k: String, at: Vector2) -> void:
 	if frames.is_empty() and ResourceLoader.exists("res://assets/%s_key.png" % info.frames):
 		frames.append(load("res://assets/%s_key.png" % info.frames))
 	pre = 2.4 if kind == "duo" else 0.0
-	# サメとワニは、最初のコマのまま床から「ネバァ…」と糸を引きながらゆっくり出てくる
-	rise = 1.6 if kind == "shark" or kind == "wani" else 0.0
-	if kind == "duo" and not ResourceLoader.exists("res://assets/fin_duo2_0.png"):
-		rise = 1.6
+	# 最初のコマのまま床から「ネバァ…」と糸を引きながらゆっくり出てくる
+	rise = 1.6 if kind != "hug" else 0.0
+	if kind == "duo":
+		# 2対1：サメが吐き出したペンキの山から、ワニだけが余裕で形成されてくる
+		for i in 9:
+			wani_frames.append(load("res://assets/wani_emerge_%d.png" % i))
+		for i in 9:
+			wani_frames.append(load("res://assets/wani_flex_%d.png" % i))
 	is_new = _record()
 
 
@@ -54,6 +61,10 @@ func _ready() -> void:
 	sprite.centered = false
 	sprite.visible = false
 	add_child(sprite)
+	wani_sprite = Sprite2D.new()
+	wani_sprite.centered = false
+	wani_sprite.visible = false
+	add_child(wani_sprite)
 	strands = Node2D.new()
 	strands.draw.connect(_draw_strands)
 	add_child(strands)
@@ -90,7 +101,8 @@ func _process(delta: float) -> void:
 		sprite.offset = Vector2(-frames[0].get_width() / 2.0, -vh)
 		sprite.position = Vector2(sin(tt * 9.0) * 1.5, 0).round()
 		if tt < delta * 1.5:
-			main.zoom_moment(position + Vector2(0, -120), rise + frames.size() / float(info.fps) + 0.8)
+			var extra := 2.8 if kind == "duo" else 0.0
+			main.zoom_moment(position + Vector2(75.0 if kind == "duo" else 0.0, -120), rise + frames.size() / float(info.fps) + extra + 0.8)
 			main.sfx.play("gurgle", 0.0)
 		if fmod(tt, 0.4) < delta:
 			main.sfx.play_any(["gurgle", "grab_loop"], -2.0)
@@ -100,6 +112,9 @@ func _process(delta: float) -> void:
 	sprite.position = Vector2.ZERO
 	tt -= rise
 	var dur: float = frames.size() / float(info.fps)
+	if kind == "duo":
+		dur += 2.8   # 吐いたあと、ワニが形成されてポーズを決めるまで
+		_update_duo(tt)
 	var i := clampi(int(tt * info.fps), 0, frames.size() - 1)
 	sprite.visible = true
 	sprite.texture = frames[i]
@@ -107,6 +122,10 @@ func _process(delta: float) -> void:
 	# 最後のコマで少し止めてから画面を出す
 	if tt > dur + 0.8:
 		done = true
+	if kind == "duo":
+		if tt > dur + 0.8:
+			done = true
+		return
 	if tt < 0.05 and rise == 0.0:
 		main.zoom_moment(position + Vector2(0, -120), dur + 0.8)
 
@@ -148,6 +167,40 @@ func _draw_strands() -> void:
 			draw_rect(Rect2(roundf(x + sway - w * 0.5), roundf(y1), roundf(w), roundf(y0 - y1) + 1), light if j % 4 == 1 else pink)
 		draw_circle(Vector2(x, 0), thick * 0.9 + 2.0, dark)
 		draw_circle(Vector2(x, 0), thick * 0.9, pink)
+
+
+## 2対1の締め：サメがゲロのようにペンキを吐き出し、その山からワニだけが余裕で形成されてポーズ
+func _update_duo(tt: float) -> void:
+	var info: Dictionary = INFO["duo"]
+	var vomit_end: float = frames.size() / float(info.fps)
+	var i := clampi(int(tt * info.fps), 0, frames.size() - 1)
+	sprite.visible = true
+	sprite.texture = frames[i]
+	sprite.offset = Vector2(-frames[i].get_width() / 2.0, -float(info.feet))
+	# 吐き出す瞬間：床も壁も一気にペンキまみれ
+	if not vomited and i >= 4:
+		vomited = true
+		var spot := position + Vector2(150, 10)
+		main.add_goop(spot, 320.0, 1.0)
+		for k in 10:
+			main.splat_wall(Vector2(spot.x + randf_range(-300, 300), main.FLOOR_TOP - randf_range(10, 260)), randf_range(40, 90))
+			main.add_goop(spot + Vector2(randf_range(-260, 260), randf_range(-50, 50)), randf_range(60, 140), 0.7)
+		main.sfx.play("assist", 3.0)
+		main.sfx.play("defeat", 0.0)
+	# ワニ：吐き出された山（サメの口の先）から形成 → マッスルポーズで止める
+	var wt := tt - vomit_end + 0.3
+	if wt > 0.0 and wani_frames.size() == 18:
+		var fi := 0
+		if wt < 0.9:
+			fi = clampi(int(wt * 10.0), 0, 8)
+		else:
+			var ft := wt - 0.9
+			fi = 9 + (clampi(int(ft * 8.0), 0, 5) if ft < 1.2 else 5)
+		wani_sprite.visible = true
+		wani_sprite.texture = wani_frames[fi]
+		wani_sprite.offset = Vector2(-128, -253)
+		wani_sprite.position = Vector2(150, 12)
+		wani_sprite.flip_h = true   # サメの方を向いて余裕の顔
 
 
 ## とどめの間の小窓の様子（belly_view が読む）

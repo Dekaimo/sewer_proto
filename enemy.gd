@@ -181,8 +181,11 @@ func _process(delta: float) -> void:
 	# 足元の水たまりからドロドロがじわじわ広がる
 	spread_t -= delta
 	if spread_t <= 0.0:
-		spread_t = 1.0
-		main.add_goop(position, 150.0, 0.12)
+		spread_t = 0.5
+		main.add_goop(position, 170.0, 0.15)
+	# 動いた跡にはべったりペンキが残る（ナメクジのように）
+	if absf(position.x - last_x) + absf(position.y - last_y) > 0.3:
+		main.add_goop(position, 120.0, 0.6 * delta * 10.0)
 
 	var dx: float = p.position.x - position.x
 	match state:

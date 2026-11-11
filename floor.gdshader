@@ -58,6 +58,12 @@ void fragment() {
 		col = gc;
 	} else if (v > th - 0.06 && g > 0.03) {
 		col = mix(col, vec3(0.0), 0.45);   // 床に落ちる影
+	} else if (g > 0.06) {
+		// 薄いペンキ：引きずった跡・にじみ。薄くても見えるように、くすんだピンクで塗る
+		float smear = sin(p.x / 7.0 + p.y / 3.0 + fbm(p / 18.0) * 6.0);
+		vec3 thin = smear > 0.5 ? vec3(0.62, 0.22, 0.45) : vec3(0.48, 0.15, 0.34);
+		if (smear > 0.9 && g > 0.15) thin = vec3(0.70, 0.60, 0.25);
+		col = mix(col, thin, clamp(g / th, 0.35, 0.9));
 	}
 	COLOR = vec4(col, 1.0);
 }

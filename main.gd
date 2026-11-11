@@ -235,7 +235,8 @@ func _start_finisher(kind: String, at: Vector2) -> void:
 	finisher.main = self
 	add_child(finisher)
 	# 演出は画面の右寄りで見せる（左側にゲームオーバーの文字を出すので）
-	finisher.setup(kind, Vector2(clampf(at.x, 620.0, VIEW_W - 150.0), clampf(at.y, DEPTH_MIN, DEPTH_MAX)))
+	var fx := 520.0 if kind == "duo" else 620.0   # 2対1は右にワニが出てくるので少し左に
+	finisher.setup(kind, Vector2(clampf(at.x, fx, VIEW_W - (300.0 if kind == "duo" else 150.0)), clampf(at.y, DEPTH_MIN, DEPTH_MAX)))
 	if kind == "hug":
 		# 地上の負け：今まで通り、ワニが抱えて水たまりに沈む絵をそのまま使う
 		for c in enemies:

@@ -152,7 +152,7 @@ func _swim(delta: float, p) -> void:
 		return
 	position += to_p.normalized() * Vector2(1.0, 0.6) * sp * delta if to_p.length() > 4.0 else Vector2.ZERO
 	_clamp()
-	main.add_goop(position, 34.0, 0.03)
+	main.add_goop(position, 70.0, 0.5 * get_process_delta_time() * 10.0)   # 泳いだ跡がはっきり残る
 	# 真下に来たら丸呑み
 	if can_hunt and absf(to_p.x) < 16.0 and absf(to_p.y) < 14.0:
 		state = "gulp"
