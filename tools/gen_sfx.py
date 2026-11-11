@@ -13,22 +13,22 @@ ONLY = os.environ.get("ONLY", "").strip()
 
 # イベント名: (プロンプト, 長さ秒)
 PROMPTS = {
-    "hit": ("wet thick paint slap hitting a body, sticky splat, short", 0.8),
-    "grab": ("heavy slime grabbing, thick goo wrapping around, squelch, short", 1.2),
-    "grab_loop": ("slow sticky slime squishing and squeezing, wet goo kneading, short", 1.0),
-    "assist": ("large wet goo splash dumped on body, thick viscous splatter", 1.2),
-    "step_paint": ("footstep in sticky wet paint puddle, squelchy", 0.5),
-    "mop": ("wet mop swing and slap on floor", 0.7),
-    "wipe": ("wiping sticky goo off fur with cloth, short wet rub", 0.7),
-    "escape": ("pulling free from thick sticky slime, wet suction pop", 1.0),
-    "defeat": ("body collapsing into a big puddle of thick goo, long squelch", 2.5),
+    "hit": ("soft thick slime glob landing, sticky gooey plop, viscous and muffled, no liquid splash", 0.9),
+    "grab": ("thick sticky slime slowly engulfing, gooey stretching squelch, viscous, muffled", 1.4),
+    "grab_loop": ("slow sticky goo squishing, thick slime kneaded in hands, gloopy squelch, gentle", 1.2),
+    "assist": ("big glob of thick viscous slime oozing over, gloopy sticky squelch, slow", 1.5),
+    "step_paint": ("foot sinking into thick sticky goo, slow gloopy squelch, mud-like", 0.6),
+    "mop": ("mop dragging through thick sticky slime, gooey smear", 0.8),
+    "wipe": ("sticky slime being slowly smeared and wiped off, gooey stretch", 0.8),
+    "escape": ("pulling out of thick sticky slime, long gooey stretch and suction release", 1.2),
+    "defeat": ("slowly sinking into thick viscous slime, deep gloopy gurgling ooze", 2.5),
 }
 
 
 def generate(text: str, seconds: float) -> bytes:
     req = urllib.request.Request(
         "https://api.elevenlabs.io/v1/sound-generation?output_format=mp3_44100_128",
-        data=json.dumps({"text": text, "duration_seconds": seconds, "prompt_influence": 0.5}).encode(),
+        data=json.dumps({"text": text, "duration_seconds": seconds, "prompt_influence": 0.75}).encode(),
         headers={"xi-api-key": os.environ["ELEVENLABS_API_KEY"], "Content-Type": "application/json"},
         method="POST",
     )
