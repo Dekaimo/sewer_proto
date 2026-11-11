@@ -1,0 +1,10 @@
+{
+  "name": "wani_pose_hug2",
+  "mode": "edit",
+  "src": "assets_raw/gen/input_hug2.png",
+  "variants": 2,
+  "desc": "The monster closes its two arms around the small cat in a tight bear hug, pulling it against its chest. Keep the cat's face, hat and size exactly as in the image. Keep the exact same monster design, size and left-facing direction. Its lower body stays a melted puddle of paint with no legs and no feet. The monster has exactly two arms.",
+  "generations_before": 1844.0,
+  "generations_after": 1842.0,
+  "used": 2.0
+}

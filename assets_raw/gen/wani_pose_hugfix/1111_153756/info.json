@@ -1,0 +1,10 @@
+{
+  "name": "wani_pose_hugfix",
+  "mode": "edit",
+  "src": "assets_raw/gen/wani_pose_hugcat/1111_152736/v1_00.png",
+  "variants": 2,
+  "desc": "Remove the extra arm so the monster has only its two arms, both wrapped around the cat in a tight hug. Keep the cat's face, hat and size exactly as in the image. Keep the exact same monster design, size and left-facing direction. Its lower body stays a melted puddle of paint with no legs and no feet. The monster has exactly two arms.",
+  "generations_before": 1846.0,
+  "generations_after": 1844.0,
+  "used": 2.0
+}
