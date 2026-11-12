@@ -53,7 +53,7 @@ func _ready() -> void:
 	sprite.centered = false
 	sprite.offset = Vector2(-128, -FEET_Y)
 	add_child(sprite)
-	for k in ["idle", "walk", "rub", "reel", "emerge", "rise", "form", "settle", "hold", "belly"]:
+	for k in ["idle", "walk", "rub", "reel", "emerge", "rise", "rise_back", "turn", "form", "settle", "hold", "belly"]:
 		var arr: Array[Texture2D] = []
 		var i := 0
 		while ResourceLoader.exists("res://assets/dobe_%s_%d.png" % [k, i]):
@@ -150,25 +150,34 @@ func _show_idle() -> void:
 		sprite.texture = base_tex
 
 
-## 登場：水たまり → 顔のないドロドロの人型（rise）→ 頭ができて最後に目、決めポーズ（form）→ 待機へ戻る（settle）
-const RISE_T := 0.9
-const FORM_T := 1.3
-const SETTLE_T := 0.8
+## 登場。
+## ゆっくり版（ふつうの登場）：水たまりから背中を向けてねっとり起き上がる（rise_back）→ 振り向く（turn）
+##   → 頭ができて最後に目、決めポーズ（form）→ 待機へ（settle）
+## 速い版（顔見せ）：水たまり → 顔のない人型（rise）→ form → settle を速めに
+const SLOW_PHASES := [["rise_back", 2.6], ["turn", 1.0], ["form", 1.8], ["settle", 1.0]]
+const QUICK_PHASES := [["rise", 0.6], ["form", 0.9], ["settle", 0.5]]
 func _update_enter(_delta: float) -> void:
-	var sp := 1.5 if quick_enter else 1.0
-	var tt := t * sp
-	if tt < RISE_T or not frames.has("form"):
-		var dur := RISE_T if frames.has("form") else 1.2
-		rise = clampf(tt / dur, 0.0, 1.0)
-		_apply_rise()
-		if rise < 1.0 or frames.has("form"):
+	var phases: Array = QUICK_PHASES if (quick_enter or not frames.has("rise_back")) else SLOW_PHASES
+	var tt := t
+	for ph in phases:
+		var k: String = ph[0]
+		var dur: float = ph[1]
+		if not frames.has(k):
+			continue
+		if tt < dur:
+			if k == "rise":
+				rise = clampf(tt / dur, 0.0, 1.0)
+				_apply_rise()
+			else:
+				_play_once(k, tt / dur)
 			return
-	elif tt < RISE_T + FORM_T:
-		_play_once("form", (tt - RISE_T) / FORM_T)
-		return
-	elif frames.has("settle") and tt < RISE_T + FORM_T + SETTLE_T:
-		_play_once("settle", (tt - RISE_T - FORM_T) / SETTLE_T)
-		return
+		tt -= dur
+	if not frames.has("form"):
+		# 絵がそろっていないとき：立ち絵を伸ばして代用
+		rise = clampf(t / 1.2, 0.0, 1.0)
+		_apply_rise()
+		if rise < 1.0:
+			return
 	rise = 1.0
 	state = "show"
 	t = 0.0
