@@ -136,11 +136,12 @@ func _process(delta: float) -> void:
 		emb_mat.set_shader_parameter("contamination", p.contamination())
 		content.texture = p.embrace_tex
 		content.material = emb_mat
-		content.region_rect = Rect2(28, 40, 200, 216)
+		content.region_rect = Rect2(0, 20, 256, 200)
 	content.flip_h = false
 	if emb:
-		# 2体の頭まで映すため、この絵だけ等倍（横倒しで 216x200 → 小窓 280x180）
-		content.scale = Vector2(1.0 - 0.04 * sq, 1.0 + 0.05 * sq)
+		# 寝かせた向きの絵なので回さない。2体の頭まで映すため等倍
+		content.rotation = 0.0
+		content.scale = Vector2(1.0 - 0.03 * sq, 1.0 + 0.04 * sq)
 	content.position = Vector2(W * 0.5, H * 0.5 + sink * 50.0) + Vector2(sin(t * 37.0) * shake, cos(t * 29.0) * shake * 0.7).round()
 	# ドーベルマンも中にいる：横倒しで上からのしかかり、主人公をワニとサンドイッチにしてネバネバに抱きしめる（手前に描く）
 	dobe_layer.visible = lie
