@@ -23,6 +23,8 @@ var state := "swim"   # swim / gulp / leap / drag / spit / stunned
 var facing := -1      # 元絵は左向き
 var t := 0.0
 var cd := 0.0          # 次の攻撃までの待ち
+var aim := Vector2.ZERO  # 狙っている場所（少し前の主人公の位置）
+var aim_t := 0.0
 var leap_from := Vector2.ZERO
 var leap_to := Vector2.ZERO
 var z := 0.0
@@ -231,22 +233,28 @@ func _swim(delta: float, p) -> void:
 		facing = 1 if raw.x > 0 else -1
 	# 口が主人公の真下に来る位置を目指す
 	var mx: float = B2_MOUTH if anims.has("breach2") else (0.0 if anims.has("breach") else MOUTH_X)
-	var target: Vector2 = p.position - Vector2(facing * mx, 0.0)
+	# 狙いは少し遅れて付いてくる（序盤ほど更新が遅い）。ワニに捕まっている獲物は動かないので正確
+	aim_t -= delta
+	if aim_t <= 0.0 or aim == Vector2.ZERO or p.state == "grabbed":
+		aim = p.position
+		aim_t = lerpf(1.0, 0.4, main.ramp())
+	var target: Vector2 = aim - Vector2(facing * mx, 0.0)
 	var to_p: Vector2 = target - position
-	# ドロドロの中は速い。乾いた床も潜って進む（通った跡がドロドロになる）
-	var sp: float = 120.0 if main.goop_at(position) > 0.12 else 65.0
+	# ドロドロの中は速い。乾いた床も潜って進む（通った跡がドロドロになる）。序盤は遅め
+	var sp: float = (120.0 if main.goop_at(position) > 0.12 else 65.0) * lerpf(0.55, 1.0, main.ramp())
 	if p.state == "grabbed":
 		sp *= 1.3   # ワニに捕まっている獲物には一直線
 	var can_hunt: bool = p.state in ["normal", "slipped", "grabbed"] and cd <= 0.0
 	# 遠くにいれば大ジャンプ
-	if can_hunt and to_p.length() > 320.0 and p.state != "grabbed":
+	if can_hunt and to_p.length() > 320.0 and p.state != "grabbed" and main.ramp() > 0.3:
 		_start_leap(p)
 		return
 	position += to_p.normalized() * Vector2(1.0, 0.6) * sp * delta if to_p.length() > 4.0 else Vector2.ZERO
 	_clamp()
 	main.add_goop(position, 70.0, 0.5 * get_process_delta_time() * 10.0)   # 泳いだ跡がはっきり残る
 	# 真下に来たら丸呑み
-	if can_hunt and absf(to_p.x) < 16.0 and absf(to_p.y) < 14.0:
+	var real: Vector2 = p.position - Vector2(facing * mx, 0.0) - position
+	if can_hunt and absf(real.x) < 16.0 and absf(real.y) < 14.0:
 		state = "gulp"
 		t = 0.0
 		gulp_fast = p.state == "grabbed"
@@ -387,7 +395,7 @@ func _sink_after_attack() -> void:
 		view_mode = "inside" if (caught_wani != null or randf() < 0.6) else "splat"
 	else:
 		state = "swim"
-		cd = randf_range(2.5, 4.0)
+		cd = randf_range(2.5, 4.0) + lerpf(2.5, 0.0, main.ramp())
 
 
 # ---------- 床の下で引き回す ----------

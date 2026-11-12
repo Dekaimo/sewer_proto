@@ -169,6 +169,12 @@ func _add_keys(action: String, keys: Array) -> void:
 
 
 # ---------- 敵の連携（ディレクター） ----------
+## 序盤の手加減：0（開始直後）→ 1（RAMP_TIME 秒生き延びた）。敵の潜行速度・狙いの正確さ・攻撃間隔に掛ける
+const RAMP_TIME := 120.0
+func ramp() -> float:
+	return clampf(survive_time / RAMP_TIME, 0.0, 1.0)
+
+
 func request_token(e) -> bool:
 	if token_holder == null or not is_instance_valid(token_holder):
 		token_holder = e

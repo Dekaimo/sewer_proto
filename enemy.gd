@@ -16,7 +16,9 @@ var vel_x := 0.0
 var lunge_dir := 1
 var assist_timer := 0.0
 var spread_t := 0.0
-var ambush_cd := 4.0     # 床に潜って奇襲するまでの待ち
+var ambush_cd := 9.0     # 床に潜って奇襲するまでの待ち
+var aim := Vector2.ZERO  # 潜行中に狙っている場所（主人公の少し前の位置を覚えているだけ）
+var aim_t := 0.0
 var lurk_t := 0.0
 var ambush_done := false
 var slide_v := 0.0       # 抱きつきの勢いで掴んだあと滑る速さ
@@ -478,7 +480,7 @@ func _want_ambush(delta: float, p) -> bool:
 	var on_goop: bool = main.goop_at(p.position) > 0.25
 	var far: bool = absf(p.position.x - position.x) > 260.0
 	if on_goop or far:
-		ambush_cd = randf_range(5.0, 9.0)
+		ambush_cd = randf_range(lerpf(10.0, 5.0, main.ramp()), lerpf(15.0, 9.0, main.ramp()))
 		return true
 	return false
 
@@ -497,10 +499,15 @@ func _update_ambush(delta: float) -> void:
 		"lurk":
 			# 床の下を移動。ドロドロのある所しか通れない。泡だけが見える
 			lurk_t += delta
+			# 狙いは少し遅れて付いてくる（序盤ほど更新が遅く、逃げれば振り切れる）
+			aim_t -= delta
+			if aim_t <= 0.0 or aim == Vector2.ZERO:
+				aim = p.position
+				aim_t = lerpf(1.1, 0.45, main.ramp())
 			var dx: float = p.position.x - position.x
-			var to_p: Vector2 = p.position - position
-			# ドロドロの中は速く、乾いた床はゆっくり（通った跡がドロドロになる）
-			var sp: float = 200.0 if main.goop_at(position) > 0.12 else 70.0
+			var to_p: Vector2 = aim - position
+			# ドロドロの中は速く、乾いた床はゆっくり（通った跡がドロドロになる）。序盤は遅め
+			var sp: float = (200.0 if main.goop_at(position) > 0.12 else 70.0) * lerpf(0.5, 1.0, main.ramp())
 			if to_p.length() > 4.0:
 				position += to_p.normalized() * Vector2(1.0, 0.6) * sp * delta
 				main.add_goop(position, 36.0, 0.04)
@@ -508,7 +515,7 @@ func _update_ambush(delta: float) -> void:
 			if p.z > 25.0 and absf(dx) < 70.0 and absf(to_p.y) < 30.0 and p.state == "normal" and p.invuln <= 0.0:
 				_start_pillar(p)
 				return
-			var under: bool = to_p.length() < 12.0 and p.state != "grabbed"
+			var under: bool = (p.position - position).length() < 12.0 and p.state != "grabbed"
 			if (under and lurk_t > 0.6) or lurk_t > 4.5:
 				state = "ambush"
 				anim_t = 0.0
