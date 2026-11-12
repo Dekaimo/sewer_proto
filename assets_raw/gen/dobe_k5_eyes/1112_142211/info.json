@@ -1,0 +1,10 @@
+{
+  "name": "dobe_k5_eyes",
+  "mode": "edit",
+  "src": "assets_raw/dobe_k5.png",
+  "variants": 3,
+  "desc": "Keep everything exactly the same: pose, body, marble pattern and goo. Only change the eyes into bigger human-like eyes: a bright yellow iris with a dark round pupil, half-lidded with a sly smug look, and keep the muzzle simple and smooth. Same pixel art style.",
+  "generations_before": 1417.0,
+  "generations_after": 1414.0,
+  "used": 3.0
+}

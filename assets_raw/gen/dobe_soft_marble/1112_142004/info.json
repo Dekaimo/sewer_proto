@@ -1,0 +1,10 @@
+{
+  "name": "dobe_soft_marble",
+  "mode": "edit",
+  "src": "assets_raw/dobe_soft.png",
+  "variants": 3,
+  "desc": "Keep everything exactly the same: pose, head, eyes, soft broad chest, colors and goo. Only add flowing yellow marble streaks swirling over the pink goo body, arms, chest, neck and puddle, like pink paint mixed with yellow paint. Same pixel art style.",
+  "generations_before": 1420.0,
+  "generations_after": 1417.0,
+  "used": 3.0
+}
