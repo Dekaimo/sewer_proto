@@ -1,0 +1,10 @@
+{
+  "name": "dobe_pose_edit",
+  "mode": "editv2",
+  "src": "assets/dobe_idle.png",
+  "variants": 2,
+  "desc": "this exact pink paint goo Doberman sprite, same three-quarter view facing left, same body, colors, marble, outline and pixel art style, same sly closed-mouth smirk and yellow eyes. New pose: the front arm (on the left side of the image) is raised up beside its face, the hand open with fingers half-curled and spread apart, thick sticky strands of goo stretching between the fingers, as if it is squishing its fingers together and savoring the gooey slimy feel of its own body; it looks at that raised hand with half-lidded eyes. The other arm hangs relaxed with a fist. Lower body melts into the same puddle. Transparent background.",
+  "generations_before": 1155.0,
+  "generations_after": 1135.0,
+  "used": 20.0
+}

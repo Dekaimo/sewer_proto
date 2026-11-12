@@ -1,0 +1,14 @@
+{
+  "name": "anim_dobe_idle2",
+  "mode": "anim",
+  "src": "assets/dobe_idle.png",
+  "last": "assets/dobe_idle.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge muscular Doberman monster made of thick glossy pink paint goo with yellow marble streaks, very broad chest, its lower body melting into a puddle, no legs",
+  "variants": 2,
+  "desc": "Idle loop: slow calm breathing, the chest rises only slightly (subtle, not inflating), shoulders roll a little, thick goo keeps dripping and sagging from the chin, the jaw and the broad chest, sticky drips stretch and fall, the body sways a little, the puddle base ripples. Stays in place. The face keeps the same sly closed-mouth smirk. Thick, sticky, viscous goo.",
+  "generations_before": 1157.0,
+  "generations_after": 1155.0,
+  "used": 2.0
+}

@@ -1,0 +1,22 @@
+{
+  "name": "dobe_pose_gen",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "seed": 7402,
+  "desc": "Pixel art sprite of this exact pink paint goo Doberman sprite, same three-quarter view facing left, same body, colors, marble, outline and pixel art style, same sly closed-mouth smirk and yellow eyes. New pose: the front arm (on the left side of the image) is raised up beside its face, the hand open with fingers half-curled and spread apart, thick sticky strands of goo stretching between the fingers, as if it is squishing its fingers together and savoring the gooey slimy feel of its own body; it looks at that raised hand with half-lidded eyes. The other arm hangs relaxed with a fist. Lower body melts into the same puddle. Transparent background.",
+  "style": "assets_raw/wani_style_patch.png",
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "the exact character sprite to draw: keep its design, body, face, colors, marble and pixel style"
+    ],
+    [
+      "assets_raw/dobe_ref3/face.png",
+      "pose reference: one hand raised beside the face, fingers squishing sticky goo, looking at it with a sly expression"
+    ]
+  ],
+  "generations_before": 1125.0,
+  "generations_after": 1115.0,
+  "used": 10.0
+}
