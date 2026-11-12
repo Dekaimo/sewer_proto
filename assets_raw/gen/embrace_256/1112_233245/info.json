@@ -1,0 +1,10 @@
+{
+  "name": "embrace_256",
+  "mode": "editv2",
+  "src": "assets_raw/embrace_256_rough.png",
+  "variants": 1,
+  "desc": "Redraw this as crisp, clean pixel art at this exact size without changing anything else: the pink goo crocodile (left) and the pink goo Doberman (right) embracing chest to chest with the small black witch cat squashed between them, glued by thick goo strands, one shared puddle. Sharp dark outlines, clean single-pixel shading, no blur, no soft or semi-transparent edges. Same composition, poses, designs, colors and yellow marble streaks. Transparent background.",
+  "generations_before": 842.9000000000001,
+  "generations_after": 832.9000000000001,
+  "used": 10.0
+}
