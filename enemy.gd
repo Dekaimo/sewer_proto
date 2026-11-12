@@ -63,6 +63,12 @@ var met_scale := 1.0
 var absorb_y := 1.0
 var cru_stage := 0         # 0=晒し 1=半分取り込まれる 2=ほぼ取り込まれる
 var cru_base: Sprite2D
+var xfade: Sprite2D          # 次のコマを重ねて、コマ間をぬるっとつなぐ
+var xfade_mat: ShaderMaterial
+var tilt := 0.0              # 上体の傾き（ラジアン）
+var tilt_amp := 0.0          # 振れ幅（なめらかに追従させる）
+const RISE_T := 3.6          # 柱が粘っこく立ち上がって持ち上げるまで
+const MORPH_T := 3.4         # 柱がグチュグチュとワニになるまで
 var sway := Vector2.ZERO     # 晒し上げ中の揺れ
 var sway_v := Vector2.ZERO
 var jolt_t := 0.0
@@ -98,36 +104,18 @@ func _ready() -> void:
 			var mp := "res://assets/masks/wani_%s_mask.png" % k
 			if ResourceLoader.exists(mp):
 				cru_masks[k] = load(mp)
-	var morph: Array[Texture2D] = []
-	for i in 8:
-		var pth2 := "res://assets/wani_morph_%d.png" % i
-		if ResourceLoader.exists(pth2):
-			morph.append(load(pth2))
-			var mp2 := "res://assets/masks/wani_morph_%d_mask.png" % i
+	# 連番アニメ（柱の立ち上がり / 柱→ワニへの変身 / 柱が飛び出す）。枚数はファイルがある分だけ
+	for k in ["rise", "morph", "burst"]:
+		var arr: Array[Texture2D] = []
+		var i := 0
+		while ResourceLoader.exists("res://assets/wani_%s_%d.png" % [k, i]):
+			arr.append(load("res://assets/wani_%s_%d.png" % [k, i]))
+			var mp2 := "res://assets/masks/wani_%s_%d_mask.png" % [k, i]
 			if ResourceLoader.exists(mp2):
-				cru_masks["morph_%d" % i] = load(mp2)
-	if morph.size() > 0:
-		cru_frames["morph"] = morph
-	var swayf: Array[Texture2D] = []
-	for i in 8:
-		var pth4 := "res://assets/wani_sway_%d.png" % i
-		if ResourceLoader.exists(pth4):
-			swayf.append(load(pth4))
-			var mp4 := "res://assets/masks/wani_sway_%d_mask.png" % i
-			if ResourceLoader.exists(mp4):
-				cru_masks["sway_%d" % i] = load(mp4)
-	if swayf.size() == 8:
-		cru_frames["sway"] = swayf
-	var burst: Array[Texture2D] = []
-	for i in 7:
-		var pth3 := "res://assets/wani_burst_%d.png" % i
-		if ResourceLoader.exists(pth3):
-			burst.append(load(pth3))
-			var mp3 := "res://assets/masks/wani_burst_%d_mask.png" % i
-			if ResourceLoader.exists(mp3):
-				cru_masks["burst_%d" % i] = load(mp3)
-	if burst.size() == 7:
-		cru_frames["burst"] = burst
+				cru_masks["%s_%d" % [k, i]] = load(mp2)
+			i += 1
+		if arr.size() > 0:
+			cru_frames[k] = arr
 	hug_mat = ShaderMaterial.new()
 	hug_mat.shader = HUG_SHADER
 	sprite = Sprite2D.new()
@@ -148,6 +136,12 @@ func _ready() -> void:
 	sprite.offset = Vector2(-128, -FEET_Y - 1)
 	add_child(cru_base)
 	add_child(trunk)
+	xfade_mat = ShaderMaterial.new()
+	xfade_mat.shader = HUG_SHADER
+	xfade = Sprite2D.new()
+	xfade.centered = false
+	xfade.visible = false
+	xfade.material = xfade_mat
 	for i in SEG_N:
 		var sg := Sprite2D.new()
 		sg.centered = false
@@ -180,6 +174,9 @@ func _process(delta: float) -> void:
 	sprite.offset = Vector2(-128, -FEET_Y - 1)
 	trunk.visible = false
 	cru_base.visible = false
+	sprite.rotation = 0.0
+	if xfade:
+		xfade.visible = false
 	for sg in segs:
 		sg.visible = false
 	front.queue_redraw()
@@ -512,98 +509,133 @@ func _update_crucify(delta: float) -> void:
 	cru_t += delta
 	sprite.material = hug_mat
 	hug_mat.set_shader_parameter("contamination", p.contamination())
+	xfade_mat.set_shader_parameter("contamination", p.contamination())
 	var has_art: bool = cru_frames.has("pillar") and cru_frames.has("crucify")
 	if (p.state != "crucified" and p.state != "defeated") or p.crucifier != self:
 		_end_hold()
 		sprite.position = Vector2.ZERO
+		sprite.rotation = 0.0
+		sprite.region_enabled = false
+		sprite.offset = Vector2(-128, -FEET_Y - 1)
+		trunk.visible = false
+		cru_base.visible = false
+		xfade.visible = false
 		sprite.visible = true
 		state = "emerge"
 		anim_t = 0.6
 		return
+	var feet := float(FEET_Y + 1)
+	if xfade.get_parent() == null:
+		add_child(xfade)
+		move_child(xfade, sprite.get_index() + 1)
 	if state == "pillar":
-		# 粘液の柱がグチュルルッと飛び出して、主人公を絡め取る（生成アニメ）→ 柱のまま少し震える
+		# 足元の水たまりから、粘っこい柱がじわじわ立ち上り、主人公を絡め取ってじっくり持ち上げる
 		sprite.region_enabled = false
-		sprite.offset = Vector2(-128, -FEET_Y - 1)
-		if cru_frames.has("burst") and cru_t < 0.6:
-			var bi := clampi(int(cru_t / 0.6 * 7.0), 0, 6)
-			sprite.texture = cru_frames["burst"][bi]
-			_set_mask("burst", bi)
-			sprite.position = Vector2.ZERO
+		sprite.rotation = 0.0
+		sprite.offset = Vector2(-128, -feet)
+		sprite.position = Vector2.ZERO
+		trunk.visible = false
+		cru_base.visible = false
+		var k := clampf(cru_t / RISE_T, 0.0, 1.0)
+		if cru_frames.has("rise"):
+			# 最初はゆっくり、絡みついてからグーッと、最後はじわっと止まる
+			var e := k * k * (3.0 - 2.0 * k)
+			e = lerpf(e, pow(k, 1.6), 0.4)
+			_show_seq("rise", e, Vector2.ZERO)
 		else:
 			sprite.texture = cru_frames["pillar"] if has_art else IDLE
 			_set_mask("pillar")
-			sprite.position = Vector2(sin(cru_t * 80.0) * 2.0, 0).round()
-		# 柱のまま少し震えてから、ワニの体に変わる
-		if cru_t > 1.1:
+			xfade.visible = false
+		# 伸びるたびにヌチャッと鳴る
+		if fmod(cru_t, 0.55) < delta:
+			main.sfx.play_any(["gurgle", "grab_loop"], -4.0)
+			main.add_goop(position + Vector2(randf_range(-40, 40), randf_range(-10, 10)), randf_range(40, 70), 0.3)
+			p.add_dirt(p.random_body_point(), 2)
+		if cru_t > RISE_T + 0.5:
 			state = "crucify"
 			cru_t = 0.0
 			main.sfx.play("grab_loop", 2.0)
 			main.add_goop(position, 160.0, 0.5)
+		_update_drips(delta)
 		return
-	# 晒し上げ：十字のポーズのままネットリぐらぐら揺らす。ときどきガクンと揺さぶる
-	var transform_k := clampf(cru_t / 0.45, 0.0, 1.0)
+	# 変身：柱がボコボコ膨らんでワニになる（そのあいだに上半身をさらに高く持ち上げる）
+	var mk := clampf(cru_t / MORPH_T, 0.0, 1.0)
+	var morphing: bool = has_art and cru_frames.has("morph") and mk < 1.0
 	var tex: Texture2D
-	if has_art and cru_frames.has("morph") and transform_k < 1.0:
+	if morphing:
 		var arr: Array = cru_frames["morph"]
-		var mi := clampi(int(transform_k * arr.size()), 0, arr.size() - 1)
-		tex = arr[mi]
-		_set_mask("morph", mi)
+		var fpos := mk * float(arr.size() - 1)
+		tex = arr[int(fpos)]
+		_set_mask("morph", int(fpos))
+		if fmod(cru_t, 0.4) < delta:
+			main.sfx.play_any(["gurgle", "grab_loop"], -2.0)
+			main.add_goop(position + Vector2(randf_range(-70, 70), randf_range(-12, 12)), randf_range(50, 90), 0.4)
 	else:
-		var key := "crucify"
-		if cru_stage == 2 and cru_frames.has("absorb2"):
-			key = "absorb2"
-		elif cru_stage >= 1 and cru_frames.has("absorb1"):
-			key = "absorb1"
-		tex = cru_frames[key] if has_art else IDLE
-		_set_mask(key)
-		# 奥・手前に揺れるループ（手前に倒れ込む／奥へ反る、の端で長めに止まる）
-		if key == "crucify" and cru_frames.has("sway"):
-			var dp := fmod(depth_phase, TAU) / TAU          # 0〜1
-			var eased := dp + sin(dp * TAU * 2.0) * 0.06    # 端（コマ1付近と5付近）でためる
-			var si := posmod(int(eased * 8.0), 8)
-			tex = cru_frames["sway"][si]
-			_set_mask("sway", si)
-	# メトロノーム：端で一瞬ためて、ぐーっと反対側へ。ときどき勢い余って大きく振れる
+		tex = cru_frames["crucify"] if has_art else IDLE
+		_set_mask("crucify")
+	# メトロノーム：上体を左右にぐーっと傾ける。端でためて、なめらかに反対側へ
 	var prev_c := cos(met_phase)
-	met_phase += delta * met_speed
+	if not morphing:
+		met_phase += delta * met_speed
 	var c := cos(met_phase)
-	if signf(c) != signf(prev_c):
-		# 切り返し：ペンキがたっぷり飛び散る
-		met_amp = 1.8 if randf() < 0.3 else randf_range(0.9, 1.2)
+	var want := 0.0 if morphing else met_amp * met_scale
+	tilt_amp = lerpf(tilt_amp, want, 1.0 - exp(-delta * 1.2))
+	if not morphing and signf(c) != signf(prev_c):
+		# 振り切ったところ：ペンキがたっぷり飛び散る
+		met_amp = 1.5 if randf() < 0.3 else randf_range(0.9, 1.15)
 		var side := signf(sin(met_phase))
 		main.sfx.play_any(["gurgle", "grab_loop"], 0.0)
 		for i in 3:
 			main.splat_wall(Vector2(position.x + side * randf_range(60, 260), main.FLOOR_TOP - randf_range(30, 260)), randf_range(35, 70) * met_amp)
 			main.add_goop(position + Vector2(side * randf_range(40, 200), randf_range(-40, 40)), randf_range(50, 110), 0.5)
 		for i in int(10 * met_amp):
-			drip_vis.append({"x": side * randf_range(20.0, 110.0), "y": -randf_range(170.0, 260.0), "v": -randf_range(60.0, 200.0), "vx": side * randf_range(80.0, 260.0)})
+			drip_vis.append({"x": side * randf_range(20.0, 110.0), "y": -randf_range(190.0, 290.0), "v": -randf_range(60.0, 200.0), "vx": side * randf_range(80.0, 260.0)})
 		for i in 2:
 			p.add_dirt(p.random_body_point(), 2)
-	# 取り込み：段階に合わせて、粘液が主人公を下から呑み込んでいく（UVで0.48=首から下 / 0.35=帽子の先だけ残る）
+	# 取り込み：段階に合わせて、粘液が主人公を下から呑み込んでいく
 	var target_y: float = [1.0, 0.48, 0.35][cru_stage]
 	absorb_y = move_toward(absorb_y, target_y, delta * 0.12)
 	hug_mat.set_shader_parameter("absorb_y", absorb_y)
-	depth_phase += delta * met_speed * 0.55
+	xfade_mat.set_shader_parameter("absorb_y", absorb_y)
 	var s := sin(met_phase)
-	var sx: float = 16.0 * met_amp * met_scale * signf(s) * pow(absf(s), 0.4)   # 左右は控えめ（主役は奥行きのループ）
-	hist.push_front(sx)
+	# 傾き：純粋なサイン（端でゆっくり、真ん中で速い）。最大で約13°、負けたあとは20°近くまで
+	tilt = 0.17 * tilt_amp * s
+	var lean_x := sin(tilt) * 30.0          # 幹の上端も傾く側へずれる
+	hist.push_front(lean_x)
 	if hist.size() > 40:
 		hist.pop_back()
-	sway = Vector2(sx, -absf(sx) * 0.22)   # 振り切るとぐにゃっと沈む
-	# 高く持ち上げる：上半身を持ち上げ、そのぶん粘液の幹を引き伸ばす（床の水たまりは動かさない）
-	var lift: float = CRU_LIFT * ease(clampf(cru_t / 0.5, 0.0, 1.0), 0.4) - sway.y
-	var feet := float(FEET_Y + 1)
+	sway = Vector2(sin(tilt) * float(CRU_SPLIT) * 0.8, absf(sin(tilt)) * 18.0)   # 揺れの先端（垂れの位置用）
+	var lift: float = CRU_LIFT * ease(mk, -1.8)
+	lift -= absf(sin(tilt)) * 10.0      # 倒れた側へぐにゃっと沈む
+	# 上半身：腰（切れ目）を支点に回転させて傾ける
 	sprite.texture = tex
 	sprite.region_enabled = true
 	sprite.region_rect = Rect2(0, 0, 256, CRU_SPLIT)
-	sprite.offset = Vector2(-128, -feet)
-	sprite.position = Vector2(sway.x, -lift).round()
-	# 幹：1枚を縦に引き伸ばし、シェーダーで行ごとになめらかにしならせる（下ほど小さく、遅れて追いかける）
+	sprite.offset = Vector2(-128, -CRU_SPLIT)
+	sprite.position = Vector2(lean_x, -feet + CRU_SPLIT - lift)
+	sprite.rotation = tilt
+	if morphing:
+		var arr2: Array = cru_frames["morph"]
+		var fpos2 := mk * float(arr2.size() - 1)
+		var nx := mini(int(fpos2) + 1, arr2.size() - 1)
+		xfade.visible = nx != int(fpos2)
+		xfade.texture = arr2[nx]
+		xfade.region_enabled = true
+		xfade.region_rect = sprite.region_rect
+		xfade.offset = sprite.offset
+		xfade.position = sprite.position
+		xfade.rotation = sprite.rotation
+		xfade.flip_h = sprite.flip_h
+		xfade.modulate.a = fpos2 - floorf(fpos2)
+		xfade_mat.set_shader_parameter("cat_mask", cru_masks.get("morph_%d" % nx))
+	else:
+		xfade.visible = false
+	# 幹：上端は上半身の付け根に合わせ、遅れてしなりながら追いかける
+	var fl := -1.0 if sprite.flip_h else 1.0
 	var total: float = CRU_TRUNK + lift
-	var lag_x: float = hist[mini(14, hist.size() - 1)]
+	var lag_x: float = hist[mini(12, hist.size() - 1)]
 	for sg in segs:
 		sg.visible = false
-	var fl := -1.0 if sprite.flip_h else 1.0
 	trunk.visible = true
 	trunk.texture = tex
 	trunk.material = bend_mat
@@ -618,8 +650,8 @@ func _update_crucify(delta: float) -> void:
 	bend_mat.set_shader_parameter("band_y0", float(CRU_SPLIT))
 	bend_mat.set_shader_parameter("band_h", float(CRU_TRUNK))
 	bend_mat.set_shader_parameter("flow", floorf(cru_t * 26.0))
-	bend_mat.set_shader_parameter("top_off", roundf(sway.x) * fl)
-	bend_mat.set_shader_parameter("mid_off", lag_x * 0.45 * fl)
+	bend_mat.set_shader_parameter("top_off", lean_x * fl)
+	bend_mat.set_shader_parameter("mid_off", lag_x * 0.6 * fl)
 	cru_base.visible = true
 	cru_base.texture = tex
 	cru_base.material = hug_mat
@@ -631,7 +663,31 @@ func _update_crucify(delta: float) -> void:
 	if fmod(cru_t, 0.25) < delta:
 		main.add_goop(position + Vector2(randf_range(-50, 50), randf_range(-15, 15)), randf_range(40, 80), 0.3)
 	if randf() < 0.5:
-		drip_vis.append({"x": randf_range(-90.0, 90.0) + sway.x, "y": -randf_range(140.0, 240.0), "v": 0.0, "vx": 0.0})
+		drip_vis.append({"x": randf_range(-90.0, 90.0) + sway.x * 0.6, "y": -randf_range(160.0, 270.0), "v": 0.0, "vx": 0.0})
+	_update_drips(delta)
+
+
+# 連番を、コマ間に次のコマを重ねてなめらかに再生する（k: 0〜1）
+func _show_seq(key: String, k: float, pos: Vector2) -> void:
+	var arr: Array = cru_frames[key]
+	var fpos := clampf(k, 0.0, 1.0) * float(arr.size() - 1)
+	var i := int(fpos)
+	var nx := mini(i + 1, arr.size() - 1)
+	sprite.texture = arr[i]
+	_set_mask(key, i)
+	xfade.visible = nx != i
+	xfade.texture = arr[nx]
+	xfade.region_enabled = false
+	xfade.offset = sprite.offset
+	xfade.position = pos
+	xfade.rotation = 0.0
+	xfade.flip_h = sprite.flip_h
+	xfade.modulate.a = fpos - floorf(fpos)
+	xfade_mat.set_shader_parameter("cat_mask", cru_masks.get("%s_%d" % [key, nx]))
+	xfade_mat.set_shader_parameter("absorb_y", 1.0)
+
+
+func _update_drips(delta: float) -> void:
 	if drip_vis.size() > 60:
 		drip_vis.pop_front()
 	for d in drip_vis:
