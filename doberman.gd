@@ -19,6 +19,7 @@ extends Node2D
 ## あとで：サメの腹の中の3対1（下から抱きつく）、地面での挟み撃ち、サメのゆっくり丸呑み、棺桶
 
 const DEBUG_SHOW := false
+const HUG_SHADER = preload("res://hug_dirt.gdshader")
 const FEET_Y := 240
 
 var main
@@ -46,6 +47,8 @@ var wobble := 0.0
 var fake_left := 0          # あと何回「押されたフリ」をするか
 var rub_t := 0.0
 var push_off := 0.0         # 押し返されて離れている距離（見た目）
+var tex_masks := {}         # コマのテクスチャ → 主人公部分のマスク
+var hug_mat: ShaderMaterial
 var frames := {}            # "idle" / "walk" / "rub" / "reel" … 素材があれば
 
 
@@ -62,7 +65,12 @@ func _ready() -> void:
 		var arr: Array[Texture2D] = []
 		var i := 0
 		while ResourceLoader.exists("res://assets/dobe_%s_%d.png" % [k, i]):
-			arr.append(load("res://assets/dobe_%s_%d.png" % [k, i]))
+			var tx: Texture2D = load("res://assets/dobe_%s_%d.png" % [k, i])
+			arr.append(tx)
+			# 主人公込みのコマには、主人公の部分のマスクがある（汚れを乗せる）
+			var mp := "res://assets/masks/dobe_%s_%d_mask.png" % [k, i]
+			if ResourceLoader.exists(mp):
+				tex_masks[tx] = load(mp)
 			i += 1
 		if arr.size() > 0:
 			frames[k] = arr
@@ -73,9 +81,21 @@ func _ready() -> void:
 		sprite.texture = load("res://assets/wani_idle.png")
 		sprite.modulate = Color(0.75, 0.6, 0.9)
 	base_tex = sprite.texture
+	hug_mat = ShaderMaterial.new()
+	hug_mat.shader = HUG_SHADER
 	rise = 0.0
 	_apply_rise()
 	t = 0.0
+
+
+## 表示中のコマが主人公込みなら、主人公の部分にだけ汚れを乗せる
+func _update_mat() -> void:
+	if tex_masks.has(sprite.texture):
+		sprite.material = hug_mat
+		hug_mat.set_shader_parameter("cat_mask", tex_masks[sprite.texture])
+		hug_mat.set_shader_parameter("contamination", main.player.contamination())
+	else:
+		sprite.material = null
 
 
 func active() -> bool:
@@ -129,6 +149,7 @@ func _process(delta: float) -> void:
 				_start_sink()
 	position.x = clampf(position.x, main.ARENA_L, main.ARENA_R)
 	position.y = clampf(position.y, main.DEPTH_MIN, main.DEPTH_MAX)
+	_update_mat()
 
 
 # ---------- 登場・潜る・潜伏 ----------
