@@ -5,6 +5,32 @@ shader_type canvas_item;
 uniform vec2 size = vec2(960.0, 210.0);
 uniform float px = 1.0;
 uniform sampler2D goop_tex : filter_linear, repeat_disable;
+// 地中で何かが暴れている場所：床のペンキそのものが盛り上がる（x, y, 横の半径, 高さ）床の座標・ピクセル
+uniform vec4 heaves[12];
+uniform int heave_n = 0;
+// 波紋（x, y, 半径, 強さ）
+uniform vec4 rings[6];
+uniform int ring_n = 0;
+
+float heave_h(vec2 p) {
+	float h = 0.0;
+	for (int i = 0; i < 12; i++) {
+		if (i >= heave_n) break;
+		vec4 hv = heaves[i];
+		vec2 d = (p - hv.xy) / vec2(hv.z, hv.z * 0.36);
+		float r2 = dot(d, d);
+		// 裾はなだらか、頂上は丸い（ガウス）
+		h += hv.w * exp(-r2 * 2.2);
+	}
+	for (int j = 0; j < 6; j++) {
+		if (j >= ring_n) break;
+		vec4 rg = rings[j];
+		vec2 d2 = (p - rg.xy) / vec2(1.0, 0.36);
+		float dist = length(d2);
+		h += rg.w * exp(-pow((dist - rg.z) / 5.0, 2.0));
+	}
+	return h;
+}
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float noise(vec2 p) {
@@ -21,7 +47,17 @@ float fbm(vec2 p) {
 }
 
 void fragment() {
-	vec2 p = floor(UV * size / px) * px;
+	vec2 p0 = floor(UV * size / px) * px;
+	// 盛り上がり：この画素に見えているのは、もっと手前（下）の床が持ち上がった面。逆算して元の位置を探す
+	vec2 p = p0;
+	float hh = 0.0;
+	if (heave_n > 0 || ring_n > 0) {
+		for (int it = 0; it < 5; it++) {
+			hh = heave_h(p);
+			p = vec2(p0.x, p0.y + hh);
+		}
+		p = floor(p);
+	}
 	vec2 uv = p / size;
 	float depth = uv.y;
 	vec2 q = vec2(p.x / 70.0, p.y / (16.0 + 26.0 * depth));
@@ -38,6 +74,8 @@ void fragment() {
 	vec2 cell = 1.0 / size;
 	float wob = (fbm(vec2(p.x / 22.0 + t, p.y / 9.0)) - 0.5) * 0.22;
 	float g = texture(goop_tex, uv).r;
+	// 盛り上がっているところは、床のドロドロが分厚く押し上げられている
+	g = max(g, smoothstep(0.6, 3.0, hh) * 0.85);
 	float v = g + wob * step(0.03, g);
 	float th = 0.30;
 	if (v > th) {
@@ -55,6 +93,23 @@ void fragment() {
 		else if (g_up < th + 0.02 && swirl < 0.3) gc = vec3(1.0, 0.72, 0.86);   // 奥の縁はてかり
 		if (m > 0.70 && swirl < -0.2 && v > th + 0.2) gc = vec3(1.0, 0.86, 0.94);   // 面のてかり
 		if (v < th + 0.05) gc = vec3(0.26, 0.05, 0.19);                      // 暗い輪郭
+		// 盛り上がりの陰影：手前側の斜面は暗く、頂上はてかる。上側の輪郭は暗い線
+		if (hh > 0.8) {
+			float hd = heave_h(p + vec2(0.0, 2.0));
+			float hu = heave_h(p - vec2(0.0, 2.0));
+			float slope = (hu - hd) * 0.5;   // 手前に向かって下る＝こちら向きの斜面
+			if (slope > 0.9) gc = mix(gc, pink_dark, clamp((slope - 0.9) / 1.5, 0.0, 0.85));
+			if (slope > 2.4) gc = mix(gc, vec3(0.42, 0.10, 0.30), 0.6);
+			if (slope < -0.4 && slope > -1.6 && swirl < 0.4) gc = mix(gc, vec3(1.0, 0.78, 0.90), 0.55);
+			// 頂上の小さなてかり
+			if (abs(slope) < 0.25 && hh > 4.0 && fract(p.x / 9.0 + m) < 0.3) gc = vec3(1.0, 0.90, 0.96);
+			// 上側のシルエット：一つ上の画素が、ずっと低い面を見ているなら輪郭
+			vec2 pa = vec2(p0.x, p0.y - 1.0);
+			float ha = 0.0;
+			vec2 qa = pa;
+			for (int it2 = 0; it2 < 4; it2++) { ha = heave_h(qa); qa = vec2(pa.x, pa.y + ha); }
+			if (qa.y - p.y > 3.0) gc = vec3(0.26, 0.05, 0.19);
+		}
 		col = gc;
 	} else if (v > th - 0.06 && g > 0.03) {
 		col = mix(col, vec3(0.0), 0.45);   // 床に落ちる影

@@ -26,6 +26,7 @@ var anims := {}          # 生成したアニメ（コマ配列）
 var anim_masks := {}     # 2体が1枚に描かれたコマの、主人公部分のマスク
 const HUG_SHADER = preload("res://hug_dirt.gdshader")
 const GooMound = preload("res://goo_mound.gd")
+const UnderHeave = preload("res://under_heave.gd")
 var hug_mat: ShaderMaterial
 var hold_t := 0.0
 var last_x := 0.0
@@ -42,6 +43,7 @@ var front: Node2D        # 床の盛り上がりを手前に描く
 var mound: Sprite2D
 var mound_frames: Array[Texture2D] = []
 var mound_player = GooMound.Player.new()
+var heave = UnderHeave.new()
 var cru_t := 0.0
 var cru_frames := {}
 var cru_masks := {}
@@ -186,12 +188,10 @@ func _process(delta: float) -> void:
 	if state == "pulldown" or state == "under":
 		_update_pull(delta)
 		# 盛り上がったドロドロ（沈みはじめは小さめにせり上がる）
-		if mound_frames.size() == 8 and (state == "under" or under_t > 0.75):
-			mound.visible = true
-			var mp: Array = mound_player.step(delta, 0.7)
-			mound.texture = mound_frames[mp[0]]
-			mound.position = mp[1]
-			mound.flip_h = mp[2]
+		if state == "under" or under_t > 0.75:
+			# 床のペンキの下で抱え込んだまま暴れている：床そのものがうねる
+			heave.step(main, delta, position, 0.6)
+			front.queue_redraw()
 		return
 
 	if state == "emerge":
@@ -876,6 +876,8 @@ func _update_pull(delta: float) -> void:
 
 ## 床に沈んでいく境目・地中で暴れている盛り上がりを、絵より手前に描く
 func _draw_front() -> void:
+	if state == "under" or state == "pulldown":
+		heave.draw_bubbles(front, position)
 	if state == "crucify":
 		for d in drip_vis:
 			var big: bool = absf(d.vx) > 1.0

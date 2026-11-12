@@ -31,6 +31,9 @@ var cam: Camera2D
 var zoom_t := 0.0
 var zoom_focus := Vector2.ZERO
 var dobes: Array = []
+var heaves: Array = []   # このフレームの床の盛り上がり（地中で暴れている）: [x, y, 半径, 高さ]
+var rings: Array = []    # 床の波紋 {pos, t, power}
+var floor_mat: ShaderMaterial
 var dobe_spawn_t := 18.0   # ペンキドーベルマン（素材ができるまでは出さない）
 var shark_spawn_t := 9.0   # ペンキサメが現れるまで
 # 床のドロドロ（マリオサンシャインの「らくがき」風）。床全体をマス目に分けた厚み 0〜1
@@ -81,6 +84,7 @@ func _ready() -> void:
 	_init_goop()
 	fm.set_shader_parameter("goop_tex", goop_tex)
 	fl.material = fm
+	floor_mat = fm
 	fl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(fl)
 	player = PlayerScript.new()
@@ -113,6 +117,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_update_zoom(delta)
+	_upload_heaves(delta)
 	if game_over:
 		if Input.is_action_just_pressed("restart"):
 			Engine.time_scale = 1.0
@@ -310,6 +315,43 @@ func add_floor_splat(p: Vector2, w: float) -> void:
 
 
 ## 筆で p のまわりのドロドロを薄くする
+## 地中で暴れているものが、床のペンキを下から押し上げる（毎フレーム呼ぶ）
+func add_heave(world: Vector2, radius: float, height: float) -> void:
+	if heaves.size() < 12:
+		heaves.append(Vector4(world.x, world.y - FLOOR_TOP, radius, height))
+
+
+## 床に波紋を立てる（強く暴れたとき）
+func add_ring(world: Vector2, power := 3.0) -> void:
+	rings.append({"pos": world, "t": 0.0, "power": power})
+
+
+func _upload_heaves(delta: float) -> void:
+	if floor_mat == null:
+		return
+	var arr := PackedVector4Array()
+	for h in heaves:
+		arr.append(h)
+	while arr.size() < 12:
+		arr.append(Vector4.ZERO)
+	floor_mat.set_shader_parameter("heaves", arr)
+	floor_mat.set_shader_parameter("heave_n", heaves.size())
+	heaves.clear()
+	var ra := PackedVector4Array()
+	for r in rings:
+		r.t += delta
+	rings = rings.filter(func(r): return r.t < 1.2)
+	for r in rings:
+		if ra.size() < 6:
+			var k: float = r.t / 1.2
+			ra.append(Vector4(r.pos.x, r.pos.y - FLOOR_TOP, 10.0 + k * 90.0, r.power * (1.0 - k)))
+	var rn := ra.size()
+	while ra.size() < 6:
+		ra.append(Vector4.ZERO)
+	floor_mat.set_shader_parameter("rings", ra)
+	floor_mat.set_shader_parameter("ring_n", rn)
+
+
 func clean_floor(p: Vector2, w: float, power := 0.45) -> void:
 	_paint_goop(p, w, -power)
 

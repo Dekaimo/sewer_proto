@@ -6,6 +6,7 @@ extends Node2D
 
 const BASE_PATH := "res://assets/same_base.png"
 const GooMound = preload("res://goo_mound.gd")
+const UnderHeave = preload("res://under_heave.gd")
 const OPEN_PATH := "res://assets/same_open.png"
 const FEET_Y := 182          # 絵の中で腹（水たまり）が床に着く行
 const MOUTH_X := 92.0       # 横向きの絵の中心から口までの横の距離（アニメが無いとき用）
@@ -37,6 +38,7 @@ var gurgle_t := 0.0
 var mound: Sprite2D
 var mound_frames: Array[Texture2D] = []
 var mound_player = GooMound.Player.new()
+var heave = UnderHeave.new()   # 地中の獲物を、床のペンキの盛り上がりで見せる
 var wander := 0.0
 var sprite: Sprite2D
 var tex_base: Texture2D
@@ -184,12 +186,11 @@ func _process(delta: float) -> void:
 	eruptions = eruptions.filter(func(er): return er.t < 0.6)
 	_update_sprite()
 	# 引き回し中：床のドロドロが大きく盛り上がって蠢く（中に獲物）
-	mound.visible = state == "drag" and mound_frames.size() == 8
-	if mound.visible:
-		var mp: Array = mound_player.step(get_process_delta_time(), 1.0 if caught_wani != null else 0.5)
-		mound.texture = mound_frames[mp[0]]
-		mound.position = mp[1]
-		mound.flip_h = mp[2]
+	# 引き回し中：床のペンキそのものが下から押し上げられ、うねり、波紋が広がる（盛り上がりの絵は使わない）
+	mound.visible = false
+	if state == "drag":
+		var inten := 1.0 if is_trio() else (0.75 if caught_wani != null else 0.45)
+		heave.step(main, get_process_delta_time(), position, inten)
 		sprite.visible = false
 		collar.visible = false
 	else:
@@ -349,6 +350,7 @@ func _drag(delta: float, p) -> void:
 			main.splat_wall(Vector2(at.x + randf_range(-80.0, 80.0), main.FLOOR_TOP - randf_range(10.0, 170.0)), randf_range(30.0, 60.0))
 			main.sfx.play("hit", -6.0)
 			eruptions.append({"pos": at, "t": 0.0})
+			heave.limbs.append({"off": at - position, "t": 0.0, "dur": 0.5, "amp": 34.0, "r": 22.0})
 
 
 ## 主人公が自力で脱出したとき
@@ -604,24 +606,22 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO, 70.0, Color(0, 0, 0, 0.35))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		return
-	# 床を突き破るペンキの柱（地中で何かされている）
+	# 床のペンキを突き破って飛び散る塊（地中で何かされている）：放物線を描いて落ちる
 	for er in eruptions:
 		var k: float = er.t / 0.6
 		var base: Vector2 = er.pos - position
-		var hgt: float = sin(k * PI) * 110.0
-		var w: float = 18.0 * (1.0 - k * 0.5)
-		draw_rect(Rect2(base.x - w * 0.5, base.y - hgt, w, hgt), Color("5a1240"))
-		draw_rect(Rect2(base.x - w * 0.5 + 3, base.y - hgt + 2, w - 6, hgt - 2), Color("ec5a9e"))
-		draw_rect(Rect2(base.x - 2, base.y - hgt + 4, 4, hgt * 0.6), Color("f9d84d"))
-		for j in 6:
-			var a := j * 1.05 + k * 2.0
-			var d := Vector2(cos(a), -absf(sin(a))) * (20.0 + 90.0 * k)
-			draw_circle(base + Vector2(0, -hgt) + d, 6.0 * (1.0 - k) + 1.0, Color("ec5a9e") if j % 2 else Color("f9d84d"))
+		for j in 7:
+			var a := -PI * 0.5 + (j - 3) * 0.32 + sin(j * 7.3) * 0.15
+			var sp := 150.0 + 60.0 * fmod(j * 0.37, 1.0)
+			var tt2: float = er.t
+			var pos := base + Vector2(cos(a) * sp * tt2, sin(a) * sp * tt2 + 420.0 * tt2 * tt2)
+			var r := (6.0 if j % 3 == 0 else 3.5) * (1.0 - k * 0.4)
+			draw_circle(pos.round(), r + 1.5, Color("5a1240"))
+			draw_circle(pos.round(), r, Color("ec5a9e") if j % 2 else Color("f9d84d"))
 	if not underground():
 		return
 	if state == "drag":
-		if mound_frames.size() < 8:
-			GooMound.draw(self, t, 150.0, 1.0 if caught_wani != null else 0.5)
+		heave.draw_bubbles(self, position)
 		return
 	# 泳いだ跡の波と泡
 	var tt := t
