@@ -1,0 +1,10 @@
+{
+  "name": "cru_blend",
+  "mode": "edit",
+  "src": "assets_raw/gen/crucify_comp.png",
+  "variants": 2,
+  "desc": "Clean up and blend: the small black witch cat is pinned on the crocodile's chest, its spread arms bound by thick strands of pink paint goo that stretch out along the crocodile's outstretched arms. Make it look like one seamless pixel art picture. Keep the crocodile's face fully visible above the cat's hat, and keep both designs, sizes and poses.",
+  "generations_before": 1626.0,
+  "generations_after": 1624.0,
+  "used": 2.0
+}
