@@ -1,0 +1,10 @@
+{
+  "name": "cru_hulk_arms",
+  "mode": "edit",
+  "src": "assets_raw/cru_hulk.png",
+  "variants": 3,
+  "desc": "Keep this exact crocodile, head, body, colors and the small black witch cat stuck on its chest identical. Only change the arms: raise both huge muscular arms straight out horizontally to the left and right sides, fists clenched, in a wide T-pose like a crucifix, arms reaching the edges of the image. Same pixel art style.",
+  "generations_before": 1485.0,
+  "generations_after": 1482.0,
+  "used": 3.0
+}
