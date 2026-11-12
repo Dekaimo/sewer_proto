@@ -1,0 +1,13 @@
+{
+  "name": "anim_cru_sway",
+  "mode": "anim",
+  "src": "assets/wani_crucify.png",
+  "last": "assets/wani_crucify.png",
+  "frames": 8,
+  "variants": 3,
+  "subject": "a huge hyper-muscular pink paint crocodile monster with arms stretched out like a cross and a small black witch cat pinned to its chest, its lower body a melted paint puddle",
+  "desc": "Slow heavy gooey sway loop in depth: the massive upper body leans forward toward the viewer, chest and arms looming bigger, head tilting down with a leering grin, then sways back away, arching back with the chin up, then returns. Thick goo stretches and drips with the motion. The puddle base stays in place.",
+  "generations_before": 1612.0,
+  "generations_after": 1609.0,
+  "used": 3.0
+}
