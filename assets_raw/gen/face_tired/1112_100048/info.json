@@ -1,0 +1,10 @@
+{
+  "name": "face_tired",
+  "mode": "edit",
+  "src": "assets/cat_idle_0.png",
+  "variants": 3,
+  "desc": "Keep this exact sprite identical: same pose, body, hat, cape, brush, colors and outline. Only change the facial expression very subtly: eyes slightly narrowed and tired, a small sweat drop on the cheek, mouth slightly open breathing. Do not change anything else.",
+  "generations_before": 1548.0,
+  "generations_after": 1545.0,
+  "used": 3.0
+}
