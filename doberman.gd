@@ -7,15 +7,19 @@ extends Node2D
 ##   hold     背後から羽交い締め → 正面にサメが浮上して汚い口をゆっくり開ける（振りほどけなければ2匹まとめて丸呑み）
 ##   dive     地中で2対1にされていると、自分からサメの口に飛び込んで3対1（腹の中で下から抱きつく）
 ##   pin      3対1から抜けた主人公に、地面で上からのしかかる（下にはワニ）
-##   enter    水たまりから形成
-##   prowl    主人公のまわりをうろつく。フェイント（飛びかかるフリ→寸止めしてニヤつく）
+##   enter    水たまりから形成（登場）
+##   show     地上に姿を見せてニヤついている（しばらくしたら潜る）
+##   sink     床に溶けて潜る（登場の逆再生）
+##   lurk     床の下を移動。逃げ道を先回りして塞ぎ、ふだんは主人公の背中側にこっそり回り込む。
+##            移動中だけ床がかすかに盛り上がる。遠いときはワープ。ときどき顔を見せる。
+##   burst    他の敵から逃げようとした主人公の背後で飛び出し、羽交い締め（→ hold）
 ##   sandwich 主人公がワニに磔にされていると駆け寄り、正面から抱きついて胸をこすりつける（挟み撃ち）
 ##   pushed   押し返されたフリ：大げさによろけて離れる…が、すぐニヤニヤ戻ってきてさらに強く押しつける
 ##   recover  本当に押し返された：しばらく離れて様子をうかがう
 ## あとで：サメの腹の中の3対1（下から抱きつく）、地面での挟み撃ち、サメのゆっくり丸呑み、棺桶
 
 const DEBUG_SHOW := false
-const FEET_Y := 236
+const FEET_Y := 240
 
 var main
 var sprite: Sprite2D
@@ -24,7 +28,15 @@ var t := 0.0
 var facing := -1
 var vel_x := 0.0
 var stun := 0.0
-var feint_t := 3.0
+var peek_t := 7.0          # 次に顔を見せるまで
+var lurk_t := 0.0
+var rise := 1.0             # 1=地上に全身 0=床の中（登場・潜るの進み具合）
+var target := Vector2.ZERO  # 潜伏中に向かう場所
+var show_dur := 2.0
+var base_tex: Texture2D
+var maw_started := false
+var last_struggle := 0.0
+var wobble := 0.0
 var fake_left := 0          # あと何回「押されたフリ」をするか
 var rub_t := 0.0
 var push_off := 0.0         # 押し返されて離れている距離（見た目）
@@ -40,7 +52,7 @@ func _ready() -> void:
 	sprite.centered = false
 	sprite.offset = Vector2(-128, -FEET_Y)
 	add_child(sprite)
-	for k in ["idle", "walk", "rub", "reel", "emerge", "feint", "hold", "belly"]:
+	for k in ["idle", "walk", "rub", "reel", "emerge", "hold", "belly"]:
 		var arr: Array[Texture2D] = []
 		var i := 0
 		while ResourceLoader.exists("res://assets/dobe_%s_%d.png" % [k, i]):
@@ -54,11 +66,14 @@ func _ready() -> void:
 		# 仮の絵：ワニの待機を少し暗く（デバッグ用）
 		sprite.texture = load("res://assets/wani_idle.png")
 		sprite.modulate = Color(0.75, 0.6, 0.9)
+	base_tex = sprite.texture
+	rise = 0.0
+	_apply_rise()
 	t = 0.0
 
 
 func active() -> bool:
-	return state == "prowl" or state == "recover"
+	return state == "show" or state == "recover"
 
 
 func _frame(k: String, i: int) -> void:
@@ -77,12 +92,15 @@ func _process(delta: float) -> void:
 	stun -= delta
 	match state:
 		"enter":
-			_frame("emerge", int(t * 10.0))
-			if t > 1.2:
-				state = "prowl"
-				t = 0.0
-		"prowl":
-			_update_prowl(delta, p)
+			_update_enter(delta)
+		"show":
+			_update_show(delta, p)
+		"sink":
+			_update_sink(delta)
+		"lurk":
+			_update_lurk(delta, p)
+		"burst":
+			_update_burst(delta, p)
 		"sandwich":
 			_update_sandwich(delta, p)
 		"pushed":
@@ -100,66 +118,165 @@ func _process(delta: float) -> void:
 		"recover":
 			vel_x = move_toward(vel_x, 0.0, 300.0 * delta)
 			position.x += vel_x * delta
-			_frame("idle", int(t * 6.0))
-			if t > 2.5:
-				state = "prowl"
-				t = 0.0
+			_show_idle()
+			if t > 1.2:
+				_start_sink()
 	position.x = clampf(position.x, main.ARENA_L, main.ARENA_R)
 	position.y = clampf(position.y, main.DEPTH_MIN, main.DEPTH_MAX)
 
 
-func _update_prowl(delta: float, p) -> void:
-	# 磔にされていたら、挟みに行く
+# ---------- 登場・潜る・潜伏 ----------
+## 体の出具合（rise）を絵に反映する。登場アニメがあればそのコマ、無ければ立ち絵を縦に縮めて代用
+func _apply_rise() -> void:
+	sprite.visible = rise > 0.01
+	if frames.has("emerge"):
+		var arr: Array = frames["emerge"]
+		sprite.texture = arr[clampi(int(rise * float(arr.size() - 1) + 0.5), 0, arr.size() - 1)]
+		sprite.scale = Vector2.ONE
+	else:
+		sprite.texture = base_tex
+		sprite.scale = Vector2(1.0 + (1.0 - rise) * 0.25, maxf(rise, 0.02))
+
+
+func _show_idle() -> void:
+	sprite.scale = Vector2.ONE
+	sprite.visible = true
+	if frames.has("idle"):
+		_frame("idle", int(t * 8.0))
+	else:
+		sprite.texture = base_tex
+
+
+func _update_enter(_delta: float) -> void:
+	# 地面からねっとり盛り上がる
+	rise = clampf(t / 1.2, 0.0, 1.0)
+	_apply_rise()
+	if rise >= 1.0:
+		state = "show"
+		t = 0.0
+		show_dur = randf_range(1.5, 2.6)
+
+
+func _update_show(_delta: float, p) -> void:
+	facing = 1 if p.position.x > position.x else -1
+	_show_idle()
+	# 他の敵が動き出した・時間が来た → 潜る
+	if t > show_dur or _threat(p) != null or p.state == "crucified" or p.state == "swallowed":
+		_start_sink()
+
+
+func _start_sink() -> void:
+	state = "sink"
+	t = 0.0
+	main.sfx.play("gurgle", -8.0, 0.2)
+
+
+func _update_sink(_delta: float) -> void:
+	rise = 1.0 - clampf(t / 0.7, 0.0, 1.0)
+	_apply_rise()
+	if rise <= 0.0:
+		state = "lurk"
+		t = 0.0
+		lurk_t = 0.0
+		peek_t = randf_range(6.0, 11.0)
+		sprite.visible = false
+		main.add_goop(position, 60.0, 0.15)
+
+
+## 主人公を追っている敵（逃げる理由になる相手）
+func _threat(p):
+	for e in main.enemies:
+		if is_instance_valid(e) and e.state in ["approach", "windup", "lunge"] and absf(e.position.x - p.position.x) < 320.0:
+			return e
+	for c in main.get_children():
+		if c.has_method("can_maw") and c.state == "swim" and c.position.distance_to(p.position) < 220.0:
+			return c
+	return null
+
+
+func _update_lurk(delta: float, p) -> void:
+	lurk_t += delta
+	sprite.visible = false
+	var th = _threat(p)
+	var esc := 0
+	# 行き先：磔なら真下、2対1ならその場、追われていれば逃げ道の先、ふだんは背中側
 	if p.state == "crucified" and p.crucifier != null and is_instance_valid(p.crucifier) and p.crucifier.state == "crucify":
-		var tx: float = p.position.x - facing * 0.0
-		facing = 1 if tx > position.x else -1
-		var dx: float = tx + (-facing) * 34.0 - position.x
-		position.x += clampf(dx, -260.0 * delta, 260.0 * delta)
-		position.y = move_toward(position.y, p.position.y + 6.0, 120.0 * delta)
-		_frame("walk", int(t * 10.0))
-		if absf(dx) < 6.0:
-			_start_sandwich(p)
+		target = p.position + Vector2(34.0 * (1 if position.x > p.position.x else -1), 6.0)
+	elif th != null:
+		esc = 1 if p.position.x >= th.position.x else -1
+		target = p.position + Vector2(esc * 70.0, 0.0)
+	else:
+		target = p.position + Vector2(-p.facing * 80.0, 0.0)
+	target.x = clampf(target.x, main.ARENA_L, main.ARENA_R)
+	target.y = clampf(target.y, main.DEPTH_MIN, main.DEPTH_MAX)
+	var to_t: Vector2 = target - position
+	# 遠すぎる（反対側にいる）→ いつの間にかワープ（追われていないときだけ）
+	if to_t.length() > 300.0 and lurk_t > 1.0 and th == null:
+		position = target
+		lurk_t = 0.0
 		return
-	# 地中で2対1にされている：自分からサメの口に飛び込んで3対1にする
+	var before := position
+	if to_t.length() > 3.0:
+		position += to_t.normalized() * Vector2(1.0, 0.6) * minf(170.0 * delta, to_t.length())
+	# 動いているときだけ床がかすかに盛り上がる（止まるとほぼ見えない）
+	if before.distance_to(position) > 0.3:
+		main.add_heave(position, 30.0, 5.0)
+	# 磔：真下に着いたら挟みに出る
+	if p.state == "crucified" and to_t.length() < 8.0:
+		facing = 1 if p.position.x > position.x else -1
+		_start_sandwich(p)
+		return
+	# 地中で2対1：自分からサメの口に飛び込んで3対1
 	if p.state == "swallowed" and p.swallower != null and is_instance_valid(p.swallower) and p.swallower.has_method("take_dobe"):
 		var sh = p.swallower
 		if sh.caught_wani != null and sh.caught_dobe == null and sh.state == "drag" and sh.t > 2.0:
 			state = "dive"
 			t = 0.0
 			dive_from = position
+			sprite.visible = true
 			main.sfx.play("assist", -2.0)
 			return
-	# 背後から羽交い締め → 正面にサメが浮上して、ゆっくり口を開ける
-	var sh2 = _maw_shark()
-	if sh2 != null and p.state in ["normal", "slipped"] and p.invuln <= 0.0 and absf(p.position.x - position.x) < 60.0 and absf(p.position.y - position.y) < 26.0 and p.z < 20.0:
+	# 逃げている主人公が真上を通り過ぎた → 背後で飛び出して羽交い締め
+	if th != null and p.can_be_grabbed() and p.z < 20.0 and p.vel.x * esc > 20.0:
+		var behind: float = (position.x - p.position.x) * esc
+		if behind <= 4.0 and behind > -50.0 and absf(position.y - p.position.y) < 26.0:
+			state = "burst"
+			t = 0.0
+			position = Vector2(p.position.x - esc * 22.0, p.position.y - 2.0)
+			facing = esc
+			main.sfx.play("grab", -2.0)
+			main.add_goop(position, 90.0, 0.3)
+			return
+	# ときどき顔を見せる（追われていないとき）
+	if th == null and lurk_t > peek_t and p.state == "normal":
+		state = "enter"
+		t = 0.6   # 途中から（さっと出る）
+		facing = 1 if p.position.x > position.x else -1
+
+
+func _update_burst(_delta: float, p) -> void:
+	# 床から一気に飛び出して、脇の下から腕を回す
+	rise = clampf(0.3 + t / 0.25, 0.0, 1.0)
+	_apply_rise()
+	if rise >= 1.0:
+		if not p.can_be_grabbed():
+			_start_sink()
+			return
 		state = "hold"
 		t = 0.0
 		p.get_held(self)
-		sh2.start_maw(p, self)
-		return
-	# うろうろ：近づきすぎず、ときどきフェイント
-	var dxp: float = p.position.x - position.x
-	facing = 1 if dxp > 0 else -1
-	var want := 140.0
-	var mv: float = clampf((absf(dxp) - want) * 2.0, -110.0, 110.0) * signf(dxp)
-	position.x += mv * delta
-	position.y = move_toward(position.y, p.position.y, 50.0 * delta)
-	_frame("walk" if absf(mv) > 10.0 else "idle", int(t * 8.0))
-	feint_t -= delta
-	if feint_t <= 0.0 and absf(dxp) < 220.0:
-		# 飛びかかるフリ → 寸止め。主人公がジャンプや攻撃で反応したら、そのスキを他の敵が突く…はず
-		feint_t = randf_range(3.0, 6.0)
-		vel_x = facing * 260.0
-		_frame("feint", 0)
-		main.sfx.play("assist", -6.0, 0.2)
-	if vel_x != 0.0:
-		position.x += vel_x * delta
-		vel_x = move_toward(vel_x, 0.0, 700.0 * delta)
+		main.zoom_moment(p.position + Vector2(0, -120), 0.7)
+		maw_started = false
+		last_struggle = p.struggle
 
 
 # ---------- 磔の挟み撃ち ----------
 func _start_sandwich(p) -> void:
 	state = "sandwich"
+	rise = 1.0
+	sprite.visible = true
+	sprite.scale = Vector2.ONE
+	sprite.texture = base_tex
 	t = 0.0
 	rub_t = 0.0
 	push_off = 0.0
@@ -227,6 +344,8 @@ func _update_pushed(delta: float, p) -> void:
 
 func _leave(real: bool) -> void:
 	var p = main.player
+	sprite.rotation = 0.0
+	maw_started = false
 	if p.sandwicher == self:
 		p.sandwicher = null
 	sprite.position = Vector2.ZERO
@@ -252,21 +371,41 @@ func _update_hold(delta: float, p) -> void:
 	if p.state != "held" or p.held_by != self:
 		_leave(true)
 		return
-	position = p.position + Vector2(-p.facing * 20.0, -2.0)
-	facing = p.facing
-	_frame("hold", int(t * 8.0))
+	# ドーベルマンはその場に根を張り、主人公は腕の中で一緒に揺らされる
+	p.facing = facing
+	sprite.scale = Vector2.ONE
+	sprite.visible = true
+	if frames.has("hold"):
+		_frame("hold", int(t * 8.0))
+	else:
+		sprite.texture = base_tex
+	# 誰も来なければ放さない。サメが来たら正面に浮上させて焦らし丸呑みへ
+	# ねっとり揺らす。もがく（左右連打）とグラグラ大きく揺らし返す
+	if p.struggle > last_struggle + 0.01:
+		wobble = minf(wobble + 1.0, 3.0)
+	last_struggle = p.struggle
+	wobble = move_toward(wobble, 0.0, 1.5 * delta)
+	var sway := sin(t * 2.2) * (3.0 + wobble * 5.0)
+	sprite.position = Vector2(sway, absf(sin(t * 2.2)) * 2.0).round()
+	sprite.rotation = deg_to_rad(sway * 0.4)
+	p.position = Vector2(position.x + facing * 22.0 + sway * 0.8, position.y + 2.0)
+	if not maw_started:
+		var sh = _maw_shark()
+		if sh != null:
+			maw_started = true
+			sh.start_maw(p, self)
 
 
 func _update_dive(delta: float, p) -> void:
 	var sh = p.swallower
 	if sh == null or not is_instance_valid(sh) or p.state != "swallowed":
-		state = "prowl"
 		sprite.position = Vector2.ZERO
+		_start_sink()
 		return
 	var k := clampf(t / 0.8, 0.0, 1.0)
 	position = dive_from.lerp(sh.position, k)
 	sprite.position = Vector2(0, -sin(k * PI) * 160.0).round()
-	_frame("feint", 0)
+	_show_idle()
 	if k >= 1.0:
 		sprite.position = Vector2.ZERO
 		get_swallowed(sh)
