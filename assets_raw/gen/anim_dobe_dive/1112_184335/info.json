@@ -1,0 +1,14 @@
+{
+  "name": "anim_dobe_dive",
+  "mode": "anim",
+  "src": "assets/dobe_idle.png",
+  "last": "assets_raw/dobe_dive_key.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge muscular Doberman monster made of glossy pink paint goo with yellow marble streaks",
+  "desc": "Showing off a perfect dive: the goo monster crouches, swings both arms back, then springs up out of its puddle and stretches into a straight, elegant head-first diving line with arms extended together, its gooey lower body peeling off the floor into a trailing tail.",
+  "variants": 1,
+  "generations_before": 965.9000000000001,
+  "generations_after": 964.9000000000001,
+  "used": 1.0
+}
