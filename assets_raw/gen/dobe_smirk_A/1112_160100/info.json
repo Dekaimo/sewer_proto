@@ -1,0 +1,10 @@
+{
+  "name": "dobe_smirk_A",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_A_clean.png",
+  "desc": "Change ONLY the mouth: curl the corner of the closed mouth upward just a little into a sly, lewd, smug smirk. Keep everything else exactly the same: head shape, ears, yellow eyes, muzzle, drool, body, pose, colors, marble streaks, outline and pixel art style. The area between the nose and the mouth stays smooth plain pink with NO line or groove under the nose.",
+  "variants": 2,
+  "generations_before": 1233.0,
+  "generations_after": 1213.0,
+  "used": 20.0
+}
