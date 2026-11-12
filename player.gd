@@ -725,9 +725,13 @@ func _update_crucified(delta: float) -> void:
 	var sandwiched: bool = sandwicher != null and is_instance_valid(sandwicher)
 	if d != 0 and d != last_dir:
 		last_dir = d
-		if sandwiched:
-			# 挟まれている間は、まず正面のドーベルマンを押し返さないと抜けられない
+		if sandwiched and sandwicher.sub == "hug":
+			# がっちり抱きしめられた：押し返せないが、もがけば少しずつ抜けられる
+			struggle += 0.04
+		elif sandwiched:
+			# 押し問答の間：正面のドーベルマンを押し返しつつ、柱からも少しずつ抜けていく
 			push += 0.09
+			struggle += 0.02
 		else:
 			struggle += 0.06
 	if sandwiched:

@@ -173,7 +173,7 @@ func _show_idle() -> void:
 	sprite.scale = Vector2.ONE
 	sprite.visible = true
 	if frames.has("idle"):
-		_loop("idle", t, 6.5)
+		_loop("idle", t, 6.0)
 	else:
 		sprite.texture = base_tex
 
@@ -182,8 +182,8 @@ func _show_idle() -> void:
 ## ゆっくり版（ふつうの登場）：水たまりから背中を向けてねっとり起き上がる（rise_back）→ 振り向く（turn）
 ##   → 頭ができて最後に目、決めポーズ（form）→ 待機へ（settle）
 ## 速い版（顔見せ）：水たまり → 顔のない人型（rise）→ form → settle を速めに
-const SLOW_PHASES := [["rise_back", 3.4], ["turn", 1.2], ["form", 2.8], ["settle", 1.1]]
-const QUICK_PHASES := [["rise", 0.7], ["form", 1.4], ["settle", 0.6]]
+const SLOW_PHASES := [["rise_back", 1.5], ["turn", 0.5], ["form", 1.3], ["settle", 0.5]]   # 合計 約3.8秒
+const QUICK_PHASES := [["rise", 0.6], ["form", 1.0], ["settle", 0.4]]
 func _update_enter(_delta: float) -> void:
 	var phases: Array = QUICK_PHASES if (quick_enter or not frames.has("rise_back")) else SLOW_PHASES
 	var tt := t
@@ -253,6 +253,9 @@ const TIMING := {
 }
 
 
+const TIMING_STRENGTH := 0.45
+
+
 ## 進み具合 f（0〜1）→ 何コマ目か（重み付き）
 static func timed_index(k: String, f: float, n: int) -> int:
 	if n <= 1:
@@ -261,12 +264,13 @@ static func timed_index(k: String, f: float, n: int) -> int:
 	var w: Array = TIMING.get(k, [])
 	if w.size() != n:
 		return clampi(int(f * float(n)), 0, n - 1)
+	# 重みは控えめに効かせる（極端に止めたり飛ばしたりすると無理やり感が出る）
 	var total := 0.0
 	for x in w:
-		total += x
+		total += 1.0 + (x - 1.0) * TIMING_STRENGTH
 	var acc := 0.0
 	for i in n:
-		acc += w[i]
+		acc += 1.0 + (w[i] - 1.0) * TIMING_STRENGTH
 		if f * total < acc:
 			return i
 	return n - 1
@@ -402,8 +406,8 @@ func _update_burst(delta: float, p) -> void:
 		_leave(true)
 		return
 	if frames.has("burst"):
-		_play_once("burst", t / 0.9)
-		if t < 0.9:
+		_play_once("burst", t / 1.0)
+		if t < 1.0:
 			return
 	else:
 		rise = clampf(0.3 + t / 0.25, 0.0, 1.0)
@@ -612,7 +616,7 @@ func _update_hold(delta: float, p) -> void:
 			_update_throw(delta, p)
 			return
 	if frames.has("hold"):
-		_loop("hold", t, 6.5)
+		_loop("hold", t, 6.0)
 	else:
 		sprite.texture = base_tex
 	# 他の敵が来るのを待つ（誰も来なければ放さない）
@@ -648,7 +652,7 @@ func _near_wani(p):
 
 func _update_throw(delta: float, p) -> void:
 	combo_t += delta
-	var dur := 1.3
+	var dur := 1.5
 	if frames.has("throw"):
 		_play_once("throw", combo_t / dur)
 	else:
@@ -685,7 +689,7 @@ func _update_dive(delta: float, p) -> void:
 	facing = 1 if sh.position.x > dive_from.x else -1
 	sprite.visible = true
 	sprite.scale = Vector2.ONE
-	const SPRING := 0.7
+	const SPRING := 0.8
 	const FLY := 0.75
 	if t < SPRING:
 		if frames.has("dive"):

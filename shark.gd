@@ -140,6 +140,31 @@ func _maw(delta: float, p) -> void:
 		maw_dobe = null
 		caught_dobe.get_swallowed(self)
 		caught_player = p.get_swallowed(self, true)
+		main.sfx.play("assist", 2.0)
+		# すぐには潜らない：口をバクンと閉じ、呑み込んで、2匹を抱えたままゆっくり床に沈んでいく
+		state = "maw_gulp"
+		t = 0.0
+
+
+## 呑み込んだあと：口を閉じる（0〜0.35秒）→ ゴクンと溜める（〜0.6秒）→ 床に引きずり込むように沈む（〜1.5秒）→ 引き回しへ
+const GULP_CLOSE := 0.35
+const GULP_HOLD := 0.6
+const GULP_SINK := 1.5
+func _maw_gulp(delta: float) -> void:
+	if maw_frames.size() > 0:
+		if t < GULP_CLOSE:
+			var k := 1.0 - ease(t / GULP_CLOSE, 0.4)
+			sprite.texture = maw_frames[int(k * float(maw_frames.size() - 1))]
+		else:
+			sprite.texture = maw_frames[0]
+	gurgle_t -= delta
+	if gurgle_t <= 0.0:
+		gurgle_t = 0.18
+		main.sfx.play_any(["gurgle", "grab_loop"], -2.0)
+		main.add_goop(position + Vector2(randf_range(-70, 70), 0), 70.0, 0.3)
+	if t > GULP_HOLD and fmod(t, 0.2) < delta:
+		main.add_ring(position, 2.0)
+	if t >= GULP_SINK:
 		_sink_after_attack()
 
 
@@ -205,6 +230,8 @@ func _process(delta: float) -> void:
 			_drag(delta, p)
 		"maw":
 			_maw(delta, p)
+		"maw_gulp":
+			_maw_gulp(delta)
 	for er in eruptions:
 		er.t += delta
 	eruptions = eruptions.filter(func(er): return er.t < 0.6)
@@ -456,17 +483,22 @@ func _clamp() -> void:
 
 # ---------- 見た目 ----------
 func _update_sprite() -> void:
-	if state == "maw" and maw_frames.size() > 0:
-		# 頭だけ浮上：テクスチャは _maw で選んでいる。下端を床に合わせ、浮上分だけせり上げる
+	if (state == "maw" or state == "maw_gulp") and maw_frames.size() > 0:
+		# 頭だけ浮上：テクスチャは _maw で選んでいる。下端を床に合わせ、浮上分だけせり上げる（呑み込んだら沈んでいく）
 		sprite.visible = true
 		sprite.flip_h = maw_flip
 		sprite.rotation = 0.0
 		var th := float(sprite.texture.get_height())
 		var up := clampf(t / 0.8, 0.0, 1.0)
+		if state == "maw_gulp":
+			# 口を閉じた瞬間に少し跳ね、ゴクンと溜めてから、ずるずる沈む
+			up = 1.0 if t < GULP_HOLD else 1.0 - ease(clampf((t - GULP_HOLD) / (GULP_SINK - GULP_HOLD), 0.0, 1.0), 1.6)
 		sprite.region_enabled = true
 		sprite.region_rect = Rect2(0, 0, sprite.texture.get_width(), th * up)
 		sprite.offset = Vector2(-sprite.texture.get_width() * 0.5, -th * up)
 		sprite.position = Vector2.ZERO
+		if state == "maw_gulp" and t < GULP_CLOSE + 0.1:
+			sprite.position = Vector2(randf_range(-3, 3), randf_range(-2, 2)).round()
 		return
 	if tex_base == null:
 		sprite.visible = false
