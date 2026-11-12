@@ -1,0 +1,10 @@
+{
+  "name": "embrace_lying2",
+  "mode": "editv2",
+  "src": "assets_raw/embrace_lying.png",
+  "variants": 1,
+  "desc": "Fix two things only. 1) On the right side, the melting lower bodies of both monsters must become one thick, heavy, solid mass of glossy pink paint goo that flows and slumps all the way down and merges into the floor puddle, with no gaps or empty space between the bodies and the floor; thick drips and folds of goo, sticky. 2) Fill in the crocodile's eye properly (an eye with a pupil, no hole). Keep everything else exactly the same: the Doberman on top, the crocodile lying underneath in the puddle, the squashed cat between them, heads, faces, colors, yellow marble streaks, outline and pixel art style. Transparent background above the puddle.",
+  "generations_before": 820.9000000000001,
+  "generations_after": 810.9000000000001,
+  "used": 10.0
+}
