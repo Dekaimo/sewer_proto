@@ -29,6 +29,8 @@ var rise := 0.0           # 床からゆっくり出てくる時間
 var rise_k := 1.0         # 0=まだ床の中 1=全身が出た
 var wani_frames: Array[Texture2D] = []   # 2対1：吐き出されたペンキから出てくるワニ（形成→マッスルポーズ）
 var wani_sprite: Sprite2D
+var hat: Sprite2D        # サメのゲップ：主人公の帽子（本物の帽子をペンキまみれにした絵）
+const HAT_PATH := [[2.0, 207, 90, -0.5], [3.0, 216, 107, 0.9], [4.0, 217, 132, 2.4], [5.0, 209, 178, 4.4], [6.0, 206, 205, 6.283]]   # [コマ, x, y, 回転]（絵の座標）
 var vomited := false
 var sink_frames: Array[Texture2D] = []
 var done := false
@@ -70,6 +72,11 @@ func _ready() -> void:
 	wani_sprite.visible = false
 	wani_sprite.z_index = 1
 	add_child(wani_sprite)
+	hat = Sprite2D.new()
+	hat.texture = load("res://assets/fin_hat.png") if ResourceLoader.exists("res://assets/fin_hat.png") else null
+	hat.visible = false
+	hat.z_index = 2
+	add_child(hat)
 	strands = Node2D.new()
 	strands.draw.connect(_draw_strands)
 	add_child(strands)
@@ -140,6 +147,8 @@ func _process(delta: float) -> void:
 	sprite.visible = true
 	sprite.texture = frames[i]
 	sprite.offset = Vector2(-frames[i].get_width() / 2.0, -float(info.feet))
+	if kind == "shark":
+		_update_hat(tt * info.fps)
 	# 最後のコマで少し止めてから画面を出す
 	if tt > dur + 0.8:
 		done = true
@@ -149,6 +158,31 @@ func _process(delta: float) -> void:
 		return
 	if tt < 0.05 and rise == 0.0:
 		main.zoom_moment(position + Vector2(0, -120), dur + 0.8)
+
+
+## ゲップで吐き出された帽子：口から飛び出して、くるくる回りながら床にベチャッと落ちる
+func _update_hat(f: float) -> void:
+	if hat.texture == null:
+		return
+	hat.visible = f >= 2.0
+	if not hat.visible:
+		return
+	var a: Array = HAT_PATH[0]
+	var b: Array = HAT_PATH[HAT_PATH.size() - 1]
+	for i in HAT_PATH.size() - 1:
+		if f >= HAT_PATH[i][0] and f < HAT_PATH[i + 1][0]:
+			a = HAT_PATH[i]
+			b = HAT_PATH[i + 1]
+			break
+	var k: float = clampf((f - a[0]) / maxf(b[0] - a[0], 0.001), 0.0, 1.0) if f < b[0] else 1.0
+	var px: float = lerpf(a[1], b[1], k)
+	var py: float = lerpf(a[2], b[2], k)
+	hat.position = Vector2(px - 128.0, py - float(INFO[kind].feet)).round()
+	hat.rotation = lerpf(a[3], b[3], k)
+	if f >= 6.0 and not has_meta("hat_landed"):
+		set_meta("hat_landed", true)
+		main.sfx.play("step_paint", 0.0)
+		main.add_goop(position + Vector2(hat.position.x, 0.0), 50.0, 0.3)
 
 
 ## 出てくる途中：床と体のあいだに、太い糸が何本も引っ張られて伸びる（伸びきると細くなってちぎれる）
