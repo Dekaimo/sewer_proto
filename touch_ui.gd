@@ -18,7 +18,6 @@ var stick_center := Vector2.ZERO
 var stick_pos := Vector2.ZERO
 var btn_touch := {}    # touch index -> action
 var held := {}         # action -> true
-var mash_dir := 1      # タップでもがくときの左右（交互）
 
 
 func _ready() -> void:
@@ -40,6 +39,10 @@ func _input(event: InputEvent) -> void:
 				return
 			# 捕まっている：どこをタップしても左右の交互入力（もがく）
 			if _caught(main):
+				# スティックを握ったまま捕まったら、スティックは離したことにする
+				if stick_id >= 0:
+					stick_id = -1
+					_set_dirs(Vector2.ZERO)
 				_mash()
 				get_viewport().set_input_as_handled()
 				return
@@ -76,14 +79,9 @@ func _caught(main) -> bool:
 
 
 func _mash() -> void:
-	mash_dir = -mash_dir
-	var a := "left" if mash_dir < 0 else "right"
-	if held.get(a, false):
-		_release(a)
-	_press(a)
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_release(a)
+	# キー入力のふりをせず、主人公に直接「1回もがいた」と伝える（スティックの指とぶつからない）
+	var main = get_parent().get_parent()
+	main.player.touch_mash = mini(main.player.touch_mash + 1, 3)
 
 
 func _to_view(screen_pos: Vector2) -> Vector2:

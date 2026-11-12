@@ -34,7 +34,7 @@ var dobes: Array = []
 var heaves: Array = []   # このフレームの床の盛り上がり（地中で暴れている）: [x, y, 半径, 高さ]
 var rings: Array = []    # 床の波紋 {pos, t, power}
 var floor_mat: ShaderMaterial
-var dobe_spawn_t := 5.0    # ペンキドーベルマン（素材ができるまでは出さない）。地中に潜伏するので早めに出す
+var dobe_spawn_t := 1.0    # ペンキドーベルマン（素材ができるまでは出さない）。地中に潜伏するので開始すぐに出す
 var shark_spawn_t := 9.0   # ペンキサメが現れるまで
 # 床のドロドロ（マリオサンシャインの「らくがき」風）。床全体をマス目に分けた厚み 0〜1
 const GOOP_CX := 6.0   # 1マスの横幅
@@ -261,9 +261,11 @@ func on_player_defeated(grabber) -> void:
 		return
 	var sw = player.swallower
 	if sw != null and is_instance_valid(sw):
+		var trio_dobe = null
 		for d in dobes:
 			if d.state == "in_shark":
 				d.visible = false
+				trio_dobe = d
 		# 地中で力尽きた：相手ごとのフィニッシュ演出
 		var kind := "wani" if sw.has_method("get_swallowed") else ("duo" if player.swallow_combo else "shark")
 		var at: Vector2 = sw.position
@@ -271,7 +273,7 @@ func on_player_defeated(grabber) -> void:
 			if sw.caught_wani != null and is_instance_valid(sw.caught_wani):
 				sw.caught_wani.visible = false
 		sw.visible = false
-		_start_finisher(kind, at)
+		_start_finisher(kind, at, trio_dobe if kind == "duo" else null)
 		return
 	# 地上で力尽きた：掴んでいた敵（いなければ一番近い敵）の位置で、抱えて沈む演出
 	var e = grabber
@@ -282,9 +284,10 @@ func on_player_defeated(grabber) -> void:
 	_start_finisher("hug", e.position if e != null else player.position)
 
 
-func _start_finisher(kind: String, at: Vector2) -> void:
+func _start_finisher(kind: String, at: Vector2, trio_dobe = null) -> void:
 	finisher = FinisherScript.new()
 	finisher.main = self
+	finisher.trio_dobe = trio_dobe
 	add_child(finisher)
 	# 演出は画面の右寄りで見せる（左側にゲームオーバーの文字を出すので）
 	var fx := 300.0 if kind == "duo" else 620.0   # 2対1は右にワニが出てくるので少し左に

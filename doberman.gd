@@ -42,6 +42,8 @@ var combo_t := 0.0
 var thrown := false
 var throw_wani = null
 var quick_enter := false
+var burst_grabbed := false
+var heave_k := 0.0          # 潜伏中の床の盛り上がり（0〜1、なめらかに）
 var last_struggle := 0.0
 var wobble := 0.0
 var fake_left := 0          # あと何回「押されたフリ」をするか
@@ -247,7 +249,7 @@ func _update_sink(_delta: float) -> void:
 ## 主人公を追っている敵（逃げる理由になる相手）
 func _threat(p):
 	for e in main.enemies:
-		if is_instance_valid(e) and e.state in ["approach", "windup", "lunge"] and absf(e.position.x - p.position.x) < 320.0:
+		if is_instance_valid(e) and e.state in ["approach", "windup", "lunge", "charge", "hug_windup", "sink", "lurk", "ambush"] and absf(e.position.x - p.position.x) < 340.0:
 			return e
 	for c in main.get_children():
 		if c.has_method("can_maw") and c.state == "swim" and c.position.distance_to(p.position) < 220.0:
@@ -277,11 +279,14 @@ func _update_lurk(delta: float, p) -> void:
 		lurk_t = 0.0
 		return
 	var before := position
+	# 追われている主人公の逃げ道へは、床の下を一気に先回りする
+	var sp := 330.0 if th != null else 170.0
 	if to_t.length() > 3.0:
-		position += to_t.normalized() * Vector2(1.0, 0.6) * minf(170.0 * delta, to_t.length())
-	# 動いているときだけ床がかすかに盛り上がる（止まるとほぼ見えない）
-	if before.distance_to(position) > 0.3:
-		main.add_heave(position, 30.0, 5.0)
+		position += to_t.normalized() * Vector2(1.0, 0.7) * minf(sp * delta, to_t.length())
+	# 動いているときだけ床がかすかに盛り上がる（止まるとほぼ見えない）。点滅しないように、なめらかに出し入れする
+	heave_k = move_toward(heave_k, 1.0 if before.distance_to(position) > 0.3 else 0.0, delta * 3.0)
+	if heave_k > 0.05:
+		main.add_heave(position, 30.0, 5.0 * heave_k)
 	# 磔：真下に着いたら挟みに出る
 	if p.state == "crucified" and to_t.length() < 8.0:
 		facing = 1 if p.position.x > position.x else -1
@@ -297,14 +302,18 @@ func _update_lurk(delta: float, p) -> void:
 			sprite.visible = true
 			main.sfx.play("assist", -2.0)
 			return
-	# 逃げている主人公が真上を通り過ぎた → 背後で飛び出して羽交い締め
-	if th != null and p.can_be_grabbed() and p.z < 20.0 and p.vel.x * esc > 20.0:
-		var behind: float = (position.x - p.position.x) * esc
-		if behind <= 4.0 and behind > -50.0 and absf(position.y - p.position.y) < 26.0:
+	# 他の敵から逃げている主人公のすぐ下まで来た → 背後で飛び出して羽交い締め
+	if th != null and p.can_be_grabbed() and p.z < 20.0:
+		var dx: float = position.x - p.position.x
+		if absf(dx) < 46.0 and absf(position.y - p.position.y) < 26.0:
+			var run := esc
+			if absf(p.vel.x) > 20.0:
+				run = 1 if p.vel.x > 0.0 else -1
 			state = "burst"
 			t = 0.0
-			position = Vector2(p.position.x - esc * 22.0, p.position.y - 2.0)
-			facing = esc
+			burst_grabbed = false
+			position = Vector2(p.position.x - run * 22.0, p.position.y - 2.0)
+			facing = run
 			main.sfx.play("grab", -2.0)
 			main.add_goop(position, 90.0, 0.3)
 			return
@@ -318,7 +327,8 @@ func _update_lurk(delta: float, p) -> void:
 
 func _update_burst(delta: float, p) -> void:
 	# 床から一気に飛び出して、脇の下から腕を回す。絵（猫入り）がある間は主人公の絵を隠す
-	if t <= delta * 1.5:
+	if not burst_grabbed:
+		burst_grabbed = true
 		if not p.can_be_grabbed():
 			_start_sink()
 			return
@@ -361,13 +371,24 @@ func _start_sandwich(p) -> void:
 	push_off = 0.0
 	fake_left = randi_range(1, 3)
 	position.x = p.position.x
+	_sw_front(p)
 	p.sandwicher = self
 	p.push = 0.0
 	main.sfx.play("gurgle", 0.0)
 	main.zoom_moment(p.position + Vector2(0, -150), 1.4)
 
 
+## 磔の柱（ワニ）より必ず手前に描く
+func _sw_front(p) -> void:
+	var cy: float = p.position.y
+	if p.crucifier != null and is_instance_valid(p.crucifier):
+		cy = maxf(cy, p.crucifier.position.y)
+	position.y = cy + 10.0
+	z_index = int(position.y) + 2
+
+
 func _sw_place(r: float) -> void:
+	_sw_front(main.player)
 	sprite.scale = Vector2(1.0, SW_STRETCH)
 	sprite.position = Vector2(-facing * push_off, -SW_LIFT + r).round()
 

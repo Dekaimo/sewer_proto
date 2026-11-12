@@ -422,6 +422,7 @@ func _update_frame(delta: float) -> void:
 
 
 func _update_normal(delta: float) -> void:
+	touch_mash = 0   # 捕まっていないときのタップは持ち越さない
 	var c := contamination()
 	var inp := Vector2(Input.get_axis("left", "right"), Input.get_axis("up", "down"))
 	var mouse := get_global_mouse_position()
@@ -572,11 +573,7 @@ func _update_swallowed(delta: float) -> void:
 	# 2対1のときは抜け出しにくく、汚れるのも速い
 	var trio: bool = swallower.has_method("is_trio") and swallower.is_trio()
 	struggle -= (0.26 if trio else (0.2 if swallow_combo else 0.15)) * delta
-	var d := 0
-	if Input.is_action_just_pressed("left"):
-		d = -1
-	elif Input.is_action_just_pressed("right"):
-		d = 1
+	var d := _mash_input()
 	if d != 0 and d != last_dir:
 		struggle += 0.035 if trio else (0.05 if swallow_combo else 0.07)
 		last_dir = d
@@ -633,17 +630,26 @@ func get_held(dobe) -> void:
 	main.sfx.play("grab")
 
 
+## もがく入力：左右の押し始め。スマホのタップ（touch_mash）は「前回と逆の向き」として数える
+var touch_mash := 0
+func _mash_input() -> int:
+	if Input.is_action_just_pressed("left"):
+		return -1
+	if Input.is_action_just_pressed("right"):
+		return 1
+	if touch_mash > 0:
+		touch_mash -= 1
+		return -last_dir if last_dir != 0 else 1
+	return 0
+
+
 func _update_held(delta: float) -> void:
 	if held_by == null or not is_instance_valid(held_by):
 		state = "normal"
 		return
 	# 口が開いていくほど焦って、振りほどく力が落ちていく（でも間に合えば助かる）
 	struggle -= 0.16 * delta
-	var d := 0
-	if Input.is_action_just_pressed("left"):
-		d = -1
-	elif Input.is_action_just_pressed("right"):
-		d = 1
+	var d := _mash_input()
 	if d != 0 and d != last_dir:
 		struggle += 0.075
 		last_dir = d
@@ -667,11 +673,7 @@ func _update_held(delta: float) -> void:
 func _update_pinned(delta: float) -> void:
 	# 一度抜けたぶん少しだけ抜けやすい。そのかわり上からぐりぐり押しつけられて汚れる
 	struggle -= 0.12 * delta
-	var d := 0
-	if Input.is_action_just_pressed("left"):
-		d = -1
-	elif Input.is_action_just_pressed("right"):
-		d = 1
+	var d := _mash_input()
 	if d != 0 and d != last_dir:
 		struggle += 0.08
 		last_dir = d
@@ -719,11 +721,7 @@ func _update_crucified(delta: float) -> void:
 	position = crucifier.position + Vector2(0, 1)
 	# 腕を括られているので抜けにくい
 	struggle -= 0.12 * delta
-	var d := 0
-	if Input.is_action_just_pressed("left"):
-		d = -1
-	elif Input.is_action_just_pressed("right"):
-		d = 1
+	var d := _mash_input()
 	var sandwiched: bool = sandwicher != null and is_instance_valid(sandwicher)
 	if d != 0 and d != last_dir:
 		last_dir = d
@@ -792,11 +790,7 @@ func _update_slipped(delta: float) -> void:
 	vel.x = move_toward(vel.x, 0.0, 120.0 * delta)
 	position.x = clampf(position.x + vel.x * delta, main.ARENA_L, main.ARENA_R)
 	# 起き上がる：左右連打で早くなる
-	var d := 0
-	if Input.is_action_just_pressed("left"):
-		d = -1
-	elif Input.is_action_just_pressed("right"):
-		d = 1
+	var d := _mash_input()
 	if d != 0 and d != last_dir:
 		slip_t -= 0.12
 		last_dir = d
@@ -826,11 +820,7 @@ func _update_grabbed(delta: float) -> void:
 	z = 0.0
 	facing = -grabbed_by.facing
 	struggle -= 0.22 * delta
-	var d := 0
-	if Input.is_action_just_pressed("left"):
-		d = -1
-	elif Input.is_action_just_pressed("right"):
-		d = 1
+	var d := _mash_input()
 	if d != 0 and d != last_dir:
 		struggle += 0.09
 		last_dir = d

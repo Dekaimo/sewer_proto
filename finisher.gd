@@ -30,6 +30,8 @@ var rise := 0.0           # 床からゆっくり出てくる時間
 var rise_k := 1.0         # 0=まだ床の中 1=全身が出た
 var wani_frames: Array[Texture2D] = []   # 2対1：吐き出されたペンキから出てくるワニ（形成→マッスルポーズ）
 var wani_sprite: Sprite2D
+var trio_dobe = null          # 3対1で負けた：サメはワニと一緒にドーベルマンも吐き出す
+var dobe_sprite: Sprite2D
 var dirt_mat: ShaderMaterial   # 掲げられ：主人公だけをドロドロに（猫のマスクで）
 var cat_masks: Array = []
 var cat_feet: Array = []      # コマごとの、ぶら下がった体の下端（糸を垂らす場所）
@@ -82,6 +84,11 @@ func _ready() -> void:
 	wani_sprite.visible = false
 	wani_sprite.z_index = 1
 	add_child(wani_sprite)
+	dobe_sprite = Sprite2D.new()
+	dobe_sprite.centered = false
+	dobe_sprite.visible = false
+	dobe_sprite.z_index = 1
+	add_child(dobe_sprite)
 	pile = Sprite2D.new()
 	pile.centered = false
 	pile.visible = false
@@ -157,6 +164,8 @@ func _process(delta: float) -> void:
 	var dur: float = frames.size() / float(info.fps)
 	if kind == "duo":
 		dur += 4.2   # 吐いたあと、ワニが形成されてポーズを決めるまで
+		if trio_dobe != null:
+			dur += 0.8   # ドーベルマンも形成されて決めポーズまで
 		_update_duo(tt)
 		if tt > dur + 0.8:
 			done = true
@@ -360,6 +369,45 @@ func _update_duo(tt: float) -> void:
 			wani_mat.set_shader_parameter("lean_px", 0.0)
 		wani_sprite.material = wani_mat
 		wani_mat.set_shader_parameter("appear", clampf((tt - pool_t) / 0.5, 0.0, 1.0))
+	_update_trio_dobe(tt, pool_t, hold)
+
+
+## 3対1：吐いたペンキのもう一方の水たまりから、ドーベルマンも（少し遅れて）形成される
+func _update_trio_dobe(tt: float, pool_t: float, hold: float) -> void:
+	if trio_dobe == null or not is_instance_valid(trio_dobe) or tt < pool_t:
+		return
+	var fr: Dictionary = trio_dobe.frames
+	var seq := [["rise", 0.8], ["form", 1.3], ["settle", 0.6]]
+	var wt := tt - hold - 0.5
+	var tex: Texture2D = null
+	if wt <= 0.0:
+		if fr.has("rise"):
+			tex = fr["rise"][0]
+	else:
+		for ph in seq:
+			var k: String = ph[0]
+			var d: float = ph[1]
+			if not fr.has(k):
+				continue
+			if wt < d:
+				var arr: Array = fr[k]
+				tex = arr[clampi(int(wt / d * float(arr.size())), 0, arr.size() - 1)]
+				break
+			wt -= d
+		if tex == null:
+			if fr.has("idle"):
+				var ia: Array = fr["idle"]
+				tex = ia[int(wt * 8.0) % ia.size()]
+			else:
+				tex = trio_dobe.base_tex
+	if tex == null:
+		return
+	dobe_sprite.visible = true
+	dobe_sprite.texture = tex
+	dobe_sprite.offset = Vector2(-128, -240)
+	dobe_sprite.position = Vector2(230, 22)
+	dobe_sprite.flip_h = false   # 左のサメの方を向く
+	dobe_sprite.z_index = -1 if tt < hold else 2
 
 
 ## とどめの間の小窓の様子（belly_view が読む）
