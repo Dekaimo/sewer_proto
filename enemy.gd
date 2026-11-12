@@ -16,7 +16,7 @@ var vel_x := 0.0
 var lunge_dir := 1
 var assist_timer := 0.0
 var spread_t := 0.0
-var ambush_cd := 9.0     # 床に潜って奇襲するまでの待ち
+var ambush_cd := 4.0     # 床に潜って奇襲するまでの待ち
 var aim := Vector2.ZERO  # 潜行中に狙っている場所（主人公の少し前の位置を覚えているだけ）
 var aim_t := 0.0
 var lurk_t := 0.0
@@ -480,7 +480,7 @@ func _want_ambush(delta: float, p) -> bool:
 	var on_goop: bool = main.goop_at(p.position) > 0.25
 	var far: bool = absf(p.position.x - position.x) > 260.0
 	if on_goop or far:
-		ambush_cd = randf_range(lerpf(10.0, 5.0, main.ramp()), lerpf(15.0, 9.0, main.ramp()))
+		ambush_cd = randf_range(5.0, 9.0)
 		return true
 	return false
 

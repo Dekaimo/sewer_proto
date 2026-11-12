@@ -246,7 +246,7 @@ func _swim(delta: float, p) -> void:
 		sp *= 1.3   # ワニに捕まっている獲物には一直線
 	var can_hunt: bool = p.state in ["normal", "slipped", "grabbed"] and cd <= 0.0
 	# 遠くにいれば大ジャンプ
-	if can_hunt and to_p.length() > 320.0 and p.state != "grabbed" and main.ramp() > 0.3:
+	if can_hunt and to_p.length() > 320.0 and p.state != "grabbed":
 		_start_leap(p)
 		return
 	position += to_p.normalized() * Vector2(1.0, 0.6) * sp * delta if to_p.length() > 4.0 else Vector2.ZERO
