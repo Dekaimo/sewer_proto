@@ -1,0 +1,10 @@
+{
+  "name": "dobe_soft_edit",
+  "mode": "edit",
+  "src": "assets_raw/dobe_ref/head_a.png",
+  "variants": 3,
+  "desc": "Keep the same head, ears, pose and colors. Make the chest much broader and wider with big soft round pecs. Make the whole body softer and gooier: remove most of the sharp interior muscle lines, smooth rounded glossy slime blobs, more sagging and dripping goo. Change the eyes to human-like eyes: a yellow iris with a dark round pupil, half-lidded and sly. Remove the realistic dog nose bridge lines, keep the muzzle simple and smooth.",
+  "generations_before": 1423.0,
+  "generations_after": 1420.0,
+  "used": 3.0
+}

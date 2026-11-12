@@ -1,0 +1,24 @@
+{
+  "name": "dobe_idle_key5",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "refs": [
+    [
+      "assets_raw/dobe_ref/front.png",
+      "character design, front view: very broad chest, soft glossy goo body"
+    ],
+    [
+      "assets_raw/dobe_ref/side.png",
+      "character design, side view"
+    ],
+    [
+      "assets_raw/dobe_ref/eye.png",
+      "eye style: human-like eye with yellow iris and dark round pupil, half-lidded, sly"
+    ]
+  ],
+  "desc": "Pixel art game sprite, 256x256, of a huge soft paint goo monster shaped like a Doberman, three-quarter view facing left, standing idle. Tall pointed ears, simple smooth rounded muzzle without realistic snout lines, small head on a thick neck. Human-like eyes: yellow iris with a dark round pupil, half-lidded, sly smug smirk, drool dripping. VERY broad wide chest with big soft round pecs. The body is soft, squishy and melting like thick glossy slime: smooth rounded blobs, almost no interior muscle lines, goo sagging and dripping everywhere, lower body melts into a wide goo puddle. Glossy hot pink with soft flowing yellow marble streaks, large wet highlights, dark outline only around the silhouette.",
+  "generations_before": 1433.0,
+  "generations_after": 1423.0,
+  "used": 10.0
+}
