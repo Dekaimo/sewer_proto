@@ -368,48 +368,53 @@ func _process(delta: float) -> void:
 ## 真ん中に主人公、上からドーベルマンがのしかかってネバネバに抱きしめる。絵がそろっていれば true
 var pin_base: Sprite2D
 var pin_over: Sprite2D
+var pin_mat: ShaderMaterial
+## ワニとドーベルマンが抱き合って主人公を挟んだ絵（3対1の小窓と、抜けた後の地面で使う）
+var embrace_tex: Texture2D = load("res://assets/embrace_0.png") if ResourceLoader.exists("res://assets/embrace_0.png") else null
+var embrace_mask: Texture2D = load("res://assets/masks/embrace_0_mask.png") if ResourceLoader.exists("res://assets/masks/embrace_0_mask.png") else null
 func _draw_sandwich() -> bool:
 	var w = null
 	for e in main.enemies:
 		if is_instance_valid(e) and e.state == "pinned":
 			w = e
-	var d = null
-	for x in main.dobes:
-		if is_instance_valid(x) and x.state == "pin" and x.frames.has("lie"):
-			d = x
-	if w == null or not w.anims.has("hug"):
+	if w == null:
 		return false
 	if pin_base == null:
 		pin_base = Sprite2D.new()
 		pin_base.centered = true
 		pin_base.region_enabled = true
-		pin_base.region_rect = Rect2(24, 0, 150, 205)
-		pin_base.rotation = -PI / 2.0
-		pin_base.flip_h = true   # 90度回しているので、画面では上下反転になる（ワニが下）
+		pin_base.rotation = -PI / 2.0   # 抱き合った絵を横倒し：左のワニが下、右のドーベルマンが上
 		add_child(pin_base)
 		pin_over = Sprite2D.new()
-		pin_over.centered = true
 		add_child(pin_over)
+		pin_mat = ShaderMaterial.new()
+		pin_mat.shader = load("res://hug_dirt.gdshader")
 	var tt := Time.get_ticks_msec() / 1000.0
+	var sq := absf(sin(tt * 3.2))
+	sprite.visible = false
+	pin_over.visible = false
+	pin_base.visible = true
+	if embrace_tex != null:
+		# ワニとドーベルマンが抱き合い、その胸の間に主人公が挟まってネバネバにくっついている
+		pin_base.texture = embrace_tex
+		pin_base.region_rect = Rect2(40, 0, 290, 256)
+		pin_mat.set_shader_parameter("cat_mask", embrace_mask)
+		pin_mat.set_shader_parameter("contamination", contamination())
+		pin_base.material = pin_mat
+		# 上から押しつぶされるたびに、ぐにゅっと潰れる
+		pin_base.scale = Vector2(1.0 + 0.03 * sq, 1.0 - 0.02 * sq)
+		pin_base.position = Vector2(0, -132.0 + sq * 3.0).round()
+		return true
+	if not w.anims.has("hug"):
+		return false
 	var f := int(tt * 8.0) % 16
 	var fi := f if f < 9 else 16 - f
-	sprite.visible = false
-	pin_base.visible = true
 	pin_base.texture = w.anims["hug"][fi]
+	pin_base.region_rect = Rect2(24, 0, 150, 205)
 	w.hug_mat.set_shader_parameter("cat_mask", w.anim_masks["hug"][fi])
 	w.hug_mat.set_shader_parameter("contamination", contamination())
 	pin_base.material = w.hug_mat
-	# 上から押しつぶされるたびに、ぐにゅっと潰れる
-	var sq := absf(sin(tt * 3.2))
 	pin_base.position = Vector2(0, -78.0 + sq * 3.0).round()
-	pin_base.scale = Vector2(1.0, 1.0)
-	pin_over.visible = d != null
-	if d != null:
-		var arr: Array = d.frames["lie"]
-		pin_over.texture = arr[int(tt * 6.0) % arr.size()]
-		pin_over.flip_h = false
-		# 上から胸板を擦りつける：前後にぐりぐり、押しつけるたびに沈む
-		pin_over.position = Vector2(34.0 + sin(tt * 3.2) * 5.0, -106.0 + sq * 7.0).round()
 	return true
 
 

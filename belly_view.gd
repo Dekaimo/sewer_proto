@@ -13,6 +13,7 @@ var main
 var bg: CanvasItem
 var bg_mat: ShaderMaterial
 var content: Sprite2D
+var emb_mat: ShaderMaterial
 var dobe_layer: Sprite2D   # 3対1：下から抱きつくドーベルマン（素材 dobe_belly_* があれば）
 var goo_fg: Node2D     # 中身の手前にかぶさるネバネバ（糸・垂れ・底に溜まる粘液）
 var sq_now := 0.0
@@ -122,8 +123,22 @@ func _process(delta: float) -> void:
 	content.modulate = Color(0.7, 0.6, 0.65) if limp else Color.WHITE
 	# 3対1：ドーベルマンが上からのしかかって抱きしめるので、ワニの抱きつきは上下反転して下側に（90度回しているので flip_h が画面の上下）
 	var dobe = shark.get("caught_dobe")
-	var lie: bool = dobe != null and is_instance_valid(dobe) and dobe.frames.has("lie")
-	content.flip_h = lie
+	var lie := false
+	# 3対1：ワニとドーベルマンが抱き合い、その胸の間に主人公が挟まっている絵（横倒しで映す）
+	var emb: bool = dobe != null and is_instance_valid(dobe) and p.embrace_tex != null
+	if emb:
+		if emb_mat == null:
+			emb_mat = ShaderMaterial.new()
+			emb_mat.shader = load("res://hug_dirt.gdshader")
+		emb_mat.set_shader_parameter("cat_mask", p.embrace_mask)
+		emb_mat.set_shader_parameter("contamination", p.contamination())
+		content.texture = p.embrace_tex
+		content.material = emb_mat
+		content.region_rect = Rect2(88, 0, 196, 256)
+	content.flip_h = false
+	if emb:
+		# 2体の頭まで映すため、この絵だけ等倍（横倒しで 256x196 → 小窓 280x180）
+		content.scale = Vector2(1.0 - 0.04 * sq, 1.0 + 0.05 * sq)
 	content.position = Vector2(W * 0.5, H * 0.5 + sink * 50.0) + Vector2(sin(t * 37.0) * shake, cos(t * 29.0) * shake * 0.7).round()
 	# ドーベルマンも中にいる：横倒しで上からのしかかり、主人公をワニとサンドイッチにしてネバネバに抱きしめる（手前に描く）
 	dobe_layer.visible = lie
@@ -136,7 +151,7 @@ func _process(delta: float) -> void:
 		dobe_layer.flip_h = false
 		dobe_layer.position = Vector2(W * 0.5 + 50.0 + sin(t * 3.0) * 4.0, H * 0.5 - 34.0 + sq * 8.0 + sink * 50.0).round()
 		dobe_layer.modulate = content.modulate
-	elif dobe != null and is_instance_valid(dobe) and dobe.frames.has("belly"):
+	elif not emb and dobe != null and is_instance_valid(dobe) and dobe.frames.has("belly"):
 		dobe_layer.visible = true
 		var arr: Array = dobe.frames["belly"]
 		dobe_layer.texture = arr[int(t * 8.0) % arr.size()]
