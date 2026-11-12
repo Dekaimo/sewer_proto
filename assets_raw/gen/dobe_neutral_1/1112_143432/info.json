@@ -1,0 +1,20 @@
+{
+  "name": "dobe_neutral_1",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "refs": [
+    [
+      "assets_raw/dobe_ref2/front.png",
+      "character design front view: face, body proportions and yellow marble pattern"
+    ],
+    [
+      "assets_raw/dobe_ref2/side.png",
+      "character design side view: head and muzzle profile"
+    ]
+  ],
+  "desc": "Pixel art game sprite of this exact pink paint goo Doberman character, three-quarter view facing left, standing idle with a calm neutral straight face: mouth closed, yellow eyes looking ahead, a little drool. Small head with tall pointed ears, simple smooth muzzle, very broad glossy chest, huge arms with fists, flowing yellow marble streaks like the reference, lower body melting into a wide goo puddle. Crisp pixel art with dark outline and glossy highlights, transparent background.",
+  "generations_before": 1391.0,
+  "generations_after": 1381.0,
+  "used": 10.0
+}
