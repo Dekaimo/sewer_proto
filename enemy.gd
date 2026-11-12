@@ -51,7 +51,7 @@ var cru_frames := {}
 var cru_masks := {}
 var drip_vis: Array = []
 const CRU_SPLIT := 192     # 磔の絵：ここより上（主人公の足先まで）を持ち上げる
-const CRU_TRUNK := 14      # 繰り返して並べる粘液の幹の帯（主人公が入らない行）
+const CRU_TRUNK := 18      # 繰り返して並べる粘液の幹の帯（主人公が入らない行）
 const CRU_LIFT := 140.0    # どれだけ高く吊り上げるか（晒し者なので高く）
 const RISE_LIFT := 110.0
 # 下半身の絵（逞しい胴〜床のドロドロ）。上半身はこの行で切って、下半身の上端に重ねる
@@ -76,6 +76,7 @@ var cru_base: Sprite2D
 var xfade: Sprite2D          # 次のコマを重ねて、コマ間をぬるっとつなぐ
 var xfade_mat: ShaderMaterial
 var trunk_edges := {}
+var base_mat: ShaderMaterial   # 磔の根元（水たまり）用：上半身の消し込みの影響を受けない
 var lower_sp: Sprite2D
 var lower_mat: ShaderMaterial        # コマごとの幹の左右の端（つなぎ目・床側）
 var tilt := 0.0              # 上体の傾き（ラジアン）
@@ -209,6 +210,7 @@ func _process(delta: float) -> void:
 	if lower_sp:
 		lower_sp.visible = false
 	hug_mat.set_shader_parameter("cut_y", 2.0)
+	hug_mat.set_shader_parameter("wave_cut", 999.0)
 	if xfade:
 		xfade.visible = false
 	for sg in segs:
@@ -570,6 +572,7 @@ func _update_crucify(delta: float) -> void:
 		if lower_sp:
 			lower_sp.visible = false
 		hug_mat.set_shader_parameter("cut_y", 2.0)
+		hug_mat.set_shader_parameter("wave_cut", 999.0)
 		sprite.visible = true
 		state = "emerge"
 		anim_t = 0.6
@@ -722,24 +725,36 @@ func _render_split(tex: Texture2D, key: String, idx: int, lift: float, tl: float
 	trunk.texture = tex
 	trunk.material = bend_mat
 	trunk.flip_h = sprite.flip_h
+	# 柱は上半身の下端より少し上から始めて（上半身の後ろに隠れる）、境目を波打たせて消す
+	const OVER := 10.0
 	trunk.region_rect = Rect2(0, CRU_SPLIT, 256, CRU_TRUNK)
 	trunk.offset = Vector2(-128, 0)
-	trunk.scale = Vector2(1.0, total / CRU_TRUNK)
-	trunk.position = Vector2(0, -feet + CRU_SPLIT - lift)
+	trunk.scale = Vector2(1.0, (total + OVER) / CRU_TRUNK)
+	trunk.position = Vector2(0, -feet + CRU_SPLIT - lift - OVER)
+	hug_mat.set_shader_parameter("wave_cut", float(CRU_SPLIT) - 9.0)
+	xfade_mat.set_shader_parameter("wave_cut", float(CRU_SPLIT) - 9.0)
 	var ed: Array = _edges(tex)
 	bend_mat.set_shader_parameter("top_edge", ed[0])
 	bend_mat.set_shader_parameter("bot_edge", ed[1])
 	bend_mat.set_shader_parameter("v0", float(CRU_SPLIT) / 256.0)
 	bend_mat.set_shader_parameter("v1", float(CRU_SPLIT + CRU_TRUNK) / 256.0)
-	bend_mat.set_shader_parameter("total_h", roundf(total))
+	bend_mat.set_shader_parameter("total_h", roundf(total + OVER))
 	bend_mat.set_shader_parameter("band_y0", float(CRU_SPLIT))
 	bend_mat.set_shader_parameter("band_h", float(CRU_TRUNK))
 	bend_mat.set_shader_parameter("flow", floorf(cru_t * 26.0))
 	bend_mat.set_shader_parameter("top_off", lean_x * fl)
 	bend_mat.set_shader_parameter("mid_off", lag_x * 0.6 * fl)
+	if trunk.get_index() > sprite.get_index():
+		move_child(trunk, sprite.get_index())
 	cru_base.visible = true
 	cru_base.texture = tex
-	cru_base.material = hug_mat
+	if base_mat == null:
+		base_mat = ShaderMaterial.new()
+		base_mat.shader = HUG_SHADER
+	base_mat.set_shader_parameter("cat_mask", hug_mat.get_shader_parameter("cat_mask"))
+	base_mat.set_shader_parameter("contamination", hug_mat.get_shader_parameter("contamination"))
+	base_mat.set_shader_parameter("absorb_y", 1.0)
+	cru_base.material = base_mat
 	cru_base.region_rect = Rect2(0, CRU_SPLIT + CRU_TRUNK, 256, 256 - CRU_SPLIT - CRU_TRUNK)
 	cru_base.offset = Vector2(-128, -feet + CRU_SPLIT + CRU_TRUNK)
 	cru_base.flip_h = sprite.flip_h

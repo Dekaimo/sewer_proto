@@ -38,31 +38,41 @@ void fragment() {
 	if (x < l || x > r) {
 		COLOR = vec4(0.0);
 	} else {
-		// 中身：ワニと同じ色のマーブル粘液を、下へ流れ落ちるように描く（繰り返し模様にならない）
+		// 中身：元の絵の幹（帯）をそのまま縦に引き伸ばして使う（絵と同じ質感・色・垂れ）
 		float u = (x - l) / max(r - l, 1.0);
-		float yy = ypx - flow;
-		float n1 = fbm(vec2(x / 18.0, yy / 34.0));
-		float n2 = fbm(vec2(x / 7.0 + 3.0, yy / 60.0));
-		float marble = sin(x * 0.09 + n1 * 9.0 + yy * 0.015);
-		vec3 col = vec3(0.925, 0.353, 0.620);
-		if (abs(marble) < 0.09) col = vec3(0.976, 0.847, 0.302);           // 細い黄色の線（ワニの模様と同じ）
-		else if (marble < -0.6) col = vec3(0.82, 0.27, 0.54);              // ひと段濃いピンク
-		// 縦に流れる垂れ（ところどころ光る）
-		if (n2 > 0.66 && fract(x / 11.0) < 0.25) col = vec3(1.0, 0.78, 0.90);
-		// 丸い立体感：左寄りが明るく、右端へ向けて暗く
-		float shade = 1.0 - smoothstep(0.35, 1.0, u) * 0.38;
-		if (u < 0.22) shade += 0.06;
-		col *= shade;
-		vec4 c = vec4(col, 1.0);
-		// 上のつなぎ目：最初の数行は元の絵の続き（同じ列・その下の行）をそのまま使って段差を消す
-		if (ypx < 7.0) {
-			vec4 orig = texture(TEXTURE, vec2((x + 0.5) / tex_w, (band_y0 + ypx + 0.5) / tex_h));
-			if (orig.a > 0.5) c = mix(orig, c, ypx / 7.0);
+		float sl = mix(top_edge.x, bot_edge.x, 0.5);
+		float sr = mix(top_edge.y, bot_edge.y, 0.5);
+		float sx = floor(mix(sl, sr, u));
+		// 縦：帯全体を高さいっぱいに引き伸ばす（縞にならない）。ゆっくり流れ落ちるよう、少しずつ下へずらす
+		float fl = fract(flow / 400.0);
+		float row = floor(clamp(k + sin(k * 6.0 + flow / 30.0) * 0.06, 0.0, 0.999) * (band_h - 1.0));
+		float jit = floor((noise(vec2(sx / 9.0, k * 3.0 + fl * 3.0)) - 0.5) * 3.0);
+		vec4 c = texture(TEXTURE, vec2((sx + jit + 0.5) / tex_w, (band_y0 + row + 0.5) / tex_h));
+		if (c.a < 0.5) c = texture(TEXTURE, vec2((sx + 0.5) / tex_w, (band_y0 + band_h * 0.5) / tex_h));
+		// 引き伸ばすと汚く見える、暗い線・灰色（主人公の残り）は、近くのピンクに置き換える
+		float lum = dot(c.rgb, vec3(0.3, 0.59, 0.11));
+		float sat = max(c.r, max(c.g, c.b)) - min(c.r, min(c.g, c.b));
+		if (lum < 0.30 || sat < 0.15) {
+			float n3 = noise(vec2(x / 6.0, k * 9.0 + fl * 9.0));
+			c.rgb = n3 > 0.55 ? vec3(0.82, 0.27, 0.54) : vec3(0.925, 0.353, 0.620);
 		}
-		// 輪郭線と、縁の内側の影
-		if (x - l < 2.0 || r - x < 2.0) c = vec4(0.18, 0.03, 0.12, 1.0);
-		else if (r - x < 6.0) c.rgb *= 0.75;
-		else if (x - l < 5.0) c.rgb = mix(c.rgb, vec3(1.0, 0.85, 0.93), 0.35);   // 左の縁はてかり
+		c.a = 1.0;
+		if (u > 0.82) c.rgb *= 0.85;
+		// 上のつなぎ目：波打つ境目で、元の絵の続きに溶け込ませる
+		float wave = 4.0 + 3.0 * sin(x * 0.35) + 2.0 * sin(x * 0.11 + 1.3);
+		if (ypx < wave) {
+			vec4 orig = texture(TEXTURE, vec2((x + 0.5) / tex_w, (band_y0 + ypx + 0.5) / tex_h));
+			if (orig.a > 0.5) c = orig;
+		}
+		// 下のつなぎ目：根元の絵へ、波打つ境目でつなぐ
+		float wave2 = 3.0 + 3.0 * sin(x * 0.27 + 2.0) + 2.0 * sin(x * 0.08);
+		if (ypx > total_h - 1.0 - wave2) {
+			vec4 o2 = texture(TEXTURE, vec2((x + 0.5) / tex_w, (band_y0 + band_h - 1.0 + 0.5) / tex_h));
+			if (o2.a > 0.5) c = o2;
+		}
+		if (x - l < 1.0 || r - x < 1.0) c = vec4(0.10, 0.02, 0.08, 1.0);
+		else if (x - l < 3.0) c.rgb = mix(c.rgb, vec3(1.0, 0.78, 0.90), 0.4);
+		else if (r - x < 4.0) c.rgb *= 0.78;
 		COLOR = c;
 	}
 }

@@ -9,6 +9,8 @@ uniform sampler2D cat_mask : filter_nearest;
 uniform float absorb_y = 1.0;
 // この高さ（UVのy）より下は、主人公の画素だけ残す（磔：ワニの細い柱を消して、下半身の絵に差し替える）
 uniform float cut_y = 2.0;
+// 上半身の下端を波打たせて消す（下の柱と自然につなぐ）。この行（ピクセル）から下が対象
+uniform float wave_cut = 999.0;
 uniform vec4 pink : source_color = vec4(1.0, 0.30, 0.66, 1.0);
 uniform vec4 pink_dark : source_color = vec4(0.58, 0.14, 0.38, 1.0);
 uniform vec4 yellow : source_color = vec4(1.0, 0.90, 0.20, 1.0);
@@ -24,6 +26,11 @@ float noise(vec2 p) {
 void fragment() {
 	vec4 base = texture(TEXTURE, UV);
 	if (UV.y > cut_y && texture(cat_mask, UV).r < 0.5) discard;
+	if (wave_cut < 900.0) {
+		float px = floor(UV.x * 256.0);
+		float w = wave_cut + 3.0 + 3.0 * sin(px * 0.31) + 2.0 * sin(px * 0.13 + 1.7);
+		if (UV.y * 256.0 > w && texture(cat_mask, UV).r < 0.5) discard;
+	}
 	COLOR = base;
 	if (base.a > 0.0) {
 		vec3 c = base.rgb;
