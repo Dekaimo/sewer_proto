@@ -46,6 +46,11 @@ var cru_t := 0.0
 var cru_frames := {}
 var cru_masks := {}
 var drip_vis: Array = []
+const CRU_SPLIT := 172     # 磔の絵：ここより上を持ち上げる
+const CRU_TRUNK := 18      # 引き伸ばす幹の行数（ここから下は床に残す）
+const CRU_LIFT := 64.0     # どれだけ高く持ち上げるか
+var trunk: Sprite2D
+var cru_base: Sprite2D
 var sway := Vector2.ZERO     # 晒し上げ中の揺れ
 var sway_v := Vector2.ZERO
 var jolt_t := 0.0
@@ -97,8 +102,18 @@ func _ready() -> void:
 	sprite.texture = emerge_frames[0]
 	front = Node2D.new()
 	front.draw.connect(_draw_front)
+	trunk = Sprite2D.new()
+	trunk.centered = false
+	trunk.region_enabled = true
+	trunk.visible = false
+	cru_base = Sprite2D.new()
+	cru_base.centered = false
+	cru_base.region_enabled = true
+	cru_base.visible = false
 	sprite.centered = false
 	sprite.offset = Vector2(-128, -FEET_Y - 1)
+	add_child(cru_base)
+	add_child(trunk)
 	add_child(sprite)
 	add_child(front)
 	mound_frames = GooMound.load_frames()
@@ -122,6 +137,8 @@ func _process(delta: float) -> void:
 	sprite.position = Vector2.ZERO
 	sprite.region_enabled = false
 	sprite.offset = Vector2(-128, -FEET_Y - 1)
+	trunk.visible = false
+	cru_base.visible = false
 	front.queue_redraw()
 	mound.visible = false
 	if state == "pulldown" or state == "under":
@@ -479,32 +496,54 @@ func _update_crucify(delta: float) -> void:
 			main.add_goop(position, 160.0, 0.5)
 		return
 	# 晒し上げ：十字のポーズのままネットリぐらぐら揺らす。ときどきガクンと揺さぶる
-	sprite.region_enabled = false
-	sprite.offset = Vector2(-128, -FEET_Y - 1)
 	var transform_k := clampf(cru_t / 0.45, 0.0, 1.0)
+	var tex: Texture2D
 	if has_art and cru_frames.has("morph") and transform_k < 1.0:
 		var arr: Array = cru_frames["morph"]
-		sprite.texture = arr[clampi(int(transform_k * arr.size()), 0, arr.size() - 1)]
-		_set_mask("morph", clampi(int(transform_k * arr.size()), 0, arr.size() - 1))
+		var mi := clampi(int(transform_k * arr.size()), 0, arr.size() - 1)
+		tex = arr[mi]
+		_set_mask("morph", mi)
 	else:
-		sprite.texture = cru_frames["crucify"] if has_art else IDLE
+		tex = cru_frames["crucify"] if has_art else IDLE
 		_set_mask("crucify")
 	jolt_t -= delta
-	var target := Vector2(sin(cru_t * 1.3) * 10.0, sin(cru_t * 2.1) * 3.0)
+	var target := Vector2(sin(cru_t * 1.3) * 12.0, sin(cru_t * 2.1) * 3.0)
 	if jolt_t <= 0.0:
 		jolt_t = randf_range(1.0, 2.6)
-		sway_v += Vector2(randf_range(-260, 260), randf_range(-120, -40))
+		sway_v += Vector2(randf_range(-280, 280), randf_range(-140, -40))
 		main.sfx.play_any(["gurgle", "grab_loop"], 0.0)
 		for i in 3:
 			p.add_dirt(p.random_body_point(), 2)
 	sway_v += (target - sway) * 30.0 * delta
 	sway_v *= exp(-3.0 * delta)
 	sway += sway_v * delta
-	sprite.position = sway.round()
+	# 高く持ち上げる：上半身を持ち上げ、そのぶん粘液の幹を引き伸ばす（床の水たまりは動かさない）
+	var lift: float = CRU_LIFT * ease(clampf(cru_t / 0.5, 0.0, 1.0), 0.4) - sway.y
+	var feet := float(FEET_Y + 1)
+	sprite.texture = tex
+	sprite.region_enabled = true
+	sprite.region_rect = Rect2(0, 0, 256, CRU_SPLIT)
+	sprite.offset = Vector2(-128, -feet)
+	sprite.position = Vector2(sway.x, -lift).round()
+	trunk.visible = true
+	trunk.texture = tex
+	trunk.material = hug_mat
+	trunk.region_rect = Rect2(0, CRU_SPLIT, 256, CRU_TRUNK)
+	trunk.offset = Vector2(-128, 0)
+	trunk.flip_h = sprite.flip_h
+	trunk.position = Vector2(roundf(sway.x * 0.5), -feet + CRU_SPLIT - lift)
+	trunk.scale = Vector2(1.0, (CRU_TRUNK + lift) / CRU_TRUNK)
+	cru_base.visible = true
+	cru_base.texture = tex
+	cru_base.material = hug_mat
+	cru_base.region_rect = Rect2(0, CRU_SPLIT + CRU_TRUNK, 256, 256 - CRU_SPLIT - CRU_TRUNK)
+	cru_base.offset = Vector2(-128, -feet + CRU_SPLIT + CRU_TRUNK)
+	cru_base.flip_h = sprite.flip_h
+	cru_base.position = Vector2.ZERO
 	# 揺れるたびにネバネバが垂れ落ちて、根元に溜まる
 	if fmod(cru_t, 0.25) < delta:
 		main.add_goop(position + Vector2(randf_range(-50, 50), randf_range(-15, 15)), randf_range(40, 80), 0.3)
-	drip_vis.append({"x": randf_range(-70.0, 70.0) + sway.x, "y": -randf_range(120.0, 200.0), "v": 0.0})
+	drip_vis.append({"x": randf_range(-90.0, 90.0) + sway.x, "y": -randf_range(140.0, 240.0), "v": 0.0})
 	if drip_vis.size() > 30:
 		drip_vis.pop_front()
 	for d in drip_vis:
