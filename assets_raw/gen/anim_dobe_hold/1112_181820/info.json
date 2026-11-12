@@ -1,0 +1,14 @@
+{
+  "name": "anim_dobe_hold",
+  "mode": "anim",
+  "src": "assets_raw/dobe_nelson_key.png",
+  "last": "assets_raw/dobe_nelson_key.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge muscular Doberman monster made of glossy pink paint goo with yellow marble streaks holding a small black witch cat in a full nelson",
+  "variants": 1,
+  "desc": "Holding loop: the goo monster keeps the cat locked in the full nelson and slowly, stickily sways its whole body side to side and rocks the cat, squeezing tighter, thick goo oozing and dripping over the cat. The cat struggles: kicking its legs, wriggling, paws flailing in the air. Slow, sticky, viscous.",
+  "generations_before": 1031.9,
+  "generations_after": 1030.9,
+  "used": 1.0
+}

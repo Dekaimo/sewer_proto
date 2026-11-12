@@ -1,0 +1,14 @@
+{
+  "name": "anim_dobe_burst",
+  "mode": "anim",
+  "src": "assets_raw/dobe_burst_start.png",
+  "last": "assets_raw/dobe_nelson_key.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge muscular Doberman monster made of glossy pink paint goo with yellow marble streaks holding a small black witch cat in a full nelson",
+  "variants": 1,
+  "desc": "Ambush from behind: the goo lump behind the standing cat suddenly surges up into the huge Doberman, its arms shoot under the cat's armpits from behind, the cat's arms are forced up, the hands lock behind the cat's head and the cat is lifted off the floor, kicking. Fast surge, then sticky.",
+  "generations_before": 1030.9,
+  "generations_after": 1030.9,
+  "used": 0.0
+}

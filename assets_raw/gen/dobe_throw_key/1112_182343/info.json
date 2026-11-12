@@ -1,0 +1,10 @@
+{
+  "name": "dobe_throw_key",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_nelson_arms.png",
+  "variants": 1,
+  "desc": "Change only the arms and pose: the Doberman has just thrown something high into the air, both thick goo arms flung straight up overhead, hands open, body stretched upward, sticky goo strands flying off the hands. Grinning up at the sky. Same design, colors, marble, puddle base, outline and pixel art style. Nothing in its hands.",
+  "generations_before": 1019.9,
+  "generations_after": 1009.9,
+  "used": 10.0
+}
