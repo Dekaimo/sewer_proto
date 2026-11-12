@@ -1,0 +1,10 @@
+{
+  "name": "dobe_puddle",
+  "mode": "editv2",
+  "src": "assets/dobe_idle.png",
+  "variants": 3,
+  "desc": "Remove the whole Doberman body, head and arms completely. Leave only a very low, flat, wide puddle of the same glossy pink paint goo with yellow marble streaks lying on the floor, at the same position, width and viewing angle as the puddle at the bottom of the original image: a thin flat oval seen from a low side angle, only about 15 to 20 pixels tall, with a slight bulge in the middle. Same pixel art style, outline and highlights. Nothing else in the image.",
+  "generations_before": 1187.0,
+  "generations_after": 1157.0,
+  "used": 30.0
+}
