@@ -1,0 +1,12 @@
+{
+  "name": "pillar_morph",
+  "mode": "anim",
+  "src": "assets_raw/gen/pillar_nocross/1112_051225/v2_00.png",
+  "last": "assets/wani_crucify.png",
+  "frames": 16,
+  "variants": 2,
+  "desc": "The pink marbled goo pillar holding the small black witch cat slowly bubbles and squelches, swelling and bulging, goo lumps grow outward into huge muscular arms spreading sideways and a grinning toothy crocodile head with spikes rises up behind the cat, gradually transforming into a macho paint crocodile monster that holds the cat in its chest. Gooey, wet, gradual transformation.",
+  "generations_before": 1601.0,
+  "generations_after": 1595.0,
+  "used": 6.0
+}

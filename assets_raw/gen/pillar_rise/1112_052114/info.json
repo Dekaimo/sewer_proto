@@ -1,0 +1,12 @@
+{
+  "name": "pillar_rise",
+  "mode": "anim",
+  "src": "assets_raw/rise_start.png",
+  "last": "assets_raw/gen/pillar_nocross/1112_051225/v2_00.png",
+  "frames": 16,
+  "variants": 2,
+  "desc": "A thick sticky pink and yellow marbled paint goo pillar slowly oozes up from the puddle under a small black witch cat, viscous strands stretching, the goo climbs and wraps around the cat legs, body and arms with sticky tendrils and slowly lifts the struggling cat high up. Slow, heavy, viscous motion.",
+  "generations_before": 1603.0,
+  "generations_after": 1601.0,
+  "used": 2.0
+}
