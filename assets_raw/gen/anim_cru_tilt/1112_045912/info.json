@@ -1,0 +1,13 @@
+{
+  "name": "anim_cru_tilt",
+  "mode": "anim",
+  "src": "assets/wani_crucify.png",
+  "last": "assets/wani_crucify.png",
+  "frames": 16,
+  "variants": 2,
+  "subject": "a huge hyper-muscular pink paint crocodile monster with arms stretched out to the sides and a small black witch cat stuck to its chest, its lower body a melted paint puddle",
+  "desc": "Slow, smooth, heavy metronome sway loop: the whole massive upper body bends and tilts far over to one side, the arms tipping like a seesaw, then slowly swings back through upright and tilts far over to the other side, then back to upright. The gooey lower body bends with it and stretches. Thick goo drips and sags with the motion. The puddle base stays planted.",
+  "generations_before": 1609.0,
+  "generations_after": 1607.0,
+  "used": 2.0
+}
