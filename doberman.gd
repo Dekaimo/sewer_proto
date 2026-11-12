@@ -57,7 +57,7 @@ func _ready() -> void:
 	sprite.centered = false
 	sprite.offset = Vector2(-128, -FEET_Y)
 	add_child(sprite)
-	for k in ["idle", "walk", "rub", "reel", "emerge", "rise", "rise_back", "turn", "form", "settle", "hold", "burst", "relax", "throw", "belly"]:
+	for k in ["idle", "walk", "rub", "reel", "emerge", "rise", "rise_back", "turn", "form", "settle", "hold", "burst", "relax", "throw", "dive", "belly"]:
 		var arr: Array[Texture2D] = []
 		var i := 0
 		while ResourceLoader.exists("res://assets/dobe_%s_%d.png" % [k, i]):
@@ -516,17 +516,34 @@ func _update_throw(delta: float, p) -> void:
 
 
 func _update_dive(delta: float, p) -> void:
+	# やたら綺麗なフォームで、引き回されている所へ頭からドップン
 	var sh = p.swallower
 	if sh == null or not is_instance_valid(sh) or p.state != "swallowed":
 		sprite.position = Vector2.ZERO
 		_start_sink()
 		return
-	var k := clampf(t / 0.8, 0.0, 1.0)
+	facing = 1 if sh.position.x > dive_from.x else -1
+	sprite.visible = true
+	sprite.scale = Vector2.ONE
+	const SPRING := 0.45
+	const FLY := 0.75
+	if t < SPRING:
+		if frames.has("dive"):
+			_play_once("dive", t / SPRING)
+		else:
+			_show_idle()
+		return
+	var k := clampf((t - SPRING) / FLY, 0.0, 1.0)
+	if frames.has("dive"):
+		var arr: Array = frames["dive"]
+		sprite.texture = arr[arr.size() - 1]
 	position = dive_from.lerp(sh.position, k)
-	sprite.position = Vector2(0, -sin(k * PI) * 160.0).round()
-	_show_idle()
+	sprite.position = Vector2(0, -sin(k * PI) * 170.0 - 40.0 * (1.0 - k)).round()
 	if k >= 1.0:
 		sprite.position = Vector2.ZERO
+		main.add_goop(position, 160.0, 0.6)
+		main.add_ring(position, 4.0)
+		main.sfx.play("gurgle", 2.0)
 		get_swallowed(sh)
 		sh.take_dobe(self)
 
