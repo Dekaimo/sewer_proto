@@ -1,0 +1,12 @@
+{
+  "name": "mound_ooze",
+  "mode": "anim",
+  "src": "assets_raw/goo_flat.png",
+  "last": "assets_raw/goo_flat.png",
+  "frames": 16,
+  "variants": 2,
+  "desc": "A low wide mound of thick pink paint goo slowly swells and sags, squelching and oozing, the surface stretches, folds and wrinkles, sticky strands pull up and droop back down. Only goo: no hands, no faces, no objects. Low and flat, wide and sloppy, sticky, wet, glossy, pink marble with yellow streaks. Something is trapped and struggling underneath.",
+  "generations_before": 1506.0,
+  "generations_after": 1502.0,
+  "used": 4.0
+}

@@ -1,0 +1,12 @@
+{
+  "name": "mound_writhe",
+  "mode": "anim",
+  "src": "assets_raw/goo_flat.png",
+  "last": "assets_raw/goo_flat.png",
+  "frames": 16,
+  "variants": 2,
+  "desc": "A low flat sloppy pool of thick pink paint goo writhes and squirms as something struggles underneath, lumps bulge up and sink back unevenly across the surface, goo sloshes and smears outward. Only goo: no hands, no faces, no objects. Low and flat, wide and sloppy, sticky, wet, glossy, pink marble with yellow streaks. Something is trapped and struggling underneath.",
+  "generations_before": 1514.0,
+  "generations_after": 1512.0,
+  "used": 2.0
+}
