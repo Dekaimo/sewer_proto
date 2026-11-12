@@ -1,0 +1,25 @@
+{
+  "name": "dobe_idle_key",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "refs": [
+    [
+      "assets_raw/dobe_ref/front.png",
+      "character design, front view"
+    ],
+    [
+      "assets_raw/dobe_ref/side.png",
+      "character design, side view"
+    ],
+    [
+      "assets_raw/dobe_ref/face.png",
+      "facial expression and head shape"
+    ]
+  ],
+  "style": "assets/wani_idle.png",
+  "desc": "Pixel art game sprite of a huge muscular paint monster shaped like a Doberman: tall pointed ears, long narrow muzzle, small head on a very thick neck, massive broad shoulders and chest, big arms with clenched fists, defined abs, the lower body melts into a wide puddle of glossy pink paint goo. Glossy hot pink with flowing yellow marble streaks, drool dripping from the mouth, sly smug smirk with narrowed yellow eyes. Three-quarter view facing left, standing idle pose. Same pixel art style, size and palette as the reference crocodile sprite: dark outline, glossy highlights, drips.",
+  "generations_before": 1473.0,
+  "generations_after": 1463.0,
+  "used": 10.0
+}
