@@ -56,6 +56,9 @@ var hist: Array[float] = []
 var met_phase := 0.0
 var met_amp := 1.0
 var met_dir := 1.0
+var met_speed := 1.3       # 揺れの速さ（負けたあとはさらに遅く・大きく）
+var met_scale := 1.0
+var cru_stage := 0         # 0=晒し 1=半分取り込まれる 2=ほぼ取り込まれる
 var cru_base: Sprite2D
 var sway := Vector2.ZERO     # 晒し上げ中の揺れ
 var sway_v := Vector2.ZERO
@@ -85,7 +88,7 @@ func _ready() -> void:
 			masks.append(load(mp) if ResourceLoader.exists(mp) else null)
 		anims[k] = arr
 		anim_masks[k] = masks
-	for k in ["pillar", "crucify"]:
+	for k in ["pillar", "crucify", "absorb1", "absorb2"]:
 		var pth := "res://assets/wani_%s.png" % k
 		if ResourceLoader.exists(pth):
 			cru_frames[k] = load(pth)
@@ -531,11 +534,16 @@ func _update_crucify(delta: float) -> void:
 		tex = arr[mi]
 		_set_mask("morph", mi)
 	else:
-		tex = cru_frames["crucify"] if has_art else IDLE
-		_set_mask("crucify")
+		var key := "crucify"
+		if cru_stage == 2 and cru_frames.has("absorb2"):
+			key = "absorb2"
+		elif cru_stage >= 1 and cru_frames.has("absorb1"):
+			key = "absorb1"
+		tex = cru_frames[key] if has_art else IDLE
+		_set_mask(key)
 	# メトロノーム：端で一瞬ためて、ぐーっと反対側へ。ときどき勢い余って大きく振れる
 	var prev_c := cos(met_phase)
-	met_phase += delta * 2.0
+	met_phase += delta * met_speed
 	var c := cos(met_phase)
 	if signf(c) != signf(prev_c):
 		# 切り返し：ペンキがたっぷり飛び散る
@@ -550,11 +558,11 @@ func _update_crucify(delta: float) -> void:
 		for i in 2:
 			p.add_dirt(p.random_body_point(), 2)
 	var s := sin(met_phase)
-	var sx: float = 34.0 * met_amp * signf(s) * pow(absf(s), 0.55)
+	var sx: float = 40.0 * met_amp * met_scale * signf(s) * pow(absf(s), 0.4)
 	hist.push_front(sx)
-	if hist.size() > 24:
+	if hist.size() > 40:
 		hist.pop_back()
-	sway = Vector2(sx, -absf(sx) * 0.12)   # 振れた側に少し沈む
+	sway = Vector2(sx, -absf(sx) * 0.22)   # 振り切るとぐにゃっと沈む
 	# 高く持ち上げる：上半身を持ち上げ、そのぶん粘液の幹を引き伸ばす（床の水たまりは動かさない）
 	var lift: float = CRU_LIFT * ease(clampf(cru_t / 0.5, 0.0, 1.0), 0.4) - sway.y
 	var feet := float(FEET_Y + 1)
@@ -570,7 +578,7 @@ func _update_crucify(delta: float) -> void:
 		var sg: Sprite2D = segs[i]
 		var from_top := float(i) / SEG_N               # 0=いちばん上
 		var w := pow(1.0 - from_top, 1.4)
-		var lag := int(from_top * 10.0)
+		var lag := int(from_top * 22.0)
 		var hx: float = hist[mini(lag, hist.size() - 1)]
 		sg.visible = true
 		sg.texture = tex
@@ -829,3 +837,17 @@ func on_escaped() -> void:
 	vel_x = -facing * 150.0
 	state = "recover"
 	t = 0.0
+
+
+## 負けたあとの追撃の段階（finisher から呼ぶ）
+func set_crucify_stage(st: int) -> void:
+	if st == cru_stage:
+		return
+	cru_stage = st
+	met_speed = [1.3, 0.9, 0.7][st]
+	met_scale = [1.0, 1.3, 1.6][st]
+	main.sfx.play("defeat", -2.0)
+	main.sfx.play_any(["gurgle", "grab_loop"], 2.0)
+	main.add_goop(position, 260.0, 0.8)
+	for i in 6:
+		main.splat_wall(Vector2(position.x + randf_range(-300, 300), main.FLOOR_TOP - randf_range(10, 260)), randf_range(50, 90))

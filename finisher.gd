@@ -12,7 +12,7 @@ const INFO := {
 	"hug": {"title": "SUNK IN THE PUDDLE", "sub": "hugged down into the paint", "frames": "wani_swallow", "n": 9, "fps": 7.0, "feet": 253},
 	"shark": {"title": "BURPED OUT", "sub": "only the hat came back", "frames": "fin_shark", "n": 9, "fps": 6.0, "feet": 226},
 	"wani": {"title": "SHOWN OFF", "sub": "held up like a trophy", "frames": "fin_wani", "n": 9, "fps": 6.0, "feet": 232},
-	"crucify": {"title": "PUT ON DISPLAY", "sub": "should have stayed on the ground", "frames": "none", "n": 0, "fps": 6.0, "feet": 253},
+	"crucify": {"title": "ABSORBED ON DISPLAY", "sub": "should have stayed on the ground", "frames": "none", "n": 0, "fps": 6.0, "feet": 253},
 	"duo": {"title": "SPAT OUT", "sub": "the crocodile walked out. you didn't.", "frames": "fin_vomit", "n": 9, "fps": 7.0, "feet": 226},
 }
 const ORDER := ["hug", "shark", "wani", "crucify", "duo"]
@@ -90,10 +90,17 @@ func _process(delta: float) -> void:
 		return
 	var tt := t - pre
 	if kind == "crucify":
-		# 晒されたまま最後にガクンと大きく揺さぶられる → しばらく見せてから画面
+		# 負け確定後もねちっこく続く：晒されたまま揺らされ（0〜3秒）→ 胸に半分取り込まれる（3〜6.5秒）
+		# → ほぼ呑み込まれて、帽子としっぽだけ（6.5〜10秒）→ 画面
+		var w = main.player.crucifier
 		if tt < 0.05:
-			main.zoom_moment(position + Vector2(0, -140), 2.6)
-		done = tt > 2.6
+			main.zoom_moment(position + Vector2(0, -150), 10.5)
+		if w != null and is_instance_valid(w):
+			w.set_crucify_stage(0 if tt < 3.0 else (1 if tt < 6.5 else 2))
+			# 段階が進むほど、主人公がどんどん汚れていく
+			if fmod(tt, 0.3) < get_process_delta_time():
+				main.player.add_dirt(main.player.random_body_point(), 2 + int(tt / 3.0))
+		done = tt > 10.0
 		return
 	if frames.is_empty():
 		done = true
