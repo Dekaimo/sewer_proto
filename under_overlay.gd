@@ -1,106 +1,132 @@
 extends Node2D
-## 地中で暴れている様子のドット絵アニメ（手が突き出してまた引きずり込まれる・帽子の先が出て沈む・
-## 体の形が下から押し上げる・腕に絡め取られる・大きな泡が弾ける）を、床の盛り上がりの上に重ねる。
-## 毎回同じにならないように：パターン・位置・向き・速さをランダムに選び、途中で沈み返すこともある。
-## 線はくっきりさせず、下は床のペンキに溶け込ませる（under_blend.gdshader）。
+## 地中で暴れている獲物を「ネバネバの山」で見せる（平たく潰した山のドット絵 goo_flat_0..7）。
+## 毎回同じ動きにならないように、動き方のパターンをランダムに切り替える：
+##   pulse   じわじわ脈打つ（ぐったり／力をためる）
+##   thrash  激しく暴れる（速く、揺れる）
+##   writhe  逆回しでうねる
+##   lean    片側に寄って、ぐーっと膨らむ
+##   twin    横にもう一つ小さな山が盛り上がる（手足が別のところを押し上げる）
+## 線は床のペンキの暗いピンクに寄せ、下は床に溶け込ませる（under_blend.gdshader）。
 
 const BLEND = preload("res://under_blend.gdshader")
-const FEET := 232.0          # 絵の中で水たまりが床に接する行
+const FEET := 232.0
 
-var patterns := {}           # 名前 → コマ配列（assets/ug_<name>_0..）
-var slots: Array = []        # 再生中 {sp, mat, name, f, speed, end, dir, off}
-var wait := 0.3
-var allow_drag := false      # ワニ（腕）に絡め取られるパターンを出すか
+var frames: Array[Texture2D] = []
+var main_sp: Sprite2D
+var twin_sp: Sprite2D
+var mats: Array = []
+var mode := "pulse"
+var mode_t := 0.0
+var acc := 0.0
+var speed := 4.0
+var dir := 1.0
+var shake := 0.0
+var lean := 0.0
+var lean_to := 0.0
+var swell := 1.0
+var swell_to := 1.0
+var twin_t := 0.0
+var twin_acc := 0.0
+var twin_off := Vector2.ZERO
+var t := 0.0
+var allow_drag := false   # （互換のため残している）
 
 
 func _ready() -> void:
-	for n in ["paw", "body", "drag", "drag2", "burst", "burst2"]:
-		var arr: Array[Texture2D] = []
-		var i := 0
-		while ResourceLoader.exists("res://assets/ug_%s_%d.png" % [n, i]):
-			arr.append(load("res://assets/ug_%s_%d.png" % [n, i]))
-			i += 1
-		if arr.size() > 0:
-			patterns[n] = arr
+	for i in 8:
+		var p := "res://assets/goo_flat_%d.png" % i
+		if ResourceLoader.exists(p):
+			frames.append(load(p))
+	main_sp = _make()
+	twin_sp = _make()
+	twin_sp.visible = false
+	visible = false
+
+
+func _make() -> Sprite2D:
+	var sp := Sprite2D.new()
+	sp.centered = false
+	sp.offset = Vector2(-128, -FEET)
+	var m := ShaderMaterial.new()
+	m.shader = BLEND
+	m.set_shader_parameter("fade_top", 0.92)
+	m.set_shader_parameter("fade_bot", 0.96)
+	sp.material = m
+	mats.append(m)
+	add_child(sp)
+	return sp
 
 
 func has_art() -> bool:
-	return patterns.size() > 0
+	return frames.size() == 8
 
 
 func stop() -> void:
-	for s in slots:
-		s.sp.queue_free()
-	slots.clear()
 	visible = false
+	twin_sp.visible = false
 
 
 ## intensity: 0〜1（1人／2対1／3対1）
 func step(delta: float, intensity: float) -> void:
-	if patterns.is_empty():
+	if frames.size() < 8:
 		return
 	visible = true
-	wait -= delta
-	var max_slots := 1 if intensity < 0.6 else 2
-	if wait <= 0.0 and slots.size() < max_slots:
-		_spawn(intensity)
-		wait = randf_range(0.15, 0.9) / (0.7 + intensity)
-	for s in slots:
-		var arr: Array = patterns[s.name]
-		s.f += delta * s.speed * s.dir
-		# 途中で沈み返す：決めたところまで行ったら逆再生で戻る（＝引きずり込まれる）
-		if s.dir > 0 and s.f >= s.end:
-			s.dir = -1.0 if s.bounce else 1.0
-			if not s.bounce:
-				s.f = minf(s.f, float(arr.size()) - 0.01)
-		var fi: int = clampi(int(s.f), 0, arr.size() - 1)
-		s.sp.texture = arr[fi]
-		# にじむように現れて、にじむように消える
-		var life: float = s.f / float(arr.size())
-		var ap: float = clampf(minf(life * 6.0, 1.0), 0.0, 1.0)
-		if s.dir < 0:
-			ap = clampf(s.f / 3.0, 0.0, 1.0)
-		elif s.f > float(arr.size()) - 2.0:
-			ap = clampf(float(arr.size()) - s.f, 0.0, 1.0)
-		s.mat.set_shader_parameter("appear", ap)
-		s.sp.position = s.off + Vector2(sin(s.f * 0.9) * 2.0, 0).round()
-	slots = slots.filter(func(s):
-		var done: bool = (s.dir > 0 and s.f >= float(patterns[s.name].size()) - 0.05) or (s.dir < 0 and s.f <= 0.0)
-		if done:
-			s.sp.queue_free()
-		return not done)
-
-
-func _spawn(intensity: float) -> void:
-	var names: Array = []
-	for n in patterns.keys():
-		if n.begins_with("drag") and not allow_drag:
-			continue
-		# 重み：手・体が多め、帽子はたまに、泡はつなぎ
-		var w: int = {"paw": 3, "body": 3, "drag": 2, "drag2": 2, "burst": 1, "burst2": 1}.get(n, 1)
-		for i in w:
-			names.append(n)
-	# 同じパターンを同時に2つ出さない
-	for s in slots:
-		names = names.filter(func(x): return x != s.name)
-	if names.is_empty():
-		return
-	var nm: String = names[randi() % names.size()]
-	var arr: Array = patterns[nm]
-	var sp := Sprite2D.new()
-	sp.centered = false
-	sp.offset = Vector2(-128, -FEET)
-	sp.flip_h = randf() < 0.5
-	# 絵ごとの大きさ（主人公の手や頭と釣り合うように）
-	var sc: float = {"paw": 0.5, "body": 0.8, "drag": 0.62, "drag2": 0.62, "burst": 0.7, "burst2": 0.7}.get(nm, 0.7)
-	sp.scale = Vector2(sc, sc)
-	var mat := ShaderMaterial.new()
-	mat.shader = BLEND
-	sp.material = mat
-	add_child(sp)
-	var bounce := randf() < 0.35   # 出きる前に引き戻される
-	slots.append({"sp": sp, "mat": mat, "name": nm, "f": 0.0,
-		"speed": randf_range(9.0, 15.0) * (0.85 + 0.3 * intensity),
-		"end": randf_range(arr.size() * 0.35, arr.size() * 0.6) if bounce else float(arr.size()),
-		"bounce": bounce, "dir": 1.0,
-		"off": Vector2(randf_range(-40.0, 40.0), randf_range(-6.0, 8.0)).round()})
+	t += delta
+	mode_t -= delta
+	if mode_t <= 0.0:
+		var r := randf()
+		var calm := 0.35 - 0.2 * intensity
+		if r < calm:
+			mode = "pulse"
+			mode_t = randf_range(0.6, 1.4)
+			speed = randf_range(2.0, 5.0)
+			shake = 0.0
+			dir = 1.0
+		elif r < calm + 0.3:
+			mode = "thrash"
+			mode_t = randf_range(0.3, 0.8)
+			speed = randf_range(14.0, 24.0) * (0.8 + 0.4 * intensity)
+			shake = randf_range(2.0, 4.0) * (0.6 + intensity)
+			dir = 1.0
+		elif r < calm + 0.5:
+			mode = "writhe"
+			mode_t = randf_range(0.4, 0.9)
+			speed = randf_range(7.0, 12.0)
+			shake = 1.0
+			dir = -1.0
+		elif r < calm + 0.75:
+			mode = "lean"
+			mode_t = randf_range(0.5, 1.0)
+			speed = randf_range(5.0, 9.0)
+			shake = 0.5
+			lean_to = randf_range(18.0, 34.0) * (1.0 if randf() < 0.5 else -1.0)
+			swell_to = randf_range(1.12, 1.28)
+		else:
+			mode = "twin"
+			mode_t = randf_range(0.6, 1.1)
+			speed = randf_range(8.0, 14.0)
+			shake = 1.5
+			twin_t = mode_t
+			twin_off = Vector2(randf_range(46.0, 70.0) * (1.0 if randf() < 0.5 else -1.0), randf_range(-6.0, 6.0))
+		if mode != "lean":
+			lean_to = randf_range(-8.0, 8.0)
+			swell_to = randf_range(0.95, 1.08)
+		if randf() < 0.4:
+			main_sp.flip_h = not main_sp.flip_h
+	lean = move_toward(lean, lean_to, 60.0 * delta)
+	swell = move_toward(swell, swell_to, 1.2 * delta)
+	acc += speed * dir * delta
+	main_sp.texture = frames[posmod(int(acc), 8)]
+	main_sp.scale = Vector2(1.0 + (swell - 1.0) * 0.5, swell)
+	main_sp.position = Vector2(lean + sin(t * 41.0) * shake, -absf(sin(t * 23.0)) * shake * 0.6).round()
+	# 2つ目の小さな山：ぐっと盛り上がって、ぬるっと沈む
+	twin_t -= delta
+	twin_sp.visible = twin_t > 0.0
+	if twin_sp.visible:
+		twin_acc += 16.0 * delta
+		var k := clampf(twin_t / 0.4, 0.0, 1.0)
+		var s := 0.55 * minf(k * 2.0, 1.0)
+		twin_sp.texture = frames[posmod(int(twin_acc) + 3, 8)]
+		twin_sp.scale = Vector2(s, s)
+		twin_sp.position = (twin_off + Vector2(sin(t * 33.0) * 1.5, 0)).round()
+		mats[1].set_shader_parameter("appear", minf(k * 2.0, 1.0))

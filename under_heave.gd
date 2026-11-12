@@ -29,7 +29,7 @@ func step(main, delta: float, carrier: Vector2, intensity: float) -> void:
 			main.add_ring(carrier + Vector2(randf_range(-20, 20), 0), 2.5 + 2.0 * intensity)
 	# 本体のうねり：ゆっくり大きく呼吸するように膨らみ、暴れると不規則に脈打つ
 	breath += delta * (5.5 if violent else 1.6)
-	var swell := 9.0 + 4.0 * sin(breath) + (6.0 * absf(sin(breath * 2.3)) if violent else 0.0)
+	var swell := 5.0 + 2.5 * sin(breath) + (4.0 * absf(sin(breath * 2.3)) if violent else 0.0)
 	main.add_heave(carrier, 62.0 + 10.0 * intensity, swell * (1.0 + 0.4 * intensity))
 	# 後ろに引きずられる小さなうねり（重い粘液の中を進んでいる感じ）
 	var mv := carrier - last_pos
@@ -41,7 +41,7 @@ func step(main, delta: float, carrier: Vector2, intensity: float) -> void:
 	var rate := (4.5 if violent else 0.8) * (0.7 + intensity * 0.6)
 	if randf() < rate * delta and limbs.size() < 4:
 		limbs.append({"off": Vector2(randf_range(-46, 46), randf_range(-14, 14)), "t": 0.0,
-			"dur": randf_range(0.35, 0.8), "amp": randf_range(16.0, 30.0) * (1.0 + 0.4 * intensity),
+			"dur": randf_range(0.35, 0.8), "amp": randf_range(10.0, 20.0) * (1.0 + 0.4 * intensity),
 			"r": randf_range(14.0, 24.0)})
 		main.sfx.play_any(["grab_loop", "gurgle"], -4.0 + 3.0 * intensity, 0.12)
 	for l in limbs:
