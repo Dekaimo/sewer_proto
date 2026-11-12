@@ -1,0 +1,10 @@
+{
+  "name": "cru_face",
+  "mode": "edit",
+  "src": "assets/wani_crucify.png",
+  "variants": 2,
+  "desc": "Change only the crocodile's face: a wide, manly, mocking sneer, lips pulled back baring all of its teeth in a big toothy grin, eyes narrowed in contempt, laughing down at the cat. Keep everything else, including the cat, exactly the same.",
+  "generations_before": 1623.0,
+  "generations_after": 1621.0,
+  "used": 2.0
+}

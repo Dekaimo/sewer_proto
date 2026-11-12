@@ -1,0 +1,12 @@
+{
+  "name": "anim_pillar_burst",
+  "mode": "anim",
+  "src": "assets_raw/gen/pillar_start.png",
+  "last": "assets_raw/gen/key_pillar/1111_235709/v1_00.png",
+  "frames": 8,
+  "subject": "a puddle of pink and yellow marbled paint goo and a small black witch cat jumping above it",
+  "desc": "A thick pillar of sticky paint goo shoots violently straight up out of the puddle with a squelch, slams into the cat's back, and sticky tendrils lash around its wrists and spread its arms out to the sides, binding it to the top of the pillar. Goo splashing and stretching.",
+  "generations_before": 1621.0,
+  "generations_after": 1620.0,
+  "used": 1.0
+}
