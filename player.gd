@@ -389,17 +389,18 @@ func _update_frame(delta: float) -> void:
 		bob += delta * vel.length() / (14.0 if ft == 0 else 11.0)
 		sprite.texture = WALK[int(bob) % 4] if ft == 0 else _tired("walk%d" % ft, int(bob), WALK[int(bob) % 4])
 		if ft > 0:
-			sprite.rotation = sin(bob * 0.8) * (0.05 if ft == 1 else 0.11) * (0.0 if tired_anims.has("walk%d" % ft) else 1.0)
+			sprite.rotation = facing * (0.04 if ft == 1 else 0.07) + sin(bob * 0.8) * (0.03 if ft == 1 else 0.08)
 			sprite.position.y += absf(sin(bob * 1.57)) * (1.0 if ft == 1 else 2.0)
 	elif state == "normal" and f == 0:
 		# 待機の呼吸（疲れているほど肩で大きく、速く息をする）
 		var ms: int = [220, 160, 120][ft]
 		var fi := int(Time.get_ticks_msec() / ms)
 		sprite.texture = IDLE_ANIM[fi % 4] if ft == 0 else _tired("idle%d" % ft, fi, IDLE_ANIM[fi % 4])
-		if ft > 0 and not tired_anims.has("idle%d" % ft):
-			var br := sin(Time.get_ticks_msec() / 1000.0 * (7.0 if ft == 1 else 10.0))
-			sprite.scale = Vector2(1.0 - 0.02 * br * ft, 1.0 + 0.03 * br * ft)
-			sprite.rotation = facing * 0.06 * ft
+		if ft > 0:
+			# 肩で息をする：前かがみ気味に、呼吸に合わせて縦に伸び縮み
+			var br := sin(Time.get_ticks_msec() / 1000.0 * (6.0 if ft == 1 else 8.5))
+			sprite.scale = Vector2(1.0 - 0.015 * br * ft, 1.0 + 0.025 * br * ft)
+			sprite.rotation = facing * (0.05 if ft == 1 else 0.09)
 	elif state == "pinned":
 		if pin_frames.size() > 0:
 			sprite.texture = pin_frames[int(Time.get_ticks_msec() / 110) % pin_frames.size()]
