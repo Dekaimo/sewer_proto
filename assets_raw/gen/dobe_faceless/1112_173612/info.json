@@ -1,0 +1,10 @@
+{
+  "name": "dobe_faceless",
+  "mode": "editv2",
+  "src": "assets/dobe_idle.png",
+  "variants": 1,
+  "desc": "Turn this into a still-forming, faceless goo humanoid: the head becomes a smooth rounded lump of thick dripping pink paint goo with NO ears, NO eyes, NO snout, NO mouth, NO nose, only a vague head-shaped blob on the thick neck. The body keeps the same huge broad chest, shoulders, arms with fists, size, pose and puddle, but looks wetter and more melted: thick goo drooping and dripping everywhere, muscle shapes softer and blurry, glossy. Same colors, yellow marble streaks, outline and pixel art style.",
+  "generations_before": 1095.0,
+  "generations_after": 1085.0,
+  "used": 10.0
+}

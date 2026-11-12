@@ -1,0 +1,10 @@
+{
+  "name": "dobe_pose_stern",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_pose_lick.png",
+  "variants": 1,
+  "desc": "Change ONLY the eyes: make them stern and intimidating, narrowed under a heavy, low, angry brow that slants down toward the nose, a sharp yellow iris with a dark pupil glaring at the raised hand, not sleepy or half-lidded. Keep everything else exactly the same, including the tongue licking the lip, the raised sticky hand, body, colors, marble streaks, outline and pixel art style. No line between the nose and the mouth.",
+  "generations_before": 1105.0,
+  "generations_after": 1095.0,
+  "used": 10.0
+}
