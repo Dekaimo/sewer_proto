@@ -1,0 +1,10 @@
+{
+  "name": "dobe_pose_lick",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_pose_gen2.png",
+  "variants": 1,
+  "desc": "Change only two things: 1) remove the tail completely (the goo tail behind the right arm), fill that area with the background; 2) make the Doberman lick its lips: a pink tongue sticks out from the corner of its grinning mouth and licks the upper lip, with a lewd sly grin, half-lidded yellow eyes looking at the raised hand. Keep everything else exactly the same: the raised sticky hand, body, pose, colors, marble streaks, outline and pixel art style. No line between the nose and the mouth.",
+  "generations_before": 1115.0,
+  "generations_after": 1105.0,
+  "used": 10.0
+}
