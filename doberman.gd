@@ -35,6 +35,10 @@ var target := Vector2.ZERO  # 潜伏中に向かう場所
 var show_dur := 2.0
 var base_tex: Texture2D
 var maw_started := false
+var combo := ""            # 羽交い締め中の連携："relax"（サメ）/ "throw"（ワニ）
+var combo_t := 0.0
+var thrown := false
+var throw_wani = null
 var quick_enter := false
 var last_struggle := 0.0
 var wobble := 0.0
@@ -53,7 +57,7 @@ func _ready() -> void:
 	sprite.centered = false
 	sprite.offset = Vector2(-128, -FEET_Y)
 	add_child(sprite)
-	for k in ["idle", "walk", "rub", "reel", "emerge", "rise", "rise_back", "turn", "form", "settle", "hold", "belly"]:
+	for k in ["idle", "walk", "rub", "reel", "emerge", "rise", "rise_back", "turn", "form", "settle", "hold", "burst", "relax", "throw", "belly"]:
 		var arr: Array[Texture2D] = []
 		var i := 0
 		while ResourceLoader.exists("res://assets/dobe_%s_%d.png" % [k, i]):
@@ -290,20 +294,32 @@ func _update_lurk(delta: float, p) -> void:
 		facing = 1 if p.position.x > position.x else -1
 
 
-func _update_burst(_delta: float, p) -> void:
-	# 床から一気に飛び出して、脇の下から腕を回す
-	rise = clampf(0.3 + t / 0.25, 0.0, 1.0)
-	_apply_rise()
-	if rise >= 1.0:
+func _update_burst(delta: float, p) -> void:
+	# 床から一気に飛び出して、脇の下から腕を回す。絵（猫入り）がある間は主人公の絵を隠す
+	if t <= delta * 1.5:
 		if not p.can_be_grabbed():
 			_start_sink()
 			return
-		state = "hold"
-		t = 0.0
 		p.get_held(self)
-		main.zoom_moment(p.position + Vector2(0, -120), 0.7)
+		p.position = Vector2(position.x + facing * 22.0, position.y + 2.0)
 		maw_started = false
+		combo = ""
 		last_struggle = p.struggle
+	if p.state != "held" or p.held_by != self:
+		_leave(true)
+		return
+	if frames.has("burst"):
+		_play_once("burst", t / 0.7)
+		if t < 0.7:
+			return
+	else:
+		rise = clampf(0.3 + t / 0.25, 0.0, 1.0)
+		_apply_rise()
+		if rise < 1.0:
+			return
+	state = "hold"
+	t = 0.0
+	main.zoom_moment(p.position + Vector2(0, -120), 0.7)
 
 
 # ---------- 磔の挟み撃ち ----------
@@ -382,6 +398,7 @@ func _leave(real: bool) -> void:
 	var p = main.player
 	sprite.rotation = 0.0
 	maw_started = false
+	combo = ""
 	if p.sandwicher == self:
 		p.sandwicher = null
 	sprite.position = Vector2.ZERO
@@ -403,33 +420,99 @@ func _maw_shark():
 
 
 func _update_hold(delta: float, p) -> void:
-	# 羽交い締め：主人公の背後にぴったりくっついて、正面のサメのほうへ突き出す
+	# 羽交い締め：その場に根を張り、主人公は腕の中で一緒に揺らされる
 	if p.state != "held" or p.held_by != self:
 		_leave(true)
 		return
-	# ドーベルマンはその場に根を張り、主人公は腕の中で一緒に揺らされる
 	p.facing = facing
 	sprite.scale = Vector2.ONE
 	sprite.visible = true
-	if frames.has("hold"):
-		_frame("hold", int(t * 8.0))
-	else:
-		sprite.texture = base_tex
-	# 誰も来なければ放さない。サメが来たら正面に浮上させて焦らし丸呑みへ
 	# ねっとり揺らす。もがく（左右連打）とグラグラ大きく揺らし返す
 	if p.struggle > last_struggle + 0.01:
 		wobble = minf(wobble + 1.0, 3.0)
 	last_struggle = p.struggle
 	wobble = move_toward(wobble, 0.0, 1.5 * delta)
-	var sway := sin(t * 2.2) * (3.0 + wobble * 5.0)
-	sprite.position = Vector2(sway, absf(sin(t * 2.2)) * 2.0).round()
-	sprite.rotation = deg_to_rad(sway * 0.4)
+	var amp := (1.0 if frames.has("hold") else 3.0) + wobble * 4.0
+	var sway := sin(t * 2.2) * amp
+	sprite.position = Vector2(sway, absf(sin(t * 2.2)) * 1.5).round()
+	sprite.rotation = deg_to_rad(sway * 0.35)
 	p.position = Vector2(position.x + facing * 22.0 + sway * 0.8, position.y + 2.0)
+	match combo:
+		"relax":
+			# サメが来た：羽交い締めのまま寛ぐように低くなって、焦らし丸呑みを待つ
+			combo_t += delta
+			if frames.has("relax"):
+				var arr: Array = frames["relax"]
+				var i := clampi(int(combo_t / 0.9 * float(arr.size())), 0, arr.size() - 1)
+				sprite.texture = arr[i]
+			else:
+				sprite.texture = base_tex
+			return
+		"throw":
+			_update_throw(delta, p)
+			return
+	if frames.has("hold"):
+		_frame("hold", int(t * 8.0))
+	else:
+		sprite.texture = base_tex
+	# 他の敵が来るのを待つ（誰も来なければ放さない）
 	if not maw_started:
 		var sh = _maw_shark()
 		if sh != null:
 			maw_started = true
+			combo = "relax"
+			combo_t = 0.0
 			sh.start_maw(p, self)
+			return
+	var w = _near_wani(p)
+	if w != null:
+		# ワニが来た：ワニは床に潜り、こちらは主人公を真上に放り投げる → 落ちてきたところを磔
+		combo = "throw"
+		combo_t = 0.0
+		thrown = false
+		throw_wani = w
+		w.state = "sink"
+		w.anim_t = 0.0
+		main.request_token(w)
+
+
+## 羽交い締めの近くにいて、手が空いているワニ
+func _near_wani(p):
+	if t < 1.2:
+		return null
+	for e in main.enemies:
+		if is_instance_valid(e) and e.state in ["approach", "assist", "recover"] and absf(e.position.x - p.position.x) < 280.0:
+			return e
+	return null
+
+
+func _update_throw(delta: float, p) -> void:
+	combo_t += delta
+	var dur := 0.9
+	if frames.has("throw"):
+		_play_once("throw", combo_t / dur)
+	else:
+		sprite.texture = base_tex
+	# ワニは主人公の真下で待ち構える
+	if is_instance_valid(throw_wani) and throw_wani.state == "lurk":
+		throw_wani.position = Vector2(p.position.x, p.position.y)
+	if not thrown and combo_t > dur * 0.55:
+		thrown = true
+		# 放り投げ：主人公を空中へ。真下のワニが粘液の柱で突き上げて磔にする
+		p.held_by = null
+		p.state = "normal"
+		p.on_floor = false
+		p.z = 30.0
+		p.vz = 560.0
+		p.invuln = 0.0
+		p.hidden_in_hug = false
+		main.sfx.play("escape", -2.0)
+		main.add_goop(p.position, 80.0, 0.3)
+	if combo_t > dur + 0.3:
+		combo = ""
+		sprite.position = Vector2.ZERO
+		sprite.rotation = 0.0
+		_start_sink()
 
 
 func _update_dive(delta: float, p) -> void:
