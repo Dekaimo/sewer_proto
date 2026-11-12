@@ -6,6 +6,7 @@ const EnemyScript = preload("res://enemy.gd")
 const HudScript = preload("res://hud.gd")
 const SfxScript = preload("res://sfx.gd")
 const SharkScript = preload("res://shark.gd")
+const DobeScript = preload("res://doberman.gd")
 const BellyScript = preload("res://belly_view.gd")
 const FinisherScript = preload("res://finisher.gd")
 const TouchScript = preload("res://touch_ui.gd")
@@ -29,6 +30,8 @@ var finisher = null   # フィニッシュ演出（終わるまでゲームオ�
 var cam: Camera2D
 var zoom_t := 0.0
 var zoom_focus := Vector2.ZERO
+var dobes: Array = []
+var dobe_spawn_t := 18.0   # ペンキドーベルマン（素材ができるまでは出さない）
 var shark_spawn_t := 9.0   # ペンキサメが現れるまで
 # 床のドロドロ（マリオサンシャインの「らくがき」風）。床全体をマス目に分けた厚み 0〜1
 const GOOP_CX := 6.0   # 1マスの横幅
@@ -116,6 +119,14 @@ func _process(delta: float) -> void:
 			get_tree().reload_current_scene()
 		return
 	survive_time += delta
+	if dobe_spawn_t > 0.0 and (DobeScript.has_art() or DobeScript.DEBUG_SHOW):
+		dobe_spawn_t -= delta
+		if dobe_spawn_t <= 0.0:
+			var d = DobeScript.new()
+			d.main = self
+			d.position = Vector2(ARENA_L + 40.0 if player.position.x > VIEW_W * 0.5 else ARENA_R - 40.0, FLOOR_Y)
+			add_child(d)
+			dobes.append(d)
 	if shark_spawn_t > 0.0:
 		shark_spawn_t -= delta
 		if shark_spawn_t <= 0.0:

@@ -37,6 +37,8 @@ var opaque_px: Array[Vector2i] = []
 var state := "normal"   # normal / slipped / grabbed / swallowed / defeated
 var swallower = null     # 呑み込んでいるサメ
 var crucifier = null     # 磔にしているワニ
+var sandwicher = null    # 磔の正面から抱きついているドーベルマン
+var push := 0.0          # ドーベルマンを押し返すゲージ
 var swallow_combo := false   # ワニごと呑まれた（地中で2対1）
 var slip_t := 0.0
 var hidden_in_hug := false   # 抱きつきの1枚絵に描かれている間は自分を表示しない       # 転んでいる残り時間
@@ -58,6 +60,13 @@ var invuln := 0.0
 var hitstun := 0.0
 var cleaning := false
 var hp := HP_MAX
+# 疲労：HPで段階（0=元気 1=へばり 2=ふらふら）、汚れの量で重さ（遅さ）を上乗せ
+var tired_anims := {}        # "idle1" / "walk1" / "idle2" / "walk2" / "stumble" / "getup" / "land" → コマ配列（素材があれば）
+var land_t := 0.0            # 着地でひざが沈んでいる残り時間
+var stumble_t := 0.0         # つまずいている残り時間
+var wobble := 0.0
+var sweat: Array = []
+var collapse_again := false  # 起き上がりかけてまた崩れる
 var bob := 0.0
 
 # マウス操作
@@ -81,6 +90,14 @@ func _ready() -> void:
 
 	sprite = Sprite2D.new()
 	sprite.texture = FRAMES[0]
+	for k in ["idle1", "walk1", "idle2", "walk2", "stumble", "getup", "land"]:
+		var arr: Array[Texture2D] = []
+		var i := 0
+		while ResourceLoader.exists("res://assets/cat_%s_%d.png" % [k, i]):
+			arr.append(load("res://assets/cat_%s_%d.png" % [k, i]))
+			i += 1
+		if arr.size() > 0:
+			tired_anims[k] = arr
 	sprite.centered = false
 	sprite.offset = Vector2(-W / 2, -FEET_Y - 1)
 	var mat := ShaderMaterial.new()
@@ -94,6 +111,20 @@ func _ready() -> void:
 # mask_img の赤 = ペンキの厚み（0〜1）。dirty は汚れている画素の集合。
 var dirty := {}
 var drip_flow_t := 0.0
+
+
+func fatigue() -> int:
+	var r := hp / HP_MAX
+	if r > 0.6:
+		return 0
+	return 1 if r > 0.3 else 2
+
+
+func _tired(k: String, idx: int, fallback: Texture2D) -> Texture2D:
+	if tired_anims.has(k):
+		var arr: Array = tired_anims[k]
+		return arr[posmod(idx, arr.size())]
+	return fallback
 
 
 func contamination() -> float:
@@ -326,15 +357,46 @@ func _update_frame(delta: float) -> void:
 		f = 3
 	sprite.texture = FRAMES[f]
 	sprite.position = Vector2(0.0, -z)
-	if state == "normal" and on_floor and vel.length() > 8.0 and f == 0:
-		# 歩きアニメ（速さに合わせてコマ送り）
-		bob += delta * vel.length() / 14.0
-		sprite.texture = WALK[int(bob) % 4]
+	sprite.scale = Vector2.ONE
+	var ft := fatigue()
+	if state == "normal":
+		sprite.rotation = 0.0
+	if state == "normal" and stumble_t > 0.0:
+		# つまずき：前につんのめって、ひざをつく
+		var k := 1.0 - stumble_t / 0.9
+		sprite.texture = _tired("stumble", int(k * 8.0), FRAMES[0])
+		if not tired_anims.has("stumble"):
+			sprite.rotation = facing * 0.35 * sin(k * PI)
+			sprite.position.y += 10.0 * sin(k * PI)
+	elif state == "normal" and on_floor and land_t > 0.0 and f == 0:
+		# 着地：ひざがガクッと沈む（疲れているほど深く長く）
+		sprite.texture = _tired("land", int((1.0 - land_t / 0.45) * 4.0), _tired("idle%d" % ft, 0, IDLE_ANIM[0]) if ft > 0 else IDLE_ANIM[0])
+		if not tired_anims.has("land"):
+			var sq := land_t / (0.2 + 0.12 * ft)
+			sprite.scale = Vector2(1.0 + 0.12 * sq, 1.0 - 0.16 * sq)
+	elif state == "normal" and on_floor and vel.length() > 8.0 and f == 0:
+		# 歩きアニメ（速さに合わせてコマ送り）。疲れていると足を引きずり、ふらふらは左右によろける
+		bob += delta * vel.length() / (14.0 if ft == 0 else 11.0)
+		sprite.texture = WALK[int(bob) % 4] if ft == 0 else _tired("walk%d" % ft, int(bob), WALK[int(bob) % 4])
+		if ft > 0:
+			sprite.rotation = sin(bob * 0.8) * (0.05 if ft == 1 else 0.11) * (0.0 if tired_anims.has("walk%d" % ft) else 1.0)
+			sprite.position.y += absf(sin(bob * 1.57)) * (1.0 if ft == 1 else 2.0)
 	elif state == "normal" and f == 0:
-		# 待機の呼吸
-		sprite.texture = IDLE_ANIM[int(Time.get_ticks_msec() / 220) % 4]
+		# 待機の呼吸（疲れているほど肩で大きく、速く息をする）
+		var ms: int = [220, 160, 120][ft]
+		var fi := int(Time.get_ticks_msec() / ms)
+		sprite.texture = IDLE_ANIM[fi % 4] if ft == 0 else _tired("idle%d" % ft, fi, IDLE_ANIM[fi % 4])
+		if ft > 0 and not tired_anims.has("idle%d" % ft):
+			var br := sin(Time.get_ticks_msec() / 1000.0 * (7.0 if ft == 1 else 10.0))
+			sprite.scale = Vector2(1.0 - 0.02 * br * ft, 1.0 + 0.03 * br * ft)
+			sprite.rotation = facing * 0.06 * ft
 	elif state == "slipped":
 		sprite.position = Vector2(facing * 55.0, -32.0)   # 横倒しで床に寝そべる（足元を中心に）
+		if tired_anims.has("getup") and slip_t < 0.5:
+			# 起き上がり（素材があれば）
+			sprite.rotation = 0.0
+			sprite.position = Vector2(0.0, 0.0)
+			sprite.texture = _tired("getup", int((1.0 - slip_t / 0.5) * 8.0), FRAMES[0])
 
 
 func _update_normal(delta: float) -> void:
@@ -361,7 +423,21 @@ func _update_normal(delta: float) -> void:
 			remove_dirt(40)
 			main.sfx.play("wipe", -4.0, 0.3)
 
-	var speed := 140.0 * (1.0 - 0.55 * c)
+	var ft := fatigue()
+	land_t -= delta
+	if stumble_t > 0.0:
+		stumble_t -= delta
+		inp = Vector2.ZERO
+	if land_t > 0.0 and ft > 0:
+		inp *= 0.3
+	# ペンキの重さ（汚れ）× 疲れ
+	var speed: float = 140.0 * (1.0 - 0.55 * c) * [1.0, 0.8, 0.6][ft]
+	# ふらふら：歩いていると勝手に左右（奥行き）によろけ、ときどきつまずく
+	if ft == 2 and inp != Vector2.ZERO:
+		wobble += delta * 3.1
+		inp.y += sin(wobble) * 0.45
+		if stumble_t <= 0.0 and hitstun <= 0.0 and randf() < 0.13 * delta * (1.0 + c):
+			_stumble()
 	# 床のドロドロ：厚いほど遅く、ヌルヌル滑り、足元から汚れていく
 	var g: float = main.goop_at(position) if on_floor else 0.0
 	if g > 0.1:
@@ -389,7 +465,7 @@ func _update_normal(delta: float) -> void:
 	var jump := Input.is_action_just_pressed("jump") or queued_jump
 	queued_jump = false
 	if on_floor and jump and not cleaning:
-		vz = 360.0 * (1.0 - 0.4 * c)
+		vz = 360.0 * (1.0 - 0.4 * c) * [1.0, 0.82, 0.62][ft]
 		on_floor = false
 
 	var mouse_attack := queued_attack
@@ -412,6 +488,12 @@ func _update_normal(delta: float) -> void:
 			z = 0.0
 			vz = 0.0
 			on_floor = true
+			var ftl := fatigue()
+			land_t = [0.12, 0.3, 0.45][ftl]
+			# ふらふらだと着地でそのまま尻もちをつくことがある
+			if ftl == 2 and landing_speed > 200.0 and randf() < 0.35:
+				_slip()
+				return
 			# ドロドロの上に着地：跳ねて汚れる。勢いがあると足を取られて転ぶ
 			var lg: float = main.goop_at(position)
 			if lg > 0.2:
@@ -429,7 +511,7 @@ func _do_attack() -> void:
 	var x1 := x0 + 50.0
 	main.clean_floor(Vector2((x0 + x1) * 0.5, position.y), 80.0, 0.35)
 	main.sfx.play("mop", -2.0)
-	for e in main.enemies:
+	for e in main.enemies + main.dobes:
 		if not e.active():
 			continue
 		var ex: float = e.position.x
@@ -527,11 +609,21 @@ func _update_crucified(delta: float) -> void:
 		d = -1
 	elif Input.is_action_just_pressed("right"):
 		d = 1
+	var sandwiched: bool = sandwicher != null and is_instance_valid(sandwicher)
 	if d != 0 and d != last_dir:
-		struggle += 0.06
 		last_dir = d
+		if sandwiched:
+			# 挟まれている間は、まず正面のドーベルマンを押し返さないと抜けられない
+			push += 0.09
+		else:
+			struggle += 0.06
+	if sandwiched:
+		if push >= 1.0:
+			push = 0.0
+			sandwicher.on_pushed(self)
+		push = maxf(push - 0.25 * delta, 0.0)
 	drip_timer += delta
-	if drip_timer > 0.3:
+	if drip_timer > (0.18 if sandwiched else 0.3):
 		drip_timer = 0.0
 		# 上から垂れてくるので、上の方から汚れていく
 		var pt: Vector2i = random_body_point()
@@ -554,10 +646,19 @@ func _update_crucified(delta: float) -> void:
 			w.on_escaped()
 
 
+# ---------- つまずき（ふらふらのとき） ----------
+func _stumble() -> void:
+	stumble_t = 0.9
+	vel *= 0.3
+	main.sfx.play("step_paint")
+	add_dirt(Vector2i(randi_range(40, 88), randi_range(90, 118)), 1)
+
+
 # ---------- 転倒 ----------
 func _slip() -> void:
 	state = "slipped"
-	slip_t = 1.1
+	slip_t = [1.1, 1.5, 2.0][fatigue()]
+	collapse_again = fatigue() == 2 and randf() < 0.5
 	struggle = 0.0
 	last_dir = 0
 	vel.x *= 0.6
@@ -589,6 +690,13 @@ func _update_slipped(delta: float) -> void:
 	if floor_timer > 0.3:
 		floor_timer = 0.0
 		add_dirt(random_body_point(), 1)
+	if slip_t <= 0.0 and collapse_again:
+		# 立ち上がりかけて、またベシャッと崩れる
+		collapse_again = false
+		slip_t = 0.9
+		main.sfx.play("step_paint")
+		main.add_goop(position, 50.0, 0.15)
+		add_dirt(random_body_point(), 2)
 	if slip_t <= 0.0:
 		state = "normal"
 		sprite.rotation = 0.0
@@ -634,6 +742,23 @@ func _draw() -> void:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.25))
 		draw_circle(Vector2.ZERO, 30.0, Color(0, 0, 0, 0.35))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	# 汗と息切れ（疲れているときだけ）
+	if state == "normal" and not hidden_in_hug:
+		var ft := fatigue()
+		if ft > 0 and randf() < (0.04 if ft == 1 else 0.09):
+			sweat.append({"x": randf_range(-14.0, 14.0), "y": -100.0 - z + randf_range(0.0, 20.0), "vx": randf_range(-30.0, 30.0), "vy": -randf_range(30.0, 70.0), "life": 0.6})
+		var tt := Time.get_ticks_msec() / 1000.0
+		if ft > 0 and fmod(tt, 0.9 - 0.3 * ft) < 0.12:
+			# 口元からハァハァの息
+			draw_rect(Rect2(facing * 18.0 + facing * fmod(tt, 0.12) * 60.0, -78.0 - z, 3, 2), Color(1, 1, 1, 0.55))
+	var dt := get_process_delta_time()
+	for sw in sweat:
+		sw.vy += 260.0 * dt
+		sw.x += sw.vx * dt
+		sw.y += sw.vy * dt
+		sw.life -= dt
+		draw_rect(Rect2(roundf(sw.x), roundf(sw.y), 2, 3), Color("bfe8ff"))
+	sweat = sweat.filter(func(sw): return sw.life > 0.0)
 	if cleaning and state == "normal":
 		var t := Time.get_ticks_msec() / 120
 		for i in 3:
