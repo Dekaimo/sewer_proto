@@ -453,7 +453,7 @@ func _update_normal(delta: float) -> void:
 	if land_t > 0.0 and ft > 0:
 		inp *= 0.3
 	# ペンキの重さ（汚れ）× 疲れ
-	var speed: float = 140.0 * (1.0 - 0.55 * c) * [1.0, 0.8, 0.6][ft]
+	var speed: float = 140.0 * (1.0 - 0.55 * c) * [1.0, 0.8, 0.6][ft] * (1.15 if main.touch_mode else 1.0)
 	# ふらふら：歩いていると勝手に左右（奥行き）によろけ、ときどきつまずく
 	if ft == 2 and inp != Vector2.ZERO:
 		wobble += delta * 3.1

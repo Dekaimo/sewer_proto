@@ -34,7 +34,7 @@ var dobes: Array = []
 var heaves: Array = []   # このフレームの床の盛り上がり（地中で暴れている）: [x, y, 半径, 高さ]
 var rings: Array = []    # 床の波紋 {pos, t, power}
 var floor_mat: ShaderMaterial
-var dobe_spawn_t := 18.0   # ペンキドーベルマン（素材ができるまでは出さない）
+var dobe_spawn_t := 5.0    # ペンキドーベルマン（素材ができるまでは出さない）。地中に潜伏するので早めに出す
 var shark_spawn_t := 9.0   # ペンキサメが現れるまで
 # 床のドロドロ（マリオサンシャインの「らくがき」風）。床全体をマス目に分けた厚み 0〜1
 const GOOP_CX := 6.0   # 1マスの横幅
@@ -56,6 +56,8 @@ var spread_goop_t := 0.0
 var token_holder = null        # 同時に攻撃できる敵は1体だけ（攻撃権トークン）
 var game_over := false
 var survive_time := 0.0
+## スマホ（タッチ画面）：画面いっぱいに表示し、序盤の手加減を長めに、移動を少し速く
+var touch_mode := false
 
 
 func _ready() -> void:
@@ -97,6 +99,10 @@ func _ready() -> void:
 		e.position = Vector2(x, FLOOR_Y)
 		add_child(e)
 		enemies.append(e)
+	touch_mode = DisplayServer.is_touchscreen_available()
+	if touch_mode:
+		# 整数倍だとスマホでは小さく（または切れて）表示されるので、画面いっぱいに合わせる
+		get_tree().root.content_scale_stretch = Window.CONTENT_SCALE_STRETCH_FRACTIONAL
 	var hud = HudScript.new()
 	hud.main = self
 	# HUDはカメラのズームの影響を受けないように別レイヤーへ
@@ -172,7 +178,7 @@ func _add_keys(action: String, keys: Array) -> void:
 ## 序盤の手加減：0（開始直後）→ 1（RAMP_TIME 秒生き延びた）。敵の潜行速度・狙いの正確さ・攻撃間隔に掛ける
 const RAMP_TIME := 120.0
 func ramp() -> float:
-	return clampf(survive_time / RAMP_TIME, 0.0, 1.0)
+	return clampf(survive_time / (RAMP_TIME * (1.8 if touch_mode else 1.0)), 0.0, 1.0)
 
 
 func request_token(e) -> bool:

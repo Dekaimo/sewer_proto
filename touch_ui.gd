@@ -3,11 +3,12 @@ extends Node2D
 ## 左半分：どこを触ってもそこがスティックの中心（上下左右に移動。捕まったら左右に振ると連打になる）
 ## 右下：ボタン（ジャンプ／攻撃／拭く[押している間]）
 ## キーボードと同じ入力（left/right/up/down/jump/attack/clean）を押したことにするので、ゲーム側は変更不要。
+## 捕まっている間は、画面のどこをタップしても「もがく」（左右の交互入力）になる。スティックを振るより楽。
 
 const BTN := [
-	{"action": "jump", "label": "JUMP", "pos": Vector2(870, 430), "r": 52.0},
-	{"action": "attack", "label": "ATK", "pos": Vector2(760, 470), "r": 44.0},
-	{"action": "clean", "label": "WIPE", "pos": Vector2(880, 300), "r": 40.0},
+	{"action": "jump", "label": "JUMP", "pos": Vector2(866, 432), "r": 62.0},
+	{"action": "attack", "label": "ATK", "pos": Vector2(736, 474), "r": 54.0},
+	{"action": "clean", "label": "WIPE", "pos": Vector2(876, 284), "r": 48.0},
 ]
 const DEAD := 18.0
 const MAX_R := 70.0
@@ -17,6 +18,7 @@ var stick_center := Vector2.ZERO
 var stick_pos := Vector2.ZERO
 var btn_touch := {}    # touch index -> action
 var held := {}         # action -> true
+var mash_dir := 1      # タップでもがくときの左右（交互）
 
 
 func _ready() -> void:
@@ -35,6 +37,11 @@ func _input(event: InputEvent) -> void:
 				Input.action_press("restart")
 				await get_tree().process_frame
 				Input.action_release("restart")
+				return
+			# 捕まっている：どこをタップしても左右の交互入力（もがく）
+			if _caught(main):
+				_mash()
+				get_viewport().set_input_as_handled()
 				return
 			var hit := _button_at(p)
 			if hit != "":
@@ -61,6 +68,22 @@ func _input(event: InputEvent) -> void:
 				stick_center = stick_pos - v.normalized() * MAX_R   # 指についてくる
 			_set_dirs(stick_pos - stick_center)
 		get_viewport().set_input_as_handled()
+
+
+func _caught(main) -> bool:
+	var p = main.player
+	return p != null and not main.game_over and not (p.state in ["normal", "defeated"])
+
+
+func _mash() -> void:
+	mash_dir = -mash_dir
+	var a := "left" if mash_dir < 0 else "right"
+	if held.get(a, false):
+		_release(a)
+	_press(a)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_release(a)
 
 
 func _to_view(screen_pos: Vector2) -> Vector2:
@@ -114,6 +137,9 @@ func _draw() -> void:
 		draw_circle(stick_center + k, 26.0, Color(1, 1, 1, 0.35))
 	else:
 		draw_string(ThemeDB.fallback_font, Vector2(40, 500), "drag here to move", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 1, 1, 0.35))
+	var main = get_parent().get_parent()
+	if _caught(main):
+		draw_string(ThemeDB.fallback_font, Vector2(330, 120), "TAP TAP TAP!", HORIZONTAL_ALIGNMENT_LEFT, -1, 40, Color(1, 1, 1, 0.55 + 0.35 * sin(Time.get_ticks_msec() * 0.02)))
 	# ボタン
 	for b in BTN:
 		var on: bool = held.get(b.action, false)
