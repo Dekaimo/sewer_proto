@@ -1,0 +1,10 @@
+{
+  "name": "hat_dirty",
+  "mode": "edit",
+  "src": "assets/cat_idle_0.png",
+  "variants": 3,
+  "desc": "Remove the cat completely. Show only its purple witch hat lying empty on its own: the same hat with the drooping tip and golden bell, light blue band, yellow star and wide brim. The empty hat is drenched and smeared with sticky pink and yellow marbled paint, goo dripping off the brim. Same pixel art style and scale.",
+  "generations_before": 1563.0,
+  "generations_after": 1560.0,
+  "used": 3.0
+}
