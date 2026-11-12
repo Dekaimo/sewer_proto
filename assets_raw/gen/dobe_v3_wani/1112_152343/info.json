@@ -1,0 +1,22 @@
+{
+  "name": "dobe_v3_wani",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "seed": 7102,
+  "desc": "Pixel art game sprite of this exact pink paint goo Doberman character from the references, three-quarter view facing left, standing idle. Keep the reference body proportions: very broad wide chest with big soft round pecs, huge rounded shoulders, thick arms with big fists, the torso narrowing into a tall goo column that melts into a wide glossy puddle. Small head on a thick neck, tall pointed ears, smooth simple muzzle with no line between nose and mouth, calm confident face with mouth closed, human-like eyes with a yellow iris and dark pupil looking ahead, a little drool. Soft glossy slime body, wide flowing yellow marble streaks like the reference, drips from the arms. Crisp pixel art, dark outline, cel shading, big wet white highlights, transparent background.",
+  "refs": [
+    [
+      "assets_raw/dobe_ref3/front.png",
+      "character design to follow: body proportions, broad soft chest, face, yellow marble streaks"
+    ],
+    [
+      "assets_raw/dobe_ref3/side.png",
+      "same character from the side: head, muzzle profile and body depth"
+    ]
+  ],
+  "style": "assets_raw/wani_style_patch.png",
+  "generations_before": 1315.0,
+  "generations_after": 1305.0,
+  "used": 10.0
+}
