@@ -1,0 +1,10 @@
+{
+  "name": "dobe_px_clean",
+  "mode": "edit",
+  "src": "assets_raw/dobe_front_px.png",
+  "variants": 3,
+  "desc": "Clean this up into crisp hand-drawn pixel art without changing the design, pose, proportions, face or marble pattern: a clean dark outline around the silhouette, smooth glossy pink goo shading with big wet white highlights, the flowing yellow marble streaks kept, the face with a sly smirk and yellow human-like eyes with pupils, drool dripping. Remove stray dark specks.",
+  "generations_before": 1414.0,
+  "generations_after": 1412.0,
+  "used": 2.0
+}

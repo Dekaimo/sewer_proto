@@ -1,0 +1,20 @@
+{
+  "name": "dobe_34_from_px",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "refs": [
+    [
+      "assets_raw/dobe_front_px.png",
+      "exact character design to copy: proportions, broad soft chest, face, marble"
+    ],
+    [
+      "assets_raw/dobe_side_px.png",
+      "same character from the side: muzzle shape and profile"
+    ]
+  ],
+  "desc": "The exact same pink paint goo Doberman character as the references, now in a three-quarter view facing left, standing idle, pixel art sprite. Keep its design faithfully: small head with tall pointed ears, smooth simple muzzle, yellow human-like eyes with pupils and a sly smirk, drool, very broad soft glossy chest, big arms with fists, soft rounded goo body with few muscle lines, wide diagonal yellow flame-like marble streaks, lower body melting into a goo puddle. Clean dark outline, glossy highlights.",
+  "generations_before": 1412.0,
+  "generations_after": 1401.0,
+  "used": 11.0
+}
