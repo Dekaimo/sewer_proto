@@ -94,7 +94,7 @@ func _process(delta: float) -> void:
 		# → ほぼ呑み込まれて、帽子としっぽだけ（6.5〜10秒）→ 画面
 		var w = main.player.crucifier
 		if tt < 0.05:
-			main.zoom_moment(position + Vector2(0, -150), 10.5)
+			main.zoom_moment(position + Vector2(0, -170), 10.5, false)   # 長いのでスローはかけない
 		if w != null and is_instance_valid(w):
 			w.set_crucify_stage(0 if tt < 3.0 else (1 if tt < 6.5 else 2))
 			# 段階が進むほど、主人公がどんどん汚れていく

@@ -50,6 +50,7 @@ const CRU_SPLIT := 172     # 磔の絵：ここより上を持ち上げる
 const CRU_TRUNK := 18      # 引き伸ばす幹の行数（ここから下は床に残す）
 const CRU_LIFT := 64.0     # どれだけ高く持ち上げるか
 var trunk: Sprite2D
+var bend_mat: ShaderMaterial
 var segs: Array[Sprite2D] = []   # しなる幹（下ほど揺れが小さく、遅れて追いかける）
 const SEG_N := 9
 var hist: Array[float] = []
@@ -58,6 +59,7 @@ var met_amp := 1.0
 var met_dir := 1.0
 var met_speed := 1.3       # 揺れの速さ（負けたあとはさらに遅く・大きく）
 var met_scale := 1.0
+var absorb_y := 1.0
 var cru_stage := 0         # 0=晒し 1=半分取り込まれる 2=ほぼ取り込まれる
 var cru_base: Sprite2D
 var sway := Vector2.ZERO     # 晒し上げ中の揺れ
@@ -121,6 +123,8 @@ func _ready() -> void:
 	sprite.texture = emerge_frames[0]
 	front = Node2D.new()
 	front.draw.connect(_draw_front)
+	bend_mat = ShaderMaterial.new()
+	bend_mat.shader = preload("res://bend.gdshader")
 	trunk = Sprite2D.new()
 	trunk.centered = false
 	trunk.region_enabled = true
@@ -557,6 +561,10 @@ func _update_crucify(delta: float) -> void:
 			drip_vis.append({"x": side * randf_range(20.0, 110.0), "y": -randf_range(170.0, 260.0), "v": -randf_range(60.0, 200.0), "vx": side * randf_range(80.0, 260.0)})
 		for i in 2:
 			p.add_dirt(p.random_body_point(), 2)
+	# 取り込み：段階に合わせて、粘液が主人公を下から呑み込んでいく（UVで0.48=首から下 / 0.35=帽子の先だけ残る）
+	var target_y: float = [1.0, 0.48, 0.35][cru_stage]
+	absorb_y = move_toward(absorb_y, target_y, delta * 0.12)
+	hug_mat.set_shader_parameter("absorb_y", absorb_y)
 	var s := sin(met_phase)
 	var sx: float = 40.0 * met_amp * met_scale * signf(s) * pow(absf(s), 0.4)
 	hist.push_front(sx)
@@ -571,24 +579,24 @@ func _update_crucify(delta: float) -> void:
 	sprite.region_rect = Rect2(0, 0, 256, CRU_SPLIT)
 	sprite.offset = Vector2(-128, -feet)
 	sprite.position = Vector2(sway.x, -lift).round()
-	# 幹：段ごとに、下ほど小さく遅れて振れる＝しなる
+	# 幹：1枚を縦に引き伸ばし、シェーダーで行ごとになめらかにしならせる（下ほど小さく、遅れて追いかける）
 	var total: float = CRU_TRUNK + lift
-	var rows_per := float(CRU_TRUNK) / SEG_N
-	for i in SEG_N:
-		var sg: Sprite2D = segs[i]
-		var from_top := float(i) / SEG_N               # 0=いちばん上
-		var w := pow(1.0 - from_top, 1.4)
-		var lag := int(from_top * 22.0)
-		var hx: float = hist[mini(lag, hist.size() - 1)]
-		sg.visible = true
-		sg.texture = tex
-		sg.material = hug_mat
-		sg.flip_h = sprite.flip_h
-		sg.region_rect = Rect2(0, CRU_SPLIT + i * rows_per, 256, rows_per)
-		sg.offset = Vector2(-128, 0)
-		sg.scale = Vector2(1.0, total / CRU_TRUNK)
-		sg.position = Vector2(roundf(hx * w), -feet + CRU_SPLIT - lift + i * rows_per * total / CRU_TRUNK)
-	trunk.visible = false
+	var lag_x: float = hist[mini(14, hist.size() - 1)]
+	for sg in segs:
+		sg.visible = false
+	var fl := -1.0 if sprite.flip_h else 1.0
+	trunk.visible = true
+	trunk.texture = tex
+	trunk.material = bend_mat
+	trunk.flip_h = sprite.flip_h
+	trunk.region_rect = Rect2(0, CRU_SPLIT, 256, CRU_TRUNK)
+	trunk.offset = Vector2(-128, 0)
+	trunk.scale = Vector2(1.0, total / CRU_TRUNK)
+	trunk.position = Vector2(0, -feet + CRU_SPLIT - lift)
+	bend_mat.set_shader_parameter("v0", float(CRU_SPLIT) / 256.0)
+	bend_mat.set_shader_parameter("v1", float(CRU_SPLIT + CRU_TRUNK) / 256.0)
+	bend_mat.set_shader_parameter("top_off", roundf(sway.x) * fl)
+	bend_mat.set_shader_parameter("mid_off", lag_x * 0.45 * fl)
 	cru_base.visible = true
 	cru_base.texture = tex
 	cru_base.material = hug_mat
@@ -646,6 +654,9 @@ func _start_hold() -> void:
 
 
 func _end_hold() -> void:
+	absorb_y = 1.0
+	if hug_mat:
+		hug_mat.set_shader_parameter("absorb_y", 1.0)
 	sprite.material = null
 	main.player.hidden_in_hug = false
 

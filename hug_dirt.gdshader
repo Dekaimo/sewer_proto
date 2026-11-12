@@ -5,6 +5,8 @@ shader_type canvas_item;
 
 uniform float contamination = 0.0;
 uniform sampler2D cat_mask : filter_nearest;
+// 取り込み：主人公の部分のうち、この高さ（UV）より下はワニの粘液に呑まれる。1.0=呑まれていない
+uniform float absorb_y = 1.0;
 uniform vec4 pink : source_color = vec4(1.0, 0.30, 0.66, 1.0);
 uniform vec4 pink_dark : source_color = vec4(0.58, 0.14, 0.38, 1.0);
 uniform vec4 yellow : source_color = vec4(1.0, 0.90, 0.20, 1.0);
@@ -26,7 +28,22 @@ void fragment() {
 		float mn = min(c.r, min(c.g, c.b));
 		float sat = mx > 0.0 ? (mx - mn) / mx : 0.0;
 		// ワニ（明るいピンク・黄色）以外 = 主人公の灰色・紫・黒
-		if (texture(cat_mask, UV).r > 0.5) {
+		vec2 pp = floor(UV / TEXTURE_PIXEL_SIZE);
+		float wave = absorb_y + sin(pp.x * 0.35 + TIME * 3.0) * 0.012 + sin(pp.x * 0.13 - TIME * 1.7) * 0.01;
+		if (texture(cat_mask, UV).r > 0.5 && UV.y > wave) {
+			// 呑まれた部分：ワニの体と同じピンクのマーブル。縁は盛り上がって光る
+			float m2 = sin(pp.x * 0.21 + pp.y * 0.33 + sin(pp.y * 0.17 + TIME) * 2.5);
+			vec3 goo = m2 > 0.7 ? yellow.rgb : vec3(0.93, 0.36, 0.63);
+			if (m2 < -0.75) goo = vec3(0.72, 0.21, 0.48);
+			float d = (UV.y - wave) / TEXTURE_PIXEL_SIZE.y;
+			// 呑み込む粘液の表面：太い明るい縁 → その下に濃い影の帯（主人公との境目をはっきり）
+			if (d < 3.0) goo = vec3(1.0, 0.86, 0.95);
+			else if (d < 5.0) goo = vec3(0.98, 0.55, 0.78);
+			else if (d < 8.0) goo = vec3(0.45, 0.08, 0.30);
+			COLOR = vec4(goo, base.a);
+		} else if (texture(cat_mask, UV).r > 0.5 && UV.y > wave - 2.5 * TEXTURE_PIXEL_SIZE.y) {
+			COLOR = vec4(base.rgb * 0.45, base.a);   // 沈みかけている影
+		} else if (texture(cat_mask, UV).r > 0.5) {
 			vec2 p = floor(UV / TEXTURE_PIXEL_SIZE);
 			float n = noise(p / 6.0) * 0.7 + noise(p / 2.5) * 0.3;
 			// 下に垂れていくように、上ほど少し汚れにくく

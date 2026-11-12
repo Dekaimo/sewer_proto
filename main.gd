@@ -170,10 +170,10 @@ func holding_enemy():
 
 
 ## 呑み込まれる瞬間などに、その場所へ一瞬ズームしてスローにする
-func zoom_moment(focus: Vector2, dur := 0.7) -> void:
+func zoom_moment(focus: Vector2, dur := 0.7, slow := true) -> void:
 	zoom_focus = focus
 	zoom_t = dur
-	Engine.time_scale = 0.45
+	Engine.time_scale = 0.45 if slow else 1.0
 
 
 func _update_zoom(delta: float) -> void:
