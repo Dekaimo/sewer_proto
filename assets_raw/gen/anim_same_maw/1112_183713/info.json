@@ -1,0 +1,14 @@
+{
+  "name": "anim_same_maw",
+  "mode": "anim",
+  "src": "assets_raw/same_head_closed.png",
+  "last": "assets_raw/same_head_open.png",
+  "frames": 12,
+  "direction": "west",
+  "subject": "a pink paint goo shark monster with yellow marble streaks, its front half rising out of a paint puddle",
+  "desc": "Very slowly and teasingly the shark opens its filthy mouth wider and wider: the jaw drops, thick sticky strands of goo and drool stretch between the upper and lower teeth, the gullet gurgles, the eyes leer. Slow, wet, sticky, dripping.",
+  "variants": 1,
+  "generations_before": 987.9,
+  "generations_after": 987.9,
+  "used": 0.0
+}
