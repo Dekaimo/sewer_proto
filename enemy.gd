@@ -498,7 +498,7 @@ func _start_pillar(p) -> void:
 	p.get_crucified(self)
 	main.sfx.play("assist", 2.0)
 	main.sfx.play("grab", 0.0)
-	main.zoom_moment(position + Vector2(0, -150), 1.2)
+	main.zoom_moment(position + Vector2(0, -150), RISE_T + 0.5 + MORPH_T, false)
 	main.add_goop(position, 220.0, 0.8)
 	for i in 5:
 		main.splat_wall(Vector2(position.x + randf_range(-220, 220), main.FLOOR_TOP - randf_range(10, 240)), randf_range(40, 75))
