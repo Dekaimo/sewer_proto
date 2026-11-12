@@ -63,7 +63,7 @@ func _ready() -> void:
 	sprite.centered = false
 	sprite.offset = Vector2(-128, -FEET_Y)
 	add_child(sprite)
-	for k in ["idle", "walk", "rub", "reel", "emerge", "rise", "rise_back", "turn", "form", "settle", "hold", "burst", "relax", "throw", "dive", "belly"]:
+	for k in ["idle", "walk", "rub", "reel", "emerge", "rise", "rise_back", "turn", "form", "settle", "hold", "burst", "relax", "throw", "dive", "belly", "sw_form", "sw_tease", "sw_reel", "sw_rub"]:
 		var arr: Array[Texture2D] = []
 		var i := 0
 		while ResourceLoader.exists("res://assets/dobe_%s_%d.png" % [k, i]):
@@ -244,6 +244,11 @@ const TIMING := {
 	"reel": [0.4, 0.5, 0.7, 0.9, 1.2, 1.6, 2.0, 2.6, 3.4],
 	# 寛ぐ：ゆっくり沈んでいく
 	"relax": [1.6, 1.2, 1.0, 0.9, 0.9, 1.0, 1.2, 1.6, 2.6],
+	# 磔便乗：柱の途中からネバァと生えてくる（重たく始まり、腕を回す所でゆっくり）
+	"sw_form": [2.4, 1.8, 1.3, 1.0, 0.9, 0.8, 0.9, 1.2, 1.8],
+	"sw_reel": [0.6, 0.7, 0.8, 1.0, 1.2, 1.5, 1.8, 2.2, 2.8],
+	"sw_tease": [1.6, 1.0, 0.8, 1.0, 1.6, 1.0, 0.8, 1.0],
+	"sw_rub": [0.7, 0.9, 1.8, 0.9, 0.7, 0.9, 1.8, 0.9],
 	# ループ：呼吸の吸いきり・吐ききりで少し止まる
 	"idle": [1.7, 1.0, 0.7, 1.0, 1.7, 1.0, 0.7, 1.0],
 	# 羽交い締めで揺らす：振りきった所で止まって、ねっとり戻る
@@ -422,8 +427,8 @@ func _update_burst(delta: float, p) -> void:
 # ---------- 磔の挟み撃ち ----------
 ## 磔に便乗：ワニの股座あたりから背中を向けて形成（form）→ 抱きつこうとして押し問答（tease：わざとらしく前後に揺れる）
 ## → 押し返されるとわざとらしくのけぞって嗤う（pushed）→ 押されたフリを使い切ると、がっちり抱きしめる（hug：背中しか見えない）
-const SW_LIFT := 60.0      # 磔の高さに合わせて持ち上げる量（絵の下端＝ワニの粘液の幹に溶け込む）
-const SW_STRETCH := 1.3    # 縦に伸ばして胸を主人公の高さまで届かせる
+const SW_LIFT := 125.0     # 磔の高さに合わせて持ち上げる量（絵の下の茎がワニの粘液の柱に重なり、柱の途中から生えて見える）
+const SW_STRETCH := 1.0
 func _start_sandwich(p) -> void:
 	state = "sandwich"
 	sub = "form"
@@ -452,10 +457,16 @@ func _sw_front(p) -> void:
 	z_index = int(position.y) + 2
 
 
-func _sw_place(r: float) -> void:
-	_sw_front(main.player)
+func _sw_place(r: float, rock := 0.0) -> void:
+	var p = main.player
+	_sw_front(p)
 	sprite.scale = Vector2(1.0, SW_STRETCH)
-	sprite.position = Vector2(-facing * push_off, -SW_LIFT + r).round()
+	# 柱のグラグラに合わせて一緒に揺れる（柱の傾き tilt をそのまま借りる）
+	var tl := 0.0
+	if p.crucifier != null and is_instance_valid(p.crucifier):
+		tl = p.crucifier.tilt
+	sprite.rotation = tl * 0.9 + rock
+	sprite.position = Vector2(-facing * push_off + sin(tl) * 40.0, -SW_LIFT + r).round()
 
 
 func _update_sandwich(delta: float, p) -> void:
@@ -467,12 +478,14 @@ func _update_sandwich(delta: float, p) -> void:
 		"form":
 			# 背中を向けて、グチュヌルと巨体が形成される（主人公が怯える）
 			p.push = 0.0
-			if frames.has("rise_back"):
-				_play_once("rise_back", t / 1.8)
+			if frames.has("sw_form"):
+				_play_once("sw_form", t / 1.6)
+			elif frames.has("rise_back"):
+				_play_once("rise_back", t / 1.6)
 			else:
 				sprite.texture = base_tex
 			_sw_place(0.0)
-			if t > 1.8:
+			if t > 1.6:
 				sub = "tease"
 				t = 0.0
 				main.sfx.play("grab")
@@ -482,13 +495,12 @@ func _update_sandwich(delta: float, p) -> void:
 			# 抱きしめようとして、嗤いながら上体を前後にグッチャグッチャ揺らす（押し返しゲージは有効）
 			rub_t += delta * 1.6
 			var r := sin(rub_t * TAU * 0.5)
-			if frames.has("reel"):
-				var arr: Array = frames["reel"]
-				var n := mini(2, arr.size())
-				sprite.texture = arr[clampi(int((r * 0.5 + 0.5) * float(n - 1) + 0.5), 0, n - 1)]
+			if frames.has("sw_tease"):
+				_loop("sw_tease", rub_t, 5.0)
 			elif frames.has("rub"):
 				_loop("rub", rub_t, 4.0)
-			_sw_place(r * 4.0)
+			# わざとらしく上体を前後にグッチャグッチャ（のけぞっては押しつける）
+			_sw_place(r * 3.0, r * 0.08)
 			if absf(r) > 0.97 and fmod(rub_t, 1.0) < delta * 1.6:
 				main.sfx.play_any(["grab_loop", "gurgle"], -6.0, 0.2)
 				p.add_dirt(p.random_body_point(), 2)
@@ -498,9 +510,11 @@ func _update_sandwich(delta: float, p) -> void:
 			p.push = 0.0
 			rub_t += delta * (2.4 if not main.game_over else 1.6)
 			var r2 := sin(rub_t * TAU * 0.5)
-			if frames.has("rub"):
+			if frames.has("sw_rub"):
+				_loop("sw_rub", rub_t, 4.0)
+			elif frames.has("rub"):
 				_loop("rub", rub_t, 4.0)
-			_sw_place(r2 * 8.0)
+			_sw_place(r2 * 6.0)
 			if absf(r2) > 0.97 and fmod(rub_t, 1.0) < delta * 2.4:
 				main.sfx.play_any(["grab_loop", "gurgle"], -3.0, 0.2)
 				for i in 2:
@@ -538,10 +552,11 @@ func _update_pushed(delta: float, p) -> void:
 		_leave(false)
 		return
 	# 0〜0.5秒：大げさにのけぞる → 〜1.1秒：のけぞったまま嗤う → 戻ってきて、さっきより強く押しつける
-	if frames.has("reel"):
-		var arr: Array = frames["reel"]
+	var rk := "sw_reel" if frames.has("sw_reel") else "reel"
+	if frames.has(rk):
+		var arr: Array = frames[rk]
 		var f := t / 0.5 if t < 0.5 else (1.0 if t < 1.1 else maxf(1.0 - (t - 1.1) / 0.35, 0.0))
-		sprite.texture = arr[timed_index("reel", f, arr.size())]
+		sprite.texture = arr[timed_index(rk, f, arr.size())]
 	if t < 0.5:
 		push_off = lerpf(push_off, 40.0, 1.0 - exp(-delta * 10.0))
 	elif t > 1.1:
@@ -561,6 +576,7 @@ func _update_pushed(delta: float, p) -> void:
 func _leave(real: bool) -> void:
 	var p = main.player
 	sprite.scale = Vector2.ONE
+	sprite.rotation = 0.0
 	sprite.rotation = 0.0
 	maw_started = false
 	combo = ""
