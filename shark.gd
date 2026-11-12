@@ -476,7 +476,8 @@ func _update_sprite() -> void:
 				hugeat_mat.set_shader_parameter("absorb_y", 1.0)
 			hugeat_mat.set_shader_parameter("cat_mask", hugeat_masks[hf2])
 			hugeat_mat.set_shader_parameter("contamination", main.player.contamination())
-			sprite.material = hugeat_mat
+			# 主人公が口の中に消えたコマ（マスクなし）は、汚れを描かない
+			sprite.material = hugeat_mat if hugeat_masks[hf2] != null else null
 			sprite.region_enabled = false
 			sprite.flip_h = hug_flip
 			sprite.offset = Vector2(-128, -233)
