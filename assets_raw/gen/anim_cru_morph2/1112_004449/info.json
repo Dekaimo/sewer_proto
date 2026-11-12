@@ -1,0 +1,12 @@
+{
+  "name": "anim_cru_morph2",
+  "mode": "anim",
+  "src": "assets_raw/gen/key_pillar/1111_235709/v1_00.png",
+  "last": "assets/wani_crucify.png",
+  "frames": 8,
+  "subject": "a thick pillar of pink and yellow marbled paint goo with a small black witch cat bound to it",
+  "desc": "The goo pillar holding the bound cat bulges, swells and reshapes itself into a huge muscular pink paint crocodile monster with its arms stretched out like a cross and a mocking toothy grin, the cat stays pinned to its chest, thick goo stretching and dripping as the body forms.",
+  "generations_before": 1620.0,
+  "generations_after": 1620.0,
+  "used": 0.0
+}
