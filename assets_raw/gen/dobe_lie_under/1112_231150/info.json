@@ -1,0 +1,18 @@
+{
+  "mode": "gen",
+  "w": 192,
+  "h": 128,
+  "style": "assets_raw/wani_style_patch.png",
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "this exact pink paint goo Doberman monster: same head, stern yellow eyes, sly smirk, colors, yellow marble streaks, pixel style"
+    ]
+  ],
+  "name": "dobe_lie_under",
+  "seed": 7701,
+  "desc": "Pixel art, side view: the huge pink paint goo Doberman lies horizontally on its back along the bottom of the picture, head on the left turned up with a lewd smirk, its broad chest facing up; both thick goo arms curl up and over in a tight sticky bear hug around an empty space just above its chest, where someone lies on top of it; thick stretchy goo strands hang from the arms and glue everything together, dripping. The rest of its body melts into goo to the right. Crisp dark outline, glossy, transparent background.",
+  "generations_before": 877.9000000000001,
+  "generations_after": 867.9000000000001,
+  "used": 10.0
+}
