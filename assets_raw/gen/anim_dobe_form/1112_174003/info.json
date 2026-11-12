@@ -1,0 +1,14 @@
+{
+  "name": "anim_dobe_form",
+  "mode": "anim",
+  "src": "assets_raw/dobe_faceless.png",
+  "last": "assets_raw/dobe_pose_stern.png",
+  "frames": 12,
+  "direction": "west",
+  "subject": "a huge muscular Doberman monster made of thick glossy pink paint goo with yellow marble streaks, very broad chest, its lower body melting into a puddle, no legs",
+  "variants": 1,
+  "desc": "The faceless goo humanoid finishes forming: the head blob stretches forward into a Doberman muzzle, two tall pointed ears pull up out of the goo, the mouth splits open into a grin and the tongue licks the lip, the eyes open last with a stern glare. At the same time the front arm lifts up beside the face, the fingers spread and squish, pulling thick sticky strands of goo between them, savoring the slimy feel. Slow, sticky, viscous, dripping.",
+  "generations_before": 1084.0,
+  "generations_after": 1084.0,
+  "used": 0.0
+}
