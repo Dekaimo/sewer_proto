@@ -34,6 +34,7 @@ var dirt_mat: ShaderMaterial   # 掲げられ：主人公だけをドロドロ�
 var cat_masks: Array = []
 var cat_feet: Array = []      # コマごとの、ぶら下がった体の下端（糸を垂らす場所）
 var goo_fx: Node2D
+var wani_mat: ShaderMaterial
 var pile: Sprite2D       # 2対1：吐き出されたペンキの山（ワニはこの中から形成される）
 var pile_frames: Array[Texture2D] = []
 var hat: Sprite2D        # サメのゲップ：主人公の帽子（本物の帽子をペンキまみれにした絵）
@@ -155,7 +156,7 @@ func _process(delta: float) -> void:
 	tt -= rise
 	var dur: float = frames.size() / float(info.fps)
 	if kind == "duo":
-		dur += 3.6   # 吐いたあと、ワニが形成されてポーズを決めるまで
+		dur += 4.2   # 吐いたあと、ワニが形成されてポーズを決めるまで
 		_update_duo(tt)
 		if tt > dur + 0.8:
 			done = true
@@ -348,29 +349,33 @@ func _update_duo(tt: float) -> void:
 			main.add_goop(spot + Vector2(randf_range(-260, 260), randf_range(-50, 50)), randf_range(60, 140), 0.7)
 		main.sfx.play("assist", 3.0)
 		main.sfx.play("defeat", 0.0)
-	# ワニ：吐き出された山（サメの口の先）の中から、ゆっくり形成 → マッスルポーズで止める
-	var wt := tt - vomit_end + 0.1
+	# ワニ：吐き出したペンキが落ちた水たまりそのものが、ワニの形成の1コマ目になる。
+	# 吐いている間に水たまりがにじむように重なり（別の塊は出さない）、サメが沈んで残った水たまりから立ち上がる
 	const RISE_W := 1.8
-	# 山：吐いた瞬間から手前に盛り上がり、ワニが形成されるにつれて吸い込まれて低くなる
-	if vomited and pile_frames.size() == 8:
-		var pk := clampf(wt / RISE_W, 0.0, 1.0)
-		pile.visible = pk < 1.0
-		pile.texture = pile_frames[int(tt * 9.0) % 8]
-		pile.offset = Vector2(-128, -232)
-		pile.position = Vector2(67, 16)
-		pile.scale = Vector2(1.15 - 0.25 * pk, maxf(1.0 - pk * 1.05, 0.05))
-	if wt > 0.0 and wani_frames.size() == 18:
+	var pool_t := 6.0 / float(info.fps)          # 吐いたペンキが床に届くコマ
+	var hold := vomit_end + 0.7                    # サメが沈みきるまで、水たまりのまま待つ
+	if tt > pool_t and wani_frames.size() == 18:
 		var fi := 0
-		if wt < RISE_W:
-			fi = clampi(int(wt / RISE_W * 9.0), 0, 8)
-		else:
-			var ft := wt - RISE_W
-			fi = 9 + (clampi(int(ft * 8.0), 0, 5) if ft < 1.2 else 5)
+		var wt := tt - hold
+		if wt > 0.0:
+			if wt < RISE_W:
+				fi = clampi(int(wt / RISE_W * 9.0), 0, 8)
+			else:
+				var ft := wt - RISE_W
+				fi = 9 + (clampi(int(ft * 8.0), 0, 5) if ft < 1.2 else 5)
 		wani_sprite.visible = true
 		wani_sprite.texture = wani_frames[fi]
 		wani_sprite.offset = Vector2(-128, -253)
-		wani_sprite.position = Vector2(67, 14)
+		wani_sprite.position = Vector2(66, 14)
 		wani_sprite.flip_h = false   # 左のサメの方を向いて余裕の顔
+		# サメがいる間は、水たまりはサメの後ろ（口から流れ落ちたペンキの先に広がる）
+		wani_sprite.z_index = -1 if tt < hold else 1
+		if wani_mat == null:
+			wani_mat = ShaderMaterial.new()
+			wani_mat.shader = load("res://lean.gdshader")
+			wani_mat.set_shader_parameter("lean_px", 0.0)
+		wani_sprite.material = wani_mat
+		wani_mat.set_shader_parameter("appear", clampf((tt - pool_t) / 0.5, 0.0, 1.0))
 
 
 ## とどめの間の小窓の様子（belly_view が読む）
