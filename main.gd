@@ -8,6 +8,7 @@ const SfxScript = preload("res://sfx.gd")
 const SharkScript = preload("res://shark.gd")
 const BellyScript = preload("res://belly_view.gd")
 const FinisherScript = preload("res://finisher.gd")
+const TouchScript = preload("res://touch_ui.gd")
 const FloorShader = preload("res://floor.gdshader")
 const WallShader = preload("res://wall_paint.gdshader")
 
@@ -96,6 +97,8 @@ func _ready() -> void:
 	layer.layer = 10
 	add_child(layer)
 	layer.add_child(hud)
+	var touch = TouchScript.new()
+	layer.add_child(touch)
 	var belly = BellyScript.new()
 	belly.main = self
 	layer.add_child(belly)

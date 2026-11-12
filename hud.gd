@@ -26,7 +26,8 @@ func _draw() -> void:
 	draw_rect(Rect2(18, 84, 240, 8), Color("3a3a3a"))
 	draw_rect(Rect2(18, 84, 240 * c, 8), Color("ec5a9e"))
 	_txt(Vector2(800, 30), "TIME %.1f" % main.survive_time)
-	_txt(Vector2(12, 532), "KB: WASD move   Space jump   Z attack   X wipe      Mouse: L attack / L hold walk / R wipe / Wheel jump", Color("aab3ba"), FS_SMALL)
+	if not DisplayServer.is_touchscreen_available():
+		_txt(Vector2(12, 532), "KB: WASD move   Space jump   Z attack   X wipe      Mouse: L attack / L hold walk / R wipe / Wheel jump", Color("aab3ba"), FS_SMALL)
 
 	if p.state == "slipped":
 		_txt(p.position + Vector2(-60, -80), "SLIPPED!  <- ->", Color("f9d84d"))

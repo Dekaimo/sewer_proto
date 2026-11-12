@@ -46,9 +46,9 @@ var cru_t := 0.0
 var cru_frames := {}
 var cru_masks := {}
 var drip_vis: Array = []
-const CRU_SPLIT := 172     # 磔の絵：ここより上を持ち上げる
-const CRU_TRUNK := 18      # 引き伸ばす幹の行数（ここから下は床に残す）
-const CRU_LIFT := 64.0     # どれだけ高く持ち上げるか
+const CRU_SPLIT := 192     # 磔の絵：ここより上（主人公の足先まで）を持ち上げる
+const CRU_TRUNK := 14      # 繰り返して並べる粘液の幹の帯（主人公が入らない行）
+const CRU_LIFT := 90.0     # どれだけ高く持ち上げるか
 var trunk: Sprite2D
 var bend_mat: ShaderMaterial
 var segs: Array[Sprite2D] = []   # しなる幹（下ほど揺れが小さく、遅れて追いかける）
@@ -614,6 +614,10 @@ func _update_crucify(delta: float) -> void:
 	trunk.position = Vector2(0, -feet + CRU_SPLIT - lift)
 	bend_mat.set_shader_parameter("v0", float(CRU_SPLIT) / 256.0)
 	bend_mat.set_shader_parameter("v1", float(CRU_SPLIT + CRU_TRUNK) / 256.0)
+	bend_mat.set_shader_parameter("total_h", roundf(total))
+	bend_mat.set_shader_parameter("band_y0", float(CRU_SPLIT))
+	bend_mat.set_shader_parameter("band_h", float(CRU_TRUNK))
+	bend_mat.set_shader_parameter("flow", floorf(cru_t * 26.0))
 	bend_mat.set_shader_parameter("top_off", roundf(sway.x) * fl)
 	bend_mat.set_shader_parameter("mid_off", lag_x * 0.45 * fl)
 	cru_base.visible = true
