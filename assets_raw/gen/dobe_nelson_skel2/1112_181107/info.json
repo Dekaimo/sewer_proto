@@ -1,0 +1,15 @@
+{
+  "name": "dobe_nelson_skel2",
+  "mode": "skel",
+  "src": "assets/dobe_idle.png",
+  "first_kp": "assets_raw/skel/dobe_idle_kp.json",
+  "kp": "assets_raw/skel/dobe_nelson_kp.json",
+  "desc": "huge muscular Doberman monster made of glossy pink paint goo with yellow marble streaks, very broad chest, lower body melting into a puddle, no legs",
+  "action": "full nelson: elbows spread wide to both sides, forearms bent up, hands clasped together in front of the chest",
+  "direction": "south-west",
+  "view": "side",
+  "template": "mannequin",
+  "generations_before": 1044.9,
+  "generations_after": 1044.9,
+  "used": 0.0
+}
