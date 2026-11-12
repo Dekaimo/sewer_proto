@@ -1,0 +1,11 @@
+{
+  "name": "cat_walk1b",
+  "mode": "anim",
+  "src": "assets_raw/key_cat_tired.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "Heavy tired walk cycle to the side: the worn-down little witch cat trudges forward with heavy steps, shoulders slumped, breathing hard, still gripping its brush, determined expression. Serious.",
+  "generations_before": 1559.0,
+  "generations_after": 1556.0,
+  "used": 3.0
+}

@@ -1,0 +1,12 @@
+{
+  "name": "cat_idle1b",
+  "mode": "anim",
+  "src": "assets_raw/key_cat_tired.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "Looping idle: the worn-down but determined little witch cat breathes hard, shoulders rising and falling heavily, sweat dripping, eyes still focused and glaring, gripping its brush. Serious.",
+  "last": "assets_raw/key_cat_tired.png",
+  "generations_before": 1560.0,
+  "generations_after": 1559.0,
+  "used": 1.0
+}

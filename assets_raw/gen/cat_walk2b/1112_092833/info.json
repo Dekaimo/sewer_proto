@@ -1,0 +1,11 @@
+{
+  "name": "cat_walk2b",
+  "mode": "anim",
+  "src": "assets_raw/key_cat_dead.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "Limping walk cycle to the side: the badly exhausted little witch cat limps forward leaning on its brush like a cane, clutching its side, knees nearly giving out, grimacing in pain. Serious.",
+  "generations_before": 1555.0,
+  "generations_after": 1553.0,
+  "used": 2.0
+}

@@ -1,0 +1,12 @@
+{
+  "name": "cat_idle2b",
+  "mode": "anim",
+  "src": "assets_raw/key_cat_dead.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "Looping idle: the badly exhausted little witch cat leans on its brush like a cane, clutching its side, knees trembling, gasping in pain with clenched teeth. Serious and painful.",
+  "last": "assets_raw/key_cat_dead.png",
+  "generations_before": 1556.0,
+  "generations_after": 1555.0,
+  "used": 1.0
+}

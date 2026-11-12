@@ -1,0 +1,12 @@
+{
+  "name": "cat_stumble2",
+  "mode": "anim",
+  "src": "assets_raw/key_cat_dead.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "The badly exhausted little witch cat staggers, its legs give out and it drops to one knee, catching itself with the brush, then forces itself back up with gritted teeth. Serious and painful.",
+  "last": "assets_raw/key_cat_dead.png",
+  "generations_before": 1553.0,
+  "generations_after": 1551.0,
+  "used": 2.0
+}
