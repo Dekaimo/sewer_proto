@@ -1,0 +1,14 @@
+{
+  "name": "anim_dobe_emerge",
+  "mode": "anim",
+  "src": "assets/wani_emerge_0.png",
+  "last": "assets/dobe_idle.png",
+  "frames": 12,
+  "direction": "west",
+  "subject": "a huge muscular Doberman monster made of thick glossy pink paint goo with yellow marble streaks, very broad chest, its lower body melting into a puddle, no legs",
+  "variants": 2,
+  "desc": "Emerging slowly and stickily from a flat paint puddle: the puddle bulges up into a lump, thick goo stretches upward with sticky strands, the lump rises and swells into broad shoulders and a huge chest, the arms peel away from the body, the Doberman head with tall pointed ears pushes up out of the goo last, ending in the idle pose with a sly smirk. Heavy, viscous, slow, glossy goo dripping down the whole time.",
+  "generations_before": 1191.0,
+  "generations_after": 1189.0,
+  "used": 2.0
+}
