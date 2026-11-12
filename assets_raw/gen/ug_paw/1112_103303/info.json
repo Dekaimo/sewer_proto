@@ -1,0 +1,12 @@
+{
+  "name": "ug_paw",
+  "mode": "anim",
+  "src": "assets_raw/goo_flat.png",
+  "last": "assets_raw/goo_flat.png",
+  "frames": 16,
+  "variants": 2,
+  "desc": "A small black cat paw covered in sticky pink paint bursts up out of the pink marbled goo puddle, claws grasping desperately at the air, then is slowly pulled back down into the goo, thick sticky strings stretching between the paw and the goo until it disappears. Gooey, viscous.",
+  "generations_before": 1542.0,
+  "generations_after": 1540.0,
+  "used": 2.0
+}

@@ -1,0 +1,12 @@
+{
+  "name": "ug_hat",
+  "mode": "anim",
+  "src": "assets_raw/goo_flat.png",
+  "last": "assets_raw/goo_flat.png",
+  "frames": 16,
+  "variants": 2,
+  "desc": "The drooping tip of a purple witch hat with a small golden bell pokes up out of the pink marbled goo puddle, wobbles helplessly, then is slowly sucked back down under the goo with a gooey gulp, leaving sticky strings.",
+  "generations_before": 1540.0,
+  "generations_after": 1536.0,
+  "used": 4.0
+}

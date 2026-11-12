@@ -1,0 +1,12 @@
+{
+  "name": "ug_body",
+  "mode": "anim",
+  "src": "assets_raw/goo_flat.png",
+  "last": "assets_raw/goo_flat.png",
+  "frames": 16,
+  "variants": 2,
+  "desc": "The shape of a small struggling cat underneath presses up against the surface of the pink marbled goo from below, the goo stretching thin and tight over its head and paws, squirming, then it sinks back down and the goo closes over it with sticky ripples.",
+  "generations_before": 1536.0,
+  "generations_after": 1530.0,
+  "used": 6.0
+}

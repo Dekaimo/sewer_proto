@@ -1,0 +1,12 @@
+{
+  "name": "ug_burst",
+  "mode": "anim",
+  "src": "assets_raw/goo_flat.png",
+  "last": "assets_raw/goo_flat.png",
+  "frames": 16,
+  "variants": 2,
+  "desc": "A big sticky bubble slowly swells up in the pink marbled goo puddle, stretches thin, then bursts with a gooey splash of thick globs that fall back into the goo with sticky strings.",
+  "generations_before": 1526.0,
+  "generations_after": 1522.0,
+  "used": 4.0
+}

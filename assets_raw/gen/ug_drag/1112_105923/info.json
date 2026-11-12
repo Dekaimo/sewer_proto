@@ -1,0 +1,12 @@
+{
+  "name": "ug_drag",
+  "mode": "anim",
+  "src": "assets_raw/goo_flat.png",
+  "last": "assets_raw/goo_flat.png",
+  "frames": 16,
+  "variants": 2,
+  "desc": "A small black cat paw reaches up out of the pink goo puddle, then a thick muscular pink goo arm rises, wraps around the paw and drags it back down under the goo, sticky strings snapping. Gooey, viscous.",
+  "generations_before": 1530.0,
+  "generations_after": 1526.0,
+  "used": 4.0
+}
