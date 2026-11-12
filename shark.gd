@@ -63,6 +63,12 @@ func _ready() -> void:
 		mi += 1
 	tex_base = load(BASE_PATH) if ResourceLoader.exists(BASE_PATH) else null
 	tex_open = load(OPEN_PATH) if ResourceLoader.exists(OPEN_PATH) else tex_base
+	var hk := 0
+	while ResourceLoader.exists("res://assets/same_hugeat_%d.png" % hk):
+		hugeat_frames.append(load("res://assets/same_hugeat_%d.png" % hk))
+		var mpath := "res://assets/masks/same_hugeat_%d_mask.png" % hk
+		hugeat_masks.append(load(mpath) if ResourceLoader.exists(mpath) else null)
+		hk += 1
 	for k in ["breach", "sink", "dive", "breach2", "sink2", "gulp", "struggle", "combo"]:
 		var arr: Array[Texture2D] = []
 		for i in 9:
@@ -252,14 +258,49 @@ func _swim(delta: float, p) -> void:
 # ---------- 真下から丸呑み ----------
 var gulped_solo := false   # 1人を呑み込んだ（呑み込みのコマを見せる）
 var gulped_combo := false  # ワニごと呑み込んだ
-var gulp_fast := false     # ワニに捕まっている獲物を狙った（飛び出しざまに一気に呑んで、すぐドプンと沈む）
+var gulp_fast := false
+var hugeat := false        # ワニに抱きしめられた主人公ごと、下から大口でゆっくり丸呑み（専用アニメ）
+var hug_flip := false
+var hugeat_frames: Array[Texture2D] = []
+var hugeat_masks: Array = []
+var hugeat_mat: ShaderMaterial
+const HUGEAT_T := 2.6     # ワニに捕まっている獲物を狙った（飛び出しざまに一気に呑んで、すぐドプンと沈む）
 
 
 func _gulp(delta: float, p) -> void:
 	# 突き上げ（0〜0.45秒、0.4秒で呑む）→ 呑み込むコマ（1人のとき）→ 口を閉じて沈む
 	var b2: bool = anims.has("breach2")
 	var bite := (0.28 if gulp_fast else 0.45) if b2 else (0.36 if anims.has("breach") else 0.3)
-	var end := (2.45 if gulped_solo else (1.15 if gulped_combo else 1.25)) if b2 else (0.95 if anims.has("breach") else 0.7)
+	# ワニに抱え込まれている獲物：専用アニメで、抱きしめられたまま下から丸呑み
+	if gulp_fast and hugeat_frames.size() > 0 and not has_meta("gulped") and p.state == "grabbed" and is_instance_valid(p.grabbed_by):
+		var w = p.grabbed_by
+		set_meta("gulped", true)
+		position = w.position
+		hug_flip = w.sprite.flip_h
+		facing = 1 if hug_flip else -1
+		caught_wani = w
+		w.get_swallowed(self)
+		caught_player = p.get_swallowed(self, true)
+		gulped_combo = true
+		hugeat = true
+		main.zoom_moment(position + Vector2(0, -120), HUGEAT_T + 0.4, false)
+		main.sfx.play("gurgle", 0.0)
+	if hugeat:
+		var hf := int(t / HUGEAT_T * float(hugeat_frames.size()))
+		if hf == 4 and not has_meta("hug_rise"):
+			# サメが背後から突き上げる
+			set_meta("hug_rise", true)
+			main.add_goop(position, 220.0, 0.7)
+			for i in 4:
+				main.splat_wall(Vector2(position.x + randf_range(-200.0, 200.0), main.FLOOR_TOP - randf_range(10.0, 200.0)), randf_range(35.0, 65.0))
+			main.sfx.play("assist", 0.0)
+		if hf == 12 and not has_meta("hug_gulp"):
+			set_meta("hug_gulp", true)
+			main.sfx.play("defeat", -1.0)
+			main.add_goop(position, 160.0, 0.5)
+		if fmod(t, 0.35) < get_process_delta_time():
+			main.sfx.play_any(["grab_loop", "gurgle"], -4.0, 0.1)
+	var end := (HUGEAT_T + 0.7) if hugeat else ((2.45 if gulped_solo else (1.15 if gulped_combo else 1.25)) if b2 else (0.95 if anims.has("breach") else 0.7))
 	if t >= bite and not has_meta("gulped"):
 		set_meta("gulped", true)
 		main.add_goop(position, 220.0, 0.7)
@@ -280,6 +321,11 @@ func _gulp(delta: float, p) -> void:
 		gulped_solo = false
 		gulped_combo = false
 		gulp_fast = false
+		hugeat = false
+		sprite.material = null
+		for mk in ["hug_rise", "hug_gulp"]:
+			if has_meta(mk):
+				remove_meta(mk)
 		_sink_after_attack()
 
 
@@ -418,6 +464,35 @@ func _update_sprite() -> void:
 	# 生成したアニメがある場面は、コマをそのまま再生する（接地面のベトベトも絵に描いてある）
 	var frame: Texture2D = null
 	var feet := 0.0
+	if state == "gulp" and hugeat and hugeat_frames.size() > 0:
+		if t < HUGEAT_T:
+			var hf2 := clampi(int(t / HUGEAT_T * float(hugeat_frames.size())), 0, hugeat_frames.size() - 1)
+			sprite.visible = true
+			sprite.texture = hugeat_frames[hf2]
+			# 中の主人公にも、今の汚れ具合をのせる
+			if hugeat_mat == null:
+				hugeat_mat = ShaderMaterial.new()
+				hugeat_mat.shader = load("res://hug_dirt.gdshader")
+				hugeat_mat.set_shader_parameter("absorb_y", 1.0)
+			hugeat_mat.set_shader_parameter("cat_mask", hugeat_masks[hf2])
+			hugeat_mat.set_shader_parameter("contamination", main.player.contamination())
+			sprite.material = hugeat_mat
+			sprite.region_enabled = false
+			sprite.flip_h = hug_flip
+			sprite.offset = Vector2(-128, -233)
+			sprite.position = Vector2(sin(t * 40.0) * (1.5 if hf2 > 9 else 0.0), 0).round()
+		else:
+			# 呑み込んで膨れた腹のまま、沈む
+			sprite.material = null
+			var s2: Array = anims.get("sink2", [])
+			if s2.size() == 9:
+				sprite.texture = s2[clampi(2 + int((t - HUGEAT_T) / 0.6 * 7.0), 2, 8)]
+				sprite.flip_h = facing < 0
+				sprite.offset = Vector2(-128, -B2_FEET)
+				sprite.position = Vector2.ZERO
+		cut_on = false
+		collar.queue_redraw()
+		return
 	if state == "gulp" and anims.has("breach2"):
 		var off := _gulp_pose()
 		frame = off[0]
