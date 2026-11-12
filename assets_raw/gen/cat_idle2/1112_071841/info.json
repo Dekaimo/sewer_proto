@@ -1,0 +1,12 @@
+{
+  "name": "cat_idle2",
+  "mode": "anim",
+  "src": "assets_raw/key_cat_dead.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "Looping idle: the little witch cat at its limit, bent over with paw on knee, gasping for breath with tongue out, wobbly knees trembling, teary eyes.",
+  "last": "assets_raw/key_cat_dead.png",
+  "generations_before": 1578.0,
+  "generations_after": 1575.0,
+  "used": 3.0
+}

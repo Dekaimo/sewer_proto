@@ -1,0 +1,12 @@
+{
+  "name": "cat_land",
+  "mode": "anim",
+  "src": "assets_raw/key_cat_tired.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "The exhausted little witch cat lands from a small jump, its knees buckle deeply and it almost collapses, then slowly straightens up panting.",
+  "last": "assets_raw/key_cat_tired.png",
+  "generations_before": 1571.0,
+  "generations_after": 1570.0,
+  "used": 1.0
+}

@@ -1,0 +1,12 @@
+{
+  "name": "cat_stumble",
+  "mode": "anim",
+  "src": "assets_raw/key_cat_dead.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "The little witch cat at its limit trips over its own feet, lurches forward, falls onto its knees and hands with a splat, then pushes itself back up on shaky legs.",
+  "last": "assets_raw/key_cat_dead.png",
+  "generations_before": 1573.0,
+  "generations_after": 1571.0,
+  "used": 2.0
+}

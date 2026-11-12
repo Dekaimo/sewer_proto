@@ -1,0 +1,11 @@
+{
+  "name": "cat_walk2",
+  "mode": "anim",
+  "src": "assets_raw/key_cat_dead.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "Staggering wobbly walk cycle to the side: the little witch cat at its limit stumbles forward, knees buckling, body swaying left and right, tongue out, teary eyes, almost falling.",
+  "generations_before": 1575.0,
+  "generations_after": 1573.0,
+  "used": 2.0
+}

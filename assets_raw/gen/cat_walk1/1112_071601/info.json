@@ -1,0 +1,11 @@
+{
+  "name": "cat_walk1",
+  "mode": "anim",
+  "src": "assets_raw/key_cat_tired.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "Tired trudging walk cycle to the side: the exhausted little witch cat drags its feet slowly, hunched forward, panting, brush dragging behind.",
+  "generations_before": 1580.0,
+  "generations_after": 1578.0,
+  "used": 2.0
+}
