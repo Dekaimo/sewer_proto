@@ -35,6 +35,7 @@ var target := Vector2.ZERO  # 潜伏中に向かう場所
 var show_dur := 2.0
 var base_tex: Texture2D
 var maw_started := false
+var quick_enter := false
 var last_struggle := 0.0
 var wobble := 0.0
 var fake_left := 0          # あと何回「押されたフリ」をするか
@@ -52,7 +53,7 @@ func _ready() -> void:
 	sprite.centered = false
 	sprite.offset = Vector2(-128, -FEET_Y)
 	add_child(sprite)
-	for k in ["idle", "walk", "rub", "reel", "emerge", "hold", "belly"]:
+	for k in ["idle", "walk", "rub", "reel", "emerge", "rise", "form", "settle", "hold", "belly"]:
 		var arr: Array[Texture2D] = []
 		var i := 0
 		while ResourceLoader.exists("res://assets/dobe_%s_%d.png" % [k, i]):
@@ -126,13 +127,15 @@ func _process(delta: float) -> void:
 
 
 # ---------- 登場・潜る・潜伏 ----------
-## 体の出具合（rise）を絵に反映する。登場アニメがあればそのコマ、無ければ立ち絵を縦に縮めて代用
+## 体の出具合（rise）を絵に反映する。
+## rise（水たまり→顔のない人型）のコマがあればそれ、古い emerge があればそれ、無ければ立ち絵を縦に縮めて代用
 func _apply_rise() -> void:
 	sprite.visible = rise > 0.01
-	if frames.has("emerge"):
-		var arr: Array = frames["emerge"]
+	sprite.scale = Vector2.ONE
+	var key := "rise" if frames.has("rise") else ("emerge" if frames.has("emerge") else "")
+	if key != "":
+		var arr: Array = frames[key]
 		sprite.texture = arr[clampi(int(rise * float(arr.size() - 1) + 0.5), 0, arr.size() - 1)]
-		sprite.scale = Vector2.ONE
 	else:
 		sprite.texture = base_tex
 		sprite.scale = Vector2(1.0 + (1.0 - rise) * 0.25, maxf(rise, 0.02))
@@ -147,14 +150,37 @@ func _show_idle() -> void:
 		sprite.texture = base_tex
 
 
+## 登場：水たまり → 顔のないドロドロの人型（rise）→ 頭ができて最後に目、決めポーズ（form）→ 待機へ戻る（settle）
+const RISE_T := 0.9
+const FORM_T := 1.3
+const SETTLE_T := 0.8
 func _update_enter(_delta: float) -> void:
-	# 地面からねっとり盛り上がる
-	rise = clampf(t / 1.2, 0.0, 1.0)
-	_apply_rise()
-	if rise >= 1.0:
-		state = "show"
-		t = 0.0
-		show_dur = randf_range(1.5, 2.6)
+	var sp := 1.5 if quick_enter else 1.0
+	var tt := t * sp
+	if tt < RISE_T or not frames.has("form"):
+		var dur := RISE_T if frames.has("form") else 1.2
+		rise = clampf(tt / dur, 0.0, 1.0)
+		_apply_rise()
+		if rise < 1.0 or frames.has("form"):
+			return
+	elif tt < RISE_T + FORM_T:
+		_play_once("form", (tt - RISE_T) / FORM_T)
+		return
+	elif frames.has("settle") and tt < RISE_T + FORM_T + SETTLE_T:
+		_play_once("settle", (tt - RISE_T - FORM_T) / SETTLE_T)
+		return
+	rise = 1.0
+	state = "show"
+	t = 0.0
+	show_dur = randf_range(1.5, 2.6)
+
+
+## 連番を 0〜1 の進み具合で1回だけ再生
+func _play_once(k: String, f: float) -> void:
+	var arr: Array = frames[k]
+	sprite.visible = true
+	sprite.scale = Vector2.ONE
+	sprite.texture = arr[clampi(int(f * float(arr.size())), 0, arr.size() - 1)]
 
 
 func _update_show(_delta: float, p) -> void:
@@ -250,7 +276,8 @@ func _update_lurk(delta: float, p) -> void:
 	# ときどき顔を見せる（追われていないとき）
 	if th == null and lurk_t > peek_t and p.state == "normal":
 		state = "enter"
-		t = 0.6   # 途中から（さっと出る）
+		t = 0.0
+		quick_enter = true   # 顔見せは少し速く
 		facing = 1 if p.position.x > position.x else -1
 
 
@@ -419,6 +446,7 @@ func get_swallowed(_sh) -> void:
 
 func spit_out(pos: Vector2) -> void:
 	visible = true
+	quick_enter = false
 	position = pos
 	state = "enter"
 	t = 0.0
