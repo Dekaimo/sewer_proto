@@ -1,0 +1,10 @@
+{
+  "name": "dobe_n1_bulk",
+  "mode": "edit",
+  "src": "assets_raw/dobe_n1.png",
+  "variants": 3,
+  "desc": "Keep the exact same colors, shading style, yellow marble streaks, head and calm face. Only make the body much bulkier and heavier: a much broader, thicker chest and wider shoulders, bigger thicker arms and fists, and a fatter, heavier, gooier lower body that melts into a much wider, thicker, glossy goo puddle with sagging drips everywhere. Same pixel art style.",
+  "generations_before": 1371.0,
+  "generations_after": 1368.0,
+  "used": 3.0
+}

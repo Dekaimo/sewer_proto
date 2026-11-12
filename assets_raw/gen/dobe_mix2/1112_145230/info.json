@@ -1,0 +1,22 @@
+{
+  "name": "dobe_mix2",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "refs": [
+    [
+      "assets_raw/dobe_key.png",
+      "body shape and bulk to match: very broad heavy muscular chest and shoulders, thick arms, big heavy melting goo lower body and puddle"
+    ],
+    [
+      "assets_raw/dobe_ref2/front.png",
+      "character design: pink paint goo Doberman with yellow marble"
+    ]
+  ],
+  "style": "assets_raw/dobe_n1.png",
+  "desc": "Pixel art game sprite of a huge heavy muscular pink paint goo Doberman, three-quarter view facing left, standing idle, calm neutral face with mouth closed and yellow eyes, small head with tall pointed ears, simple smooth muzzle, very broad thick chest and shoulders, thick arms with fists, flowing wide yellow marble streaks, lower body melting into a large heavy glossy goo puddle with drips. Same colors and shading as the style image.",
+  "generations_before": 1358.0,
+  "generations_after": 1348.0,
+  "used": 10.0
+}
