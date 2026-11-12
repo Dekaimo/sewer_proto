@@ -224,7 +224,7 @@ func _setup_dirty_cat() -> void:
 	add_child(goo_fx)
 
 
-## 掲げられ：ぶら下がった体から床まで、太い糸が垂れて揺れ、しずくが落ちる
+## 掲げられ：ぶら下がった体からしずくが落ちる（床までの太い糸は不自然なので描かない）
 func _draw_goo_fx() -> void:
 	if kind != "wani" or not sprite.visible or cat_feet.is_empty():
 		return
@@ -233,24 +233,8 @@ func _draw_goo_fx() -> void:
 	var ox := -128.0
 	var oy := -float(INFO[kind].feet)
 	var tt := t
-	var dark := Color("5a1240")
 	var pink := Color("ec5a9e")
 	var floor_y := -6.0
-	for j in feet.size():
-		var a: Vector2 = Vector2(ox, oy) + feet[j] + Vector2(0, 1)
-		var b := Vector2(a.x + sin(tt * 1.3 + j) * 8.0 + (j - 1.5) * 10.0, floor_y)
-		var sag := 14.0 + 6.0 * sin(tt * 2.0 + j * 1.7)
-		# 伸びて細くなっては、また太く垂れてくる
-		var w := 3.5 + 1.5 * sin(tt * 1.1 + j * 2.3)
-		var pts := PackedVector2Array()
-		for k in 10:
-			var u := k / 9.0
-			pts.append((a.lerp(b, u) + Vector2(sin(u * PI) * sag * 0.5 * (1.0 if j % 2 else -1.0), 0)).round())
-		goo_fx.draw_polyline(pts, dark, w + 2.0)
-		goo_fx.draw_polyline(pts, pink, w)
-		# 糸の途中に溜まったダマ
-		var m: Vector2 = pts[int(4 + (j % 3))]
-		GooMound.draw_glob(goo_fx, m + Vector2(0, 2), Vector2(0, 60), w + 1.5, pink, j)
 	# 体からぽたぽた落ちるしずく
 	for j in 6:
 		var ph := fmod(tt * 1.4 + j * 0.37, 1.0)
