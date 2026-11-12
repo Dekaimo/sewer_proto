@@ -61,6 +61,8 @@ def run_job(j: dict) -> None:
                 "no_background": True, "reference_images": [ref(r[0], r[1]) for r in j.get("refs", [])]}
         if j.get("style"):
             body["style_image"] = ref(j["style"], "pixel art style")
+        if j.get("seed") is not None:
+            body["seed"] = int(j["seed"])
     elif j.get("mode") == "editv2":
         # 512pxまでの1枚を編集。ref があれば「その絵の画風に合わせる」、無ければ文章で編集
         path = "/edit-images-v2"
