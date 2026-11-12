@@ -80,6 +80,8 @@ var base_mat: ShaderMaterial   # 磔の根元（水たまり）用：上半身�
 var lower_sp: Sprite2D
 var lower_mat: ShaderMaterial        # コマごとの幹の左右の端（つなぎ目・床側）
 var tilt := 0.0              # 上体の傾き（ラジアン）
+var agit := 0.0             # 主人公の抵抗で荒ぶる度合い（0〜1）：抵抗するほど激しく揺らす
+var last_struggle := 0.0
 var tilt_amp := 0.0          # 振れ幅（なめらかに追従させる）
 const RISE_T := 1.5          # 柱が立ち上がって持ち上げるまで（スピーディに）
 const MORPH_T := 3.4         # 柱がグチュグチュとワニになるまで
@@ -623,10 +625,14 @@ func _update_crucify(delta: float) -> void:
 	# メトロノーム：上体を左右にぐーっと傾ける。端でためて、なめらかに反対側へ
 	var prev_c := cos(met_phase)
 	if not morphing:
-		met_phase += delta * met_speed
+		# 抵抗（ゲージが増えた分）に反応して荒ぶり、手を止めるとゆっくり落ち着く
+		var gain: float = maxf(p.struggle - last_struggle, 0.0)
+		agit = clampf(agit + gain * 4.0 - delta * 0.35, 0.0, 1.0)
+		met_phase += delta * met_speed * (1.0 + 1.6 * agit)
 	var c := cos(met_phase)
-	var want := 0.0 if morphing else met_amp * met_scale
-	tilt_amp = lerpf(tilt_amp, want, 1.0 - exp(-delta * 1.2))
+	last_struggle = p.struggle
+	var want := 0.0 if morphing else met_amp * met_scale * (1.0 + 1.4 * agit)
+	tilt_amp = lerpf(tilt_amp, want, 1.0 - exp(-delta * (1.2 + 3.0 * agit)))
 	if not morphing and signf(c) != signf(prev_c):
 		# 振り切ったところ：ペンキがたっぷり飛び散る
 		met_amp = 1.5 if randf() < 0.3 else randf_range(0.9, 1.15)
@@ -635,7 +641,9 @@ func _update_crucify(delta: float) -> void:
 		for i in 3:
 			main.splat_wall(Vector2(position.x + side * randf_range(60, 260), main.FLOOR_TOP - randf_range(30, 260)), randf_range(35, 70) * met_amp)
 			main.add_goop(position + Vector2(side * randf_range(40, 200), randf_range(-40, 40)), randf_range(50, 110), 0.5)
-		for i in int(10 * met_amp):
+		if agit > 0.3:
+			main.sfx.play_any(["grab_loop", "gurgle"], 2.0 * agit)
+		for i in int(10 * met_amp * (1.0 + 1.5 * agit)):
 			drip_vis.append({"x": side * randf_range(20.0, 110.0), "y": -randf_range(190.0, 290.0), "v": -randf_range(60.0, 200.0), "vx": side * randf_range(80.0, 260.0)})
 		for i in 2:
 			p.add_dirt(p.random_body_point(), 2)
@@ -646,7 +654,8 @@ func _update_crucify(delta: float) -> void:
 	xfade_mat.set_shader_parameter("absorb_y", absorb_y)
 	var s := sin(met_phase)
 	# 傾き：純粋なサイン（端でゆっくり、真ん中で速い）。最大で約13°、負けたあとは20°近くまで
-	tilt = 0.17 * tilt_amp * s
+	# 荒ぶるときは端で弾むように、少しガクッと振り返す
+	tilt = 0.17 * tilt_amp * s + 0.05 * agit * sin(met_phase * 3.0)
 	var lean_x := sin(tilt) * 30.0          # 幹の上端も傾く側へずれる
 	hist.push_front(lean_x)
 	if hist.size() > 40:
@@ -739,6 +748,10 @@ func _render_split(tex: Texture2D, key: String, idx: int, lift: float, tl: float
 	bend_mat.set_shader_parameter("v0", float(CRU_SPLIT) / 256.0)
 	bend_mat.set_shader_parameter("v1", float(CRU_SPLIT + CRU_TRUNK) / 256.0)
 	bend_mat.set_shader_parameter("total_h", roundf(total + OVER))
+	if ResourceLoader.exists("res://assets/pillar_tex.png") and bend_mat.get_shader_parameter("pillar_tex") == null:
+		bend_mat.set_shader_parameter("pillar_tex", load("res://assets/pillar_tex.png"))
+		bend_mat.set_shader_parameter("pillar_edges", load("res://assets/pillar_edges.png"))
+		bend_mat.set_shader_parameter("use_pillar", 1.0)
 	bend_mat.set_shader_parameter("band_y0", float(CRU_SPLIT))
 	bend_mat.set_shader_parameter("band_h", float(CRU_TRUNK))
 	bend_mat.set_shader_parameter("flow", floorf(cru_t * 26.0))
@@ -789,6 +802,9 @@ func _render_lower(tex: Texture2D, key: String, idx: int, tl: float, lean_x: flo
 
 # 次のコマを上半身に重ねて、コマ間をなめらかにつなぐ
 func _xfade_split(arr: Array, key: String, fpos: float, loop := false) -> void:
+	# 次のコマを薄く重ねるのはやめた（前後のコマが残像のように残って見えるため）
+	xfade.visible = false
+	return
 	var i := int(fpos)
 	var nx := (i + 1) % arr.size() if loop else mini(i + 1, arr.size() - 1)
 	xfade.visible = nx != i

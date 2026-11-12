@@ -14,6 +14,10 @@ uniform float tex_w = 256.0;
 uniform float tex_h = 256.0;
 uniform vec2 top_edge = vec2(74.0, 174.0);   // つなぎ目（上）の左右の端
 uniform vec2 bot_edge = vec2(63.0, 201.0);   // 床側（下）の左右の端
+// 柱の絵（下揃えで使う）と、その行ごとの左右の端（R=左, G=右）
+uniform sampler2D pillar_tex : filter_nearest;
+uniform sampler2D pillar_edges : filter_nearest;
+uniform float use_pillar = 0.0;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float noise(vec2 p) {
@@ -38,26 +42,21 @@ void fragment() {
 	if (x < l || x > r) {
 		COLOR = vec4(0.0);
 	} else {
-		// 中身：元の絵の幹（帯）をそのまま縦に引き伸ばして使う（絵と同じ質感・色・垂れ）
+		// 中身：描き起こした柱の絵を、下揃えで使う（伸ばさないのでドットがきれいなまま）
 		float u = (x - l) / max(r - l, 1.0);
-		float sl = mix(top_edge.x, bot_edge.x, 0.5);
-		float sr = mix(top_edge.y, bot_edge.y, 0.5);
-		float sx = floor(mix(sl, sr, u));
-		// 縦：帯全体を高さいっぱいに引き伸ばす（縞にならない）。ゆっくり流れ落ちるよう、少しずつ下へずらす
-		float fl = fract(flow / 400.0);
-		float row = floor(clamp(k + sin(k * 6.0 + flow / 30.0) * 0.06, 0.0, 0.999) * (band_h - 1.0));
-		float jit = floor((noise(vec2(sx / 9.0, k * 3.0 + fl * 3.0)) - 0.5) * 3.0);
-		vec4 c = texture(TEXTURE, vec2((sx + jit + 0.5) / tex_w, (band_y0 + row + 0.5) / tex_h));
-		if (c.a < 0.5) c = texture(TEXTURE, vec2((sx + 0.5) / tex_w, (band_y0 + band_h * 0.5) / tex_h));
-		// 引き伸ばすと汚く見える、暗い線・灰色（主人公の残り）は、近くのピンクに置き換える
-		float lum = dot(c.rgb, vec3(0.3, 0.59, 0.11));
-		float sat = max(c.r, max(c.g, c.b)) - min(c.r, min(c.g, c.b));
-		if (lum < 0.30 || sat < 0.15) {
-			float n3 = noise(vec2(x / 6.0, k * 9.0 + fl * 9.0));
-			c.rgb = n3 > 0.55 ? vec3(0.82, 0.27, 0.54) : vec3(0.925, 0.353, 0.620);
+		vec4 c;
+		if (use_pillar > 0.5) {
+			float trow = clamp(255.0 - (total_h - 1.0 - ypx), 0.0, 255.0);
+			vec4 ed = texture(pillar_edges, vec2((trow + 0.5) / 256.0, 0.5));
+			float tl = ed.r * 255.0;
+			float tr = ed.g * 255.0;
+			float tx = floor(mix(tl, tr, u) + 0.5);
+			c = texture(pillar_tex, vec2((tx + 0.5) / 128.0, (trow + 0.5) / 256.0));
+			if (c.a < 0.5) c = texture(pillar_tex, vec2(64.5 / 128.0, (trow + 0.5) / 256.0));
+			c.a = 1.0;
+		} else {
+			c = vec4(0.925, 0.353, 0.620, 1.0);
 		}
-		c.a = 1.0;
-		if (u > 0.82) c.rgb *= 0.85;
 		// 上のつなぎ目：波打つ境目で、元の絵の続きに溶け込ませる
 		float wave = 4.0 + 3.0 * sin(x * 0.35) + 2.0 * sin(x * 0.11 + 1.3);
 		if (ypx < wave) {
