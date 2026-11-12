@@ -1,0 +1,12 @@
+{
+  "name": "cru_struggle2",
+  "mode": "anim",
+  "src": "assets/wani_crucify.png",
+  "last": "assets/wani_crucify.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "Looping animation: the huge hulking muscular pink paint crocodile monster grins smugly and bobs its head goofily, its massive gooey outstretched arms wobble and jiggle with sticky drips falling, while the small black witch cat stuck in goo on its chest struggles desperately, kicking its legs, squirming and twisting its body, hat bouncing. Lively motion, the puddle base stays planted.",
+  "generations_before": 1482.0,
+  "generations_after": 1480.0,
+  "used": 2.0
+}
