@@ -63,6 +63,14 @@ def run_job(j: dict) -> None:
             body["style_image"] = ref(j["style"], "pixel art style")
         if j.get("seed") is not None:
             body["seed"] = int(j["seed"])
+    elif j.get("mode") == "rot":
+        # 1枚から8方向（south, south-east, east, ... の順で返る）
+        path = "/generate-8-rotations-v3"
+        body = {"first_frame": b64img(j["src"]), "no_background": True}
+        if j.get("desc"):
+            body["description"] = j["desc"]
+        if j.get("seed") is not None:
+            body["seed"] = int(j["seed"])
     elif j.get("mode") == "editv2":
         # 512pxまでの1枚を編集。ref があれば「その絵の画風に合わせる」、無ければ文章で編集
         path = "/edit-images-v2"
