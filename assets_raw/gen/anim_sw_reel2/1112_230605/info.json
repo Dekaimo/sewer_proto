@@ -1,0 +1,14 @@
+{
+  "name": "anim_sw_reel2",
+  "mode": "anim",
+  "src": "assets_raw/dobe_stalk_hug.png",
+  "last": "assets_raw/dobe_stalk_lean.png",
+  "frames": 8,
+  "direction": "north",
+  "subject": "a huge muscular Doberman monster made of glossy pink paint goo with yellow marble streaks, seen from behind, growing out of a thick vertical goo stalk",
+  "desc": "Seen from behind, it lets go and theatrically reels back as if pushed, upper body leaning back, arms flung open, laughing mockingly, sticky goo strands stretching forward.",
+  "variants": 1,
+  "generations_before": 898.9000000000001,
+  "generations_after": 897.9000000000001,
+  "used": 1.0
+}
