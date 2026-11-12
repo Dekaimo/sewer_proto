@@ -34,4 +34,4 @@ jobs:
           git add assets_raw/gen
           git diff --cached --quiet && exit 0
           git commit -m "PixelLab generation"
-          git pull --rebase -q && git push
+          for i in 1 2 3 4 5; do git pull --rebase -q && git push && exit 0; sleep 5; done; exit 1
