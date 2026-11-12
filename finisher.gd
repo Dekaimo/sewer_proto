@@ -1,4 +1,5 @@
 extends Node2D
+const GooMound = preload("res://goo_mound.gd")
 ## フィニッシュ演出。力尽きたとき、相手ごとの専用の見せ場を流してからゲームオーバー画面を出す。
 ## 見た負け方は user://gallery.cfg に記録する（図鑑・回想モード用）。
 ##
@@ -29,6 +30,10 @@ var rise := 0.0           # 床からゆっくり出てくる時間
 var rise_k := 1.0         # 0=まだ床の中 1=全身が出た
 var wani_frames: Array[Texture2D] = []   # 2対1：吐き出されたペンキから出てくるワニ（形成→マッスルポーズ）
 var wani_sprite: Sprite2D
+var dirt_mat: ShaderMaterial   # 掲げられ：主人公だけをドロドロに（猫のマスクで）
+var cat_masks: Array = []
+var cat_feet: Array = []      # コマごとの、ぶら下がった体の下端（糸を垂らす場所）
+var goo_fx: Node2D
 var pile: Sprite2D       # 2対1：吐き出されたペンキの山（ワニはこの中から形成される）
 var pile_frames: Array[Texture2D] = []
 var hat: Sprite2D        # サメのゲップ：主人公の帽子（本物の帽子をペンキまみれにした絵）
@@ -51,6 +56,8 @@ func setup(k: String, at: Vector2) -> void:
 	if frames.is_empty() and ResourceLoader.exists("res://assets/%s_key.png" % info.frames):
 		frames.append(load("res://assets/%s_key.png" % info.frames))
 	pre = 2.4 if kind == "duo" else 0.0
+	if kind == "wani":
+		_setup_dirty_cat()
 	# 最初のコマのまま床から「ネバァ…」と糸を引きながらゆっくり出てくる
 	rise = 1.6 if kind != "hug" else 0.0
 	if kind == "duo":
@@ -159,6 +166,10 @@ func _process(delta: float) -> void:
 	sprite.offset = Vector2(-frames[i].get_width() / 2.0, -float(info.feet))
 	if kind == "shark":
 		_update_hat(tt * info.fps)
+	if kind == "wani" and dirt_mat != null:
+		sprite.material = dirt_mat
+		dirt_mat.set_shader_parameter("cat_mask", cat_masks[i] if i < cat_masks.size() else null)
+		goo_fx.queue_redraw()
 	# 最後のコマで少し止めてから画面を出す
 	if tt > dur + 0.8:
 		done = true
@@ -168,6 +179,86 @@ func _process(delta: float) -> void:
 		return
 	if tt < 0.05 and rise == 0.0:
 		main.zoom_moment(position + Vector2(0, -120), dur + 0.8)
+
+
+## 掲げられ：主人公の部分にだけ汚れシェーダーをかけ、体の下端を調べておく（糸を垂らす）
+func _setup_dirty_cat() -> void:
+	dirt_mat = ShaderMaterial.new()
+	dirt_mat.shader = load("res://hug_dirt.gdshader")
+	dirt_mat.set_shader_parameter("contamination", 1.0)
+	dirt_mat.set_shader_parameter("absorb_y", 1.0)
+	for i in frames.size():
+		var mp := "res://assets/masks/%s_%d_mask.png" % [INFO[kind].frames, i]
+		var mt: Texture2D = load(mp) if ResourceLoader.exists(mp) else null
+		cat_masks.append(mt)
+		var feet: Array = []
+		if mt != null:
+			var img := mt.get_image()
+			if img.is_compressed():
+				img.decompress()
+			# 列ごとの一番下の点 → 低いものから3〜4か所（足先・しっぽ・すそ）
+			var lows: Array = []
+			for x in range(0, img.get_width(), 3):
+				for y in range(img.get_height() - 1, 0, -1):
+					if img.get_pixel(x, y).r > 0.5:
+						lows.append(Vector2(x, y))
+						break
+			lows.sort_custom(func(a, b): return a.y > b.y)
+			for p in lows:
+				var far := true
+				for q in feet:
+					if absf(p.x - q.x) < 10.0:
+						far = false
+				if far:
+					feet.append(p)
+				if feet.size() >= 4:
+					break
+		cat_feet.append(feet)
+	sprite.material = dirt_mat
+	if cat_masks.size() > 0:
+		dirt_mat.set_shader_parameter("cat_mask", cat_masks[0])
+	goo_fx = Node2D.new()
+	goo_fx.z_index = 3
+	goo_fx.draw.connect(_draw_goo_fx)
+	add_child(goo_fx)
+
+
+## 掲げられ：ぶら下がった体から床まで、太い糸が垂れて揺れ、しずくが落ちる
+func _draw_goo_fx() -> void:
+	if kind != "wani" or not sprite.visible or cat_feet.is_empty():
+		return
+	var i := clampi(int((t - pre - rise) * INFO[kind].fps), 0, cat_feet.size() - 1)
+	var feet: Array = cat_feet[i]
+	var ox := -128.0
+	var oy := -float(INFO[kind].feet)
+	var tt := t
+	var dark := Color("5a1240")
+	var pink := Color("ec5a9e")
+	var floor_y := -6.0
+	for j in feet.size():
+		var a: Vector2 = Vector2(ox, oy) + feet[j] + Vector2(0, 1)
+		var b := Vector2(a.x + sin(tt * 1.3 + j) * 8.0 + (j - 1.5) * 10.0, floor_y)
+		var sag := 14.0 + 6.0 * sin(tt * 2.0 + j * 1.7)
+		# 伸びて細くなっては、また太く垂れてくる
+		var w := 3.5 + 1.5 * sin(tt * 1.1 + j * 2.3)
+		var pts := PackedVector2Array()
+		for k in 10:
+			var u := k / 9.0
+			pts.append((a.lerp(b, u) + Vector2(sin(u * PI) * sag * 0.5 * (1.0 if j % 2 else -1.0), 0)).round())
+		goo_fx.draw_polyline(pts, dark, w + 2.0)
+		goo_fx.draw_polyline(pts, pink, w)
+		# 糸の途中に溜まったダマ
+		var m: Vector2 = pts[int(4 + (j % 3))]
+		GooMound.draw_glob(goo_fx, m + Vector2(0, 2), Vector2(0, 60), w + 1.5, pink, j)
+	# 体からぽたぽた落ちるしずく
+	for j in 6:
+		var ph := fmod(tt * 1.4 + j * 0.37, 1.0)
+		if feet.is_empty():
+			break
+		var f: Vector2 = feet[j % feet.size()]
+		var st := Vector2(ox, oy) + f + Vector2((j - 2.5) * 4.0, 0)
+		var y := lerpf(st.y, floor_y, ph * ph)
+		GooMound.draw_glob(goo_fx, Vector2(st.x, y), Vector2(0, 200.0 * ph + 20.0), 2.5, pink if j % 3 else Color("f9d84d"), j)
 
 
 ## ゲップで吐き出された帽子：口から飛び出して、くるくる回りながら床にベチャッと落ちる
