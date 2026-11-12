@@ -1,0 +1,26 @@
+{
+  "name": "wani_cru_v2",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "seed": 7501,
+  "style": "assets_raw/wani_style_patch.png",
+  "refs": [
+    [
+      "assets/wani_idle.png",
+      "the monster: this exact pink paint goo crocodile, same head, spikes, colors, marble, outline and pixel style"
+    ],
+    [
+      "assets/cat_0.png",
+      "the small black witch cat in a purple hat and cape: keep its design exactly"
+    ],
+    [
+      "assets/wani_crucify.png",
+      "composition to improve: crucifixion pose with the cat pinned to the monster's chest"
+    ]
+  ],
+  "desc": "Pixel art, three-quarter view facing left. The huge muscular pink paint goo crocodile monster stands tall in a crucifixion pose, its thick arms stretched straight out to both sides like a cross. The small black witch cat is pinned flat against the monster's broad chest high off the ground, the cat's arms spread out along the monster's arms and glued there by thick sticky goo bands at the wrists, its legs dangling and glued at the ankles, struggling with eyes squeezed shut and mouth open. Sticky strands of goo stretch over the cat. The monster grins with its toothy jaws above the cat's hat. The monster's lower body is a tall thick column of goo melting into a wide puddle, no legs. Glossy, wet, crisp pixel art with dark outline. Transparent background.",
+  "generations_before": 975.9000000000001,
+  "generations_after": 965.9000000000001,
+  "used": 10.0
+}
