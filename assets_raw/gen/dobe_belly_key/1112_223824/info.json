@@ -1,0 +1,18 @@
+{
+  "name": "dobe_belly_key",
+  "mode": "gen",
+  "w": 128,
+  "h": 128,
+  "seed": 7601,
+  "style": "assets_raw/wani_style_patch.png",
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "this exact pink paint goo Doberman monster: same head, stern yellow eyes, smirk, colors, yellow marble streaks, pixel style"
+    ]
+  ],
+  "desc": "Pixel art close-up inside a dark gooey stomach: the pink paint goo Doberman monster rising from the bottom of the picture, only its head, huge broad shoulders and thick arms visible (body cut off at the bottom edge), both arms reaching up and curling inward in a tight, possessive bear hug around an empty space in the upper middle where someone will be, leering upward with a lewd smirk, thick goo dripping from the arms. Crisp dark outline, glossy highlights, transparent background.",
+  "generations_before": 942.9000000000001,
+  "generations_after": 932.9000000000001,
+  "used": 10.0
+}
