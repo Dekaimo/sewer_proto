@@ -165,7 +165,7 @@ func _process(delta: float) -> void:
 	if kind == "duo":
 		dur += 4.2   # 吐いたあと、ワニが形成されてポーズを決めるまで
 		if trio_dobe != null:
-			dur += 0.8   # ドーベルマンも形成されて決めポーズまで
+			dur += 1.6   # ドーベルマンも形成されて決めポーズまで
 		_update_duo(tt)
 		if tt > dur + 0.8:
 			done = true
@@ -377,7 +377,7 @@ func _update_trio_dobe(tt: float, pool_t: float, hold: float) -> void:
 	if trio_dobe == null or not is_instance_valid(trio_dobe) or tt < pool_t:
 		return
 	var fr: Dictionary = trio_dobe.frames
-	var seq := [["rise", 0.8], ["form", 1.3], ["settle", 0.6]]
+	var seq := [["rise", 0.9], ["form", 2.0], ["settle", 0.8]]
 	var wt := tt - hold - 0.5
 	var tex: Texture2D = null
 	if wt <= 0.0:
@@ -391,7 +391,7 @@ func _update_trio_dobe(tt: float, pool_t: float, hold: float) -> void:
 				continue
 			if wt < d:
 				var arr: Array = fr[k]
-				tex = arr[clampi(int(wt / d * float(arr.size())), 0, arr.size() - 1)]
+				tex = arr[trio_dobe.timed_index(k, wt / d, arr.size())]   # ドーベルマンと同じ溜め・詰め
 				break
 			wt -= d
 		if tex == null:

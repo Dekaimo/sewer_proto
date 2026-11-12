@@ -163,7 +163,7 @@ func _apply_rise() -> void:
 	var key := "rise" if frames.has("rise") else ("emerge" if frames.has("emerge") else "")
 	if key != "":
 		var arr: Array = frames[key]
-		sprite.texture = arr[clampi(int(rise * float(arr.size() - 1) + 0.5), 0, arr.size() - 1)]
+		sprite.texture = arr[timed_index(key, rise, arr.size())]
 	else:
 		sprite.texture = base_tex
 		sprite.scale = Vector2(1.0 + (1.0 - rise) * 0.25, maxf(rise, 0.02))
@@ -173,7 +173,7 @@ func _show_idle() -> void:
 	sprite.scale = Vector2.ONE
 	sprite.visible = true
 	if frames.has("idle"):
-		_frame("idle", int(t * 8.0))
+		_loop("idle", t, 6.5)
 	else:
 		sprite.texture = base_tex
 
@@ -182,8 +182,8 @@ func _show_idle() -> void:
 ## ゆっくり版（ふつうの登場）：水たまりから背中を向けてねっとり起き上がる（rise_back）→ 振り向く（turn）
 ##   → 頭ができて最後に目、決めポーズ（form）→ 待機へ（settle）
 ## 速い版（顔見せ）：水たまり → 顔のない人型（rise）→ form → settle を速めに
-const SLOW_PHASES := [["rise_back", 2.6], ["turn", 1.0], ["form", 1.8], ["settle", 1.0]]
-const QUICK_PHASES := [["rise", 0.6], ["form", 0.9], ["settle", 0.5]]
+const SLOW_PHASES := [["rise_back", 3.4], ["turn", 1.2], ["form", 2.8], ["settle", 1.1]]
+const QUICK_PHASES := [["rise", 0.7], ["form", 1.4], ["settle", 0.6]]
 func _update_enter(_delta: float) -> void:
 	var phases: Array = QUICK_PHASES if (quick_enter or not frames.has("rise_back")) else SLOW_PHASES
 	var tt := t
@@ -217,7 +217,68 @@ func _play_once(k: String, f: float) -> void:
 	var arr: Array = frames[k]
 	sprite.visible = true
 	sprite.scale = Vector2.ONE
-	sprite.texture = arr[clampi(int(f * float(arr.size())), 0, arr.size() - 1)]
+	sprite.texture = arr[timed_index(k, f, arr.size())]
+
+
+## ---------- 溜めと詰め ----------
+## 等間隔に流すと動きがのっぺりするので、コマごとに表示時間の重みを付ける。
+## 大きい数字＝長く止める（溜め・決め）、小さい数字＝一瞬で流す（詰め・勢い）。コマ数が合わないときは等間隔。
+const TIMING := {
+	# 水たまりから背中を向けて起き上がる：重たく動き出し、途中は一気に、立ち上がりきる所でねっとり止まる
+	"rise_back": [3.0, 2.6, 2.2, 1.6, 1.2, 0.9, 0.7, 0.6, 0.6, 0.7, 0.8, 1.0, 1.2, 1.5, 2.0, 2.6, 3.4],
+	# 振り向き：ゆっくり回り始め、さっと回って、こちらを向いた所で止まる
+	"turn": [2.2, 1.6, 0.9, 0.6, 0.5, 0.6, 0.9, 1.6, 2.8],
+	# 顔ができる：顔なしで溜める → 頭が伸びる所は詰める → 目が開く → 決めポーズで長く止める
+	"form": [3.0, 1.0, 0.7, 0.6, 0.5, 0.5, 0.7, 0.9, 1.2, 1.6, 2.2, 3.0, 7.0],
+	# 決めポーズから待機へ：名残惜しく動き出し、すっと戻る
+	"settle": [2.6, 1.6, 1.0, 0.7, 0.6, 0.7, 0.9, 1.3, 2.0],
+	# 顔見せ（速い版）：盛り上がり始めを溜めて、一気に立つ
+	"rise": [2.4, 1.6, 1.0, 0.7, 0.6, 0.6, 0.8, 1.2, 2.0],
+	# 背後から飛び出す：床が一瞬溜めて → 一気に飛び出す → 腕が締まって止まる
+	"burst": [2.6, 0.4, 0.4, 0.5, 0.6, 0.9, 1.4, 2.0, 3.0],
+	# 放り投げ：低く溜めて溜めて → 一瞬で投げる → 腕を上げたまま見上げて止まる
+	"throw": [1.2, 2.0, 3.0, 0.4, 0.4, 0.5, 0.9, 2.0, 4.0],
+	# 飛び込み：かがんで溜める → 一瞬で跳ぶ → 綺麗なフォームで伸びきる
+	"dive": [1.2, 2.0, 3.2, 0.5, 0.4, 0.4, 0.6, 1.0, 1.6],
+	# 押されたフリ：一気にのけぞって、のけぞったまま嗤う
+	"reel": [0.4, 0.5, 0.7, 0.9, 1.2, 1.6, 2.0, 2.6, 3.4],
+	# 寛ぐ：ゆっくり沈んでいく
+	"relax": [1.6, 1.2, 1.0, 0.9, 0.9, 1.0, 1.2, 1.6, 2.6],
+	# ループ：呼吸の吸いきり・吐ききりで少し止まる
+	"idle": [1.7, 1.0, 0.7, 1.0, 1.7, 1.0, 0.7, 1.0],
+	# 羽交い締めで揺らす：振りきった所で止まって、ねっとり戻る
+	"hold": [1.6, 1.0, 0.7, 1.0, 1.6, 1.0, 0.7, 1.0],
+	# 抱きしめて擦りつける：押しつけた所でぐっと止まる
+	"rub": [0.7, 0.9, 1.8, 0.9, 0.7, 0.9, 1.8, 0.9],
+}
+
+
+## 進み具合 f（0〜1）→ 何コマ目か（重み付き）
+static func timed_index(k: String, f: float, n: int) -> int:
+	if n <= 1:
+		return 0
+	f = clampf(f, 0.0, 0.9999)
+	var w: Array = TIMING.get(k, [])
+	if w.size() != n:
+		return clampi(int(f * float(n)), 0, n - 1)
+	var total := 0.0
+	for x in w:
+		total += x
+	var acc := 0.0
+	for i in n:
+		acc += w[i]
+		if f * total < acc:
+			return i
+	return n - 1
+
+
+## ループを重み付きで回す（fps は平均の速さ）
+func _loop(k: String, time: float, fps: float) -> void:
+	if not frames.has(k):
+		return
+	var arr: Array = frames[k]
+	var cycle := float(arr.size()) / fps
+	sprite.texture = arr[timed_index(k, fmod(time, cycle) / cycle, arr.size())]
 
 
 func _update_show(_delta: float, p) -> void:
@@ -341,8 +402,8 @@ func _update_burst(delta: float, p) -> void:
 		_leave(true)
 		return
 	if frames.has("burst"):
-		_play_once("burst", t / 0.7)
-		if t < 0.7:
+		_play_once("burst", t / 0.9)
+		if t < 0.9:
 			return
 	else:
 		rise = clampf(0.3 + t / 0.25, 0.0, 1.0)
@@ -422,7 +483,7 @@ func _update_sandwich(delta: float, p) -> void:
 				var n := mini(2, arr.size())
 				sprite.texture = arr[clampi(int((r * 0.5 + 0.5) * float(n - 1) + 0.5), 0, n - 1)]
 			elif frames.has("rub"):
-				_frame("rub", int(rub_t * 4.0))
+				_loop("rub", rub_t, 4.0)
 			_sw_place(r * 4.0)
 			if absf(r) > 0.97 and fmod(rub_t, 1.0) < delta * 1.6:
 				main.sfx.play_any(["grab_loop", "gurgle"], -6.0, 0.2)
@@ -434,7 +495,7 @@ func _update_sandwich(delta: float, p) -> void:
 			rub_t += delta * (2.4 if not main.game_over else 1.6)
 			var r2 := sin(rub_t * TAU * 0.5)
 			if frames.has("rub"):
-				_frame("rub", int(rub_t * 4.0))
+				_loop("rub", rub_t, 4.0)
 			_sw_place(r2 * 8.0)
 			if absf(r2) > 0.97 and fmod(rub_t, 1.0) < delta * 2.4:
 				main.sfx.play_any(["grab_loop", "gurgle"], -3.0, 0.2)
@@ -476,7 +537,7 @@ func _update_pushed(delta: float, p) -> void:
 	if frames.has("reel"):
 		var arr: Array = frames["reel"]
 		var f := t / 0.5 if t < 0.5 else (1.0 if t < 1.1 else maxf(1.0 - (t - 1.1) / 0.35, 0.0))
-		sprite.texture = arr[clampi(int(f * float(arr.size() - 1) + 0.5), 0, arr.size() - 1)]
+		sprite.texture = arr[timed_index("reel", f, arr.size())]
 	if t < 0.5:
 		push_off = lerpf(push_off, 40.0, 1.0 - exp(-delta * 10.0))
 	elif t > 1.1:
@@ -543,8 +604,7 @@ func _update_hold(delta: float, p) -> void:
 			combo_t += delta
 			if frames.has("relax"):
 				var arr: Array = frames["relax"]
-				var i := clampi(int(combo_t / 0.9 * float(arr.size())), 0, arr.size() - 1)
-				sprite.texture = arr[i]
+				sprite.texture = arr[timed_index("relax", combo_t / 1.3, arr.size())]
 			else:
 				sprite.texture = base_tex
 			return
@@ -552,7 +612,7 @@ func _update_hold(delta: float, p) -> void:
 			_update_throw(delta, p)
 			return
 	if frames.has("hold"):
-		_frame("hold", int(t * 8.0))
+		_loop("hold", t, 6.5)
 	else:
 		sprite.texture = base_tex
 	# 他の敵が来るのを待つ（誰も来なければ放さない）
@@ -588,7 +648,7 @@ func _near_wani(p):
 
 func _update_throw(delta: float, p) -> void:
 	combo_t += delta
-	var dur := 0.9
+	var dur := 1.3
 	if frames.has("throw"):
 		_play_once("throw", combo_t / dur)
 	else:
@@ -596,7 +656,7 @@ func _update_throw(delta: float, p) -> void:
 	# ワニは主人公の真下で待ち構える
 	if is_instance_valid(throw_wani) and throw_wani.state == "lurk":
 		throw_wani.position = Vector2(p.position.x, p.position.y)
-	if not thrown and combo_t > dur * 0.55:
+	if not thrown and combo_t > dur * 0.47:   # 投げきるコマ（溜めのあと）
 		thrown = true
 		# 放り投げ：主人公を空中へ。真下のワニが粘液の柱で突き上げて磔にする
 		p.held_by = null
@@ -625,7 +685,7 @@ func _update_dive(delta: float, p) -> void:
 	facing = 1 if sh.position.x > dive_from.x else -1
 	sprite.visible = true
 	sprite.scale = Vector2.ONE
-	const SPRING := 0.45
+	const SPRING := 0.7
 	const FLY := 0.75
 	if t < SPRING:
 		if frames.has("dive"):
