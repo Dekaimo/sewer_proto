@@ -1,0 +1,10 @@
+{
+  "name": "cru_balance",
+  "mode": "edit",
+  "src": "assets/wani_crucify.png",
+  "variants": 3,
+  "desc": "Keep this exact pose, composition, colors and the small black witch cat crucified on the chest identical. Only change the proportions of the crocodile: make its head noticeably smaller, and make its shoulders, chest, neck and outstretched arms bigger, broader and more massively muscular, so it looks like a huge hulking brute. Same pixel art style.",
+  "generations_before": 1488.0,
+  "generations_after": 1485.0,
+  "used": 3.0
+}
