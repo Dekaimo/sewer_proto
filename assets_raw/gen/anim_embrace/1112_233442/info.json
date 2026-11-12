@@ -1,0 +1,14 @@
+{
+  "name": "anim_embrace",
+  "mode": "anim",
+  "src": "assets_raw/embrace_256.png",
+  "last": "assets_raw/embrace_256.png",
+  "frames": 8,
+  "direction": "east",
+  "subject": "a pink goo crocodile monster and a pink goo Doberman monster embracing each other with a small black witch cat squashed between their chests",
+  "desc": "Loop: the two goo monsters squeeze each other tighter and grind their broad chests together from both sides, slowly and stickily, their bodies squishing and bulging; the trapped cat wriggles and kicks between them; thick goo strands stretch and snap and drip. Heavy, sticky, viscous.",
+  "variants": 1,
+  "generations_before": 832.9000000000001,
+  "generations_after": 831.9000000000001,
+  "used": 1.0
+}
