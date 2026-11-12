@@ -7,6 +7,7 @@ extends Node2D
 const BASE_PATH := "res://assets/same_base.png"
 const GooMound = preload("res://goo_mound.gd")
 const UnderHeave = preload("res://under_heave.gd")
+const UnderOverlay = preload("res://under_overlay.gd")
 const OPEN_PATH := "res://assets/same_open.png"
 const FEET_Y := 182          # 絵の中で腹（水たまり）が床に着く行
 const MOUTH_X := 92.0       # 横向きの絵の中心から口までの横の距離（アニメが無いとき用）
@@ -39,6 +40,7 @@ var mound: Sprite2D
 var mound_frames: Array[Texture2D] = []
 var mound_player = GooMound.Player.new()
 var heave = UnderHeave.new()   # 地中の獲物を、床のペンキの盛り上がりで見せる
+var overlay   # 盛り上がりの上に重ねる、もがきのドット絵アニメ
 var wander := 0.0
 var sprite: Sprite2D
 var tex_base: Texture2D
@@ -53,6 +55,8 @@ var cut_on := false
 
 
 func _ready() -> void:
+	overlay = UnderOverlay.new()
+	add_child(overlay)
 	var mi := 0
 	while ResourceLoader.exists("res://assets/same_front_%d.png" % mi):
 		maw_frames.append(load("res://assets/same_front_%d.png" % mi))
@@ -191,10 +195,14 @@ func _process(delta: float) -> void:
 	if state == "drag":
 		var inten := 1.0 if is_trio() else (0.75 if caught_wani != null else 0.45)
 		heave.step(main, get_process_delta_time(), position, inten)
+		overlay.allow_drag = caught_wani != null
+		overlay.step(get_process_delta_time(), inten)
 		sprite.visible = false
 		collar.visible = false
 	else:
 		collar.visible = true
+		if overlay.visible:
+			overlay.stop()
 	queue_redraw()
 
 

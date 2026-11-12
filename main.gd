@@ -317,6 +317,8 @@ func add_floor_splat(p: Vector2, w: float) -> void:
 ## 筆で p のまわりのドロドロを薄くする
 ## 地中で暴れているものが、床のペンキを下から押し上げる（毎フレーム呼ぶ）
 func add_heave(world: Vector2, radius: float, height: float) -> void:
+	if is_nan(height) or is_nan(radius) or height <= 0.0:
+		return
 	if heaves.size() < 12:
 		heaves.append(Vector4(world.x, world.y - FLOOR_TOP, radius, height))
 

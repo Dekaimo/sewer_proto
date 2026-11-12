@@ -27,6 +27,7 @@ var anim_masks := {}     # 2体が1枚に描かれたコマの、主人公部分
 const HUG_SHADER = preload("res://hug_dirt.gdshader")
 const GooMound = preload("res://goo_mound.gd")
 const UnderHeave = preload("res://under_heave.gd")
+const UnderOverlay = preload("res://under_overlay.gd")
 var hug_mat: ShaderMaterial
 var hold_t := 0.0
 var last_x := 0.0
@@ -44,6 +45,7 @@ var mound: Sprite2D
 var mound_frames: Array[Texture2D] = []
 var mound_player = GooMound.Player.new()
 var heave = UnderHeave.new()
+var overlay
 var cru_t := 0.0
 var cru_frames := {}
 var cru_masks := {}
@@ -124,6 +126,9 @@ func _ready() -> void:
 	hug_mat.shader = HUG_SHADER
 	sprite = Sprite2D.new()
 	sprite.texture = emerge_frames[0]
+	overlay = UnderOverlay.new()
+	overlay.allow_drag = true
+	add_child(overlay)
 	front = Node2D.new()
 	front.draw.connect(_draw_front)
 	bend_mat = ShaderMaterial.new()
@@ -185,12 +190,15 @@ func _process(delta: float) -> void:
 		sg.visible = false
 	front.queue_redraw()
 	mound.visible = false
+	if overlay.visible and state != "pulldown" and state != "under":
+		overlay.stop()
 	if state == "pulldown" or state == "under":
 		_update_pull(delta)
 		# 盛り上がったドロドロ（沈みはじめは小さめにせり上がる）
 		if state == "under" or under_t > 0.75:
 			# 床のペンキの下で抱え込んだまま暴れている：床そのものがうねる
 			heave.step(main, delta, position, 0.6)
+			overlay.step(delta, 0.6)
 			front.queue_redraw()
 		return
 

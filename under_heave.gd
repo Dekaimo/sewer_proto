@@ -48,7 +48,7 @@ func step(main, delta: float, carrier: Vector2, intensity: float) -> void:
 		l.t += delta
 		var k: float = l.t / l.dur
 		# 立ち上がりは速く（0.2）、沈むのはゆっくり
-		var hk := (k / 0.2) if k < 0.2 else pow(1.0 - (k - 0.2) / 0.8, 1.6)
+		var hk := (k / 0.2) if k < 0.2 else pow(maxf(1.0 - (k - 0.2) / 0.8, 0.0), 1.6)
 		main.add_heave(carrier + l.off, l.r, l.amp * clampf(hk, 0.0, 1.0))
 		if k >= 0.2 and k - delta / l.dur < 0.2:
 			# 突き上げた瞬間、まわりのペンキが押しのけられて波紋と飛沫
