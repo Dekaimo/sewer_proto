@@ -890,8 +890,8 @@ func _draw_front() -> void:
 		for d in drip_vis:
 			var big: bool = absf(d.vx) > 1.0
 			var r: float = 5.0 if big else 2.5
-			front.draw_circle(Vector2(d.x, d.y).round(), r + 1.5, Color("5a1240"))
-			front.draw_circle(Vector2(d.x, d.y).round(), r, Color("ec5a9e") if int(d.x) % 3 else Color("f9d84d"))
+			var col := Color("ec5a9e") if int(d.x) % 3 else Color("f9d84d")
+			GooMound.draw_glob(front, Vector2(d.x, d.y), Vector2(d.vx, d.v), r, col, int(absf(d.x)) % 7)
 		return
 	if mound_frames.size() == 8:
 		return   # 生成したドット絵の盛り上がりを使う

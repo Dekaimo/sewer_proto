@@ -68,6 +68,37 @@ static func draw(ci: CanvasItem, t: float, size: float, violent: float) -> void:
 		ci.draw_circle(Vector2(bx2, by).round(), rr2, c2)
 
 
+## ペンキの塊（しずく）を描く：進む向きの先に重く溜まってダマになり、後ろは細く尾を引く。
+## pos は塊の先頭、vel は動き（静止なら下向きに垂れる形）、r は先頭の太さ。seed で形を少し変える
+static func draw_glob(ci: CanvasItem, pos: Vector2, vel: Vector2, r: float, col: Color, seed := 0) -> void:
+	var sp := vel.length()
+	var dir := vel / sp if sp > 1.0 else Vector2.DOWN
+	var tail := clampf(sp / 140.0, 0.6, 3.2) * r          # 速いほど長く伸びる
+	var side := Vector2(-dir.y, dir.x)
+	var n := 5
+	# 尾 → 先頭の順に、だんだん太く（先頭は少しつぶれて横に広がる）
+	var pts: Array = []
+	for i in n:
+		var k := float(i) / float(n - 1)          # 0=尾の先, 1=先頭
+		var c := pos - dir * tail * (1.0 - k) + side * sin(k * 3.0 + seed) * r * 0.15
+		var rr := lerpf(r * 0.25, r, pow(k, 0.7))
+		pts.append([c, rr])
+	for p in pts:
+		ci.draw_circle(p[0].round(), p[1] + 1.5, Color("5a1240"))
+	# ダマ：先頭のまわりに小さなこぶ
+	var lumps := [side * r * 0.7 + dir * r * 0.1, -side * r * 0.6 - dir * r * 0.2]
+	for j in 2:
+		if (seed + j) % 3 != 2:
+			ci.draw_circle((pos + lumps[j]).round(), r * 0.5 + 1.5, Color("5a1240"))
+	for p in pts:
+		ci.draw_circle(p[0].round(), p[1], col)
+	for j in 2:
+		if (seed + j) % 3 != 2:
+			ci.draw_circle((pos + lumps[j]).round(), r * 0.5, col)
+	# てかり（先頭の、進む向きと反対の上側）
+	ci.draw_rect(Rect2((pos - dir * r * 0.3 - side * r * 0.3 + Vector2(-1, -r * 0.4)).round(), Vector2(2, 1)), Color("ffd6ea"))
+
+
 ## 生成したドット絵の盛り上がり（8コマ）を読み込む
 static func load_frames() -> Array[Texture2D]:
 	var arr: Array[Texture2D] = []

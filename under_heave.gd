@@ -1,4 +1,5 @@
 extends RefCounted
+const GooMound = preload("res://goo_mound.gd")
 ## 地中で暴れているものを、床のペンキの盛り上がりで見せる。
 ## 別の生き物（盛り上がりの絵）を上に乗せるのではなく、床のドロドロそのものが
 ## 下から押し上げられて、うねり、波紋が広がり、通った跡が残る。
@@ -144,13 +145,7 @@ func draw_bubbles(ci: CanvasItem, origin: Vector2) -> void:
 			var w2 := lerpf(2.0, 0.8, g.t / 0.22)
 			ci.draw_line((g.from - origin).round(), c, dark, w2 + 2.0)
 			ci.draw_line((g.from - origin).round(), c, pink, w2)
-		var st: float = clampf(g.vel.length() / 300.0, 0.0, 0.8)
-		var dir: Vector2 = g.vel.normalized() if g.vel.length() > 1.0 else Vector2.DOWN
-		ci.draw_circle(c, g.r + 1.5, dark)
-		ci.draw_circle(c - dir * g.r * st, g.r * 0.8 + 1.5, dark)
-		ci.draw_circle(c, g.r, pink)
-		ci.draw_circle((c - dir * g.r * st).round(), g.r * 0.8, pink)
-		ci.draw_rect(Rect2(c + Vector2(-g.r * 0.4, -g.r * 0.6), Vector2(2, 1)), shine)
+		GooMound.draw_glob(ci, c, g.vel, g.r, pink, int(g.r * 10.0))
 	for b in bubbles:
 		var k: float = b.t / 0.55
 		var c: Vector2 = (b.pos - origin).round()

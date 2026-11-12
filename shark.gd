@@ -624,8 +624,8 @@ func _draw() -> void:
 			var tt2: float = er.t
 			var pos := base + Vector2(cos(a) * sp * tt2, sin(a) * sp * tt2 + 420.0 * tt2 * tt2)
 			var r := (6.0 if j % 3 == 0 else 3.5) * (1.0 - k * 0.4)
-			draw_circle(pos.round(), r + 1.5, Color("5a1240"))
-			draw_circle(pos.round(), r, Color("ec5a9e") if j % 2 else Color("f9d84d"))
+			var vel := Vector2(cos(a) * sp, sin(a) * sp + 840.0 * tt2)
+			GooMound.draw_glob(self, pos, vel, r, Color("ec5a9e") if j % 2 else Color("f9d84d"), j)
 	if not underground():
 		return
 	if state == "drag":
