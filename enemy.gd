@@ -50,6 +50,12 @@ const CRU_SPLIT := 172     # 磔の絵：ここより上を持ち上げる
 const CRU_TRUNK := 18      # 引き伸ばす幹の行数（ここから下は床に残す）
 const CRU_LIFT := 64.0     # どれだけ高く持ち上げるか
 var trunk: Sprite2D
+var segs: Array[Sprite2D] = []   # しなる幹（下ほど揺れが小さく、遅れて追いかける）
+const SEG_N := 9
+var hist: Array[float] = []
+var met_phase := 0.0
+var met_amp := 1.0
+var met_dir := 1.0
 var cru_base: Sprite2D
 var sway := Vector2.ZERO     # 晒し上げ中の揺れ
 var sway_v := Vector2.ZERO
@@ -96,6 +102,16 @@ func _ready() -> void:
 				cru_masks["morph_%d" % i] = load(mp2)
 	if morph.size() > 0:
 		cru_frames["morph"] = morph
+	var burst: Array[Texture2D] = []
+	for i in 7:
+		var pth3 := "res://assets/wani_burst_%d.png" % i
+		if ResourceLoader.exists(pth3):
+			burst.append(load(pth3))
+			var mp3 := "res://assets/masks/wani_burst_%d_mask.png" % i
+			if ResourceLoader.exists(mp3):
+				cru_masks["burst_%d" % i] = load(mp3)
+	if burst.size() == 7:
+		cru_frames["burst"] = burst
 	hug_mat = ShaderMaterial.new()
 	hug_mat.shader = HUG_SHADER
 	sprite = Sprite2D.new()
@@ -114,6 +130,13 @@ func _ready() -> void:
 	sprite.offset = Vector2(-128, -FEET_Y - 1)
 	add_child(cru_base)
 	add_child(trunk)
+	for i in SEG_N:
+		var sg := Sprite2D.new()
+		sg.centered = false
+		sg.region_enabled = true
+		sg.visible = false
+		add_child(sg)
+		segs.append(sg)
 	add_child(sprite)
 	add_child(front)
 	mound_frames = GooMound.load_frames()
@@ -139,6 +162,8 @@ func _process(delta: float) -> void:
 	sprite.offset = Vector2(-128, -FEET_Y - 1)
 	trunk.visible = false
 	cru_base.visible = false
+	for sg in segs:
+		sg.visible = false
 	front.queue_redraw()
 	mound.visible = false
 	if state == "pulldown" or state == "under":
@@ -478,16 +503,18 @@ func _update_crucify(delta: float) -> void:
 		anim_t = 0.6
 		return
 	if state == "pillar":
-		# 柱がものすごい勢いでせり上がる（下から見えている分を増やす）
-		var k := clampf(cru_t / 0.35, 0.0, 1.0)
-		var tex: Texture2D = cru_frames["pillar"] if has_art else IDLE
-		var h: float = 253.0 * ease(k, 0.3)
-		sprite.texture = tex
-		_set_mask("pillar")
-		sprite.region_enabled = true
-		sprite.region_rect = Rect2(0, 0, 256, maxf(h, 1.0))
-		sprite.offset = Vector2(-128, -maxf(h, 1.0))
-		sprite.position = Vector2(sin(cru_t * 80.0) * 3.0, 0).round()
+		# 粘液の柱がグチュルルッと飛び出して、主人公を絡め取る（生成アニメ）→ 柱のまま少し震える
+		sprite.region_enabled = false
+		sprite.offset = Vector2(-128, -FEET_Y - 1)
+		if cru_frames.has("burst") and cru_t < 0.6:
+			var bi := clampi(int(cru_t / 0.6 * 7.0), 0, 6)
+			sprite.texture = cru_frames["burst"][bi]
+			_set_mask("burst", bi)
+			sprite.position = Vector2.ZERO
+		else:
+			sprite.texture = cru_frames["pillar"] if has_art else IDLE
+			_set_mask("pillar")
+			sprite.position = Vector2(sin(cru_t * 80.0) * 2.0, 0).round()
 		# 柱のまま少し震えてから、ワニの体に変わる
 		if cru_t > 1.1:
 			state = "crucify"
@@ -506,17 +533,28 @@ func _update_crucify(delta: float) -> void:
 	else:
 		tex = cru_frames["crucify"] if has_art else IDLE
 		_set_mask("crucify")
-	jolt_t -= delta
-	var target := Vector2(sin(cru_t * 1.3) * 12.0, sin(cru_t * 2.1) * 3.0)
-	if jolt_t <= 0.0:
-		jolt_t = randf_range(1.0, 2.6)
-		sway_v += Vector2(randf_range(-280, 280), randf_range(-140, -40))
+	# メトロノーム：端で一瞬ためて、ぐーっと反対側へ。ときどき勢い余って大きく振れる
+	var prev_c := cos(met_phase)
+	met_phase += delta * 2.0
+	var c := cos(met_phase)
+	if signf(c) != signf(prev_c):
+		# 切り返し：ペンキがたっぷり飛び散る
+		met_amp = 1.8 if randf() < 0.3 else randf_range(0.9, 1.2)
+		var side := signf(sin(met_phase))
 		main.sfx.play_any(["gurgle", "grab_loop"], 0.0)
 		for i in 3:
+			main.splat_wall(Vector2(position.x + side * randf_range(60, 260), main.FLOOR_TOP - randf_range(30, 260)), randf_range(35, 70) * met_amp)
+			main.add_goop(position + Vector2(side * randf_range(40, 200), randf_range(-40, 40)), randf_range(50, 110), 0.5)
+		for i in int(10 * met_amp):
+			drip_vis.append({"x": side * randf_range(20.0, 110.0), "y": -randf_range(170.0, 260.0), "v": -randf_range(60.0, 200.0), "vx": side * randf_range(80.0, 260.0)})
+		for i in 2:
 			p.add_dirt(p.random_body_point(), 2)
-	sway_v += (target - sway) * 30.0 * delta
-	sway_v *= exp(-3.0 * delta)
-	sway += sway_v * delta
+	var s := sin(met_phase)
+	var sx: float = 34.0 * met_amp * signf(s) * pow(absf(s), 0.55)
+	hist.push_front(sx)
+	if hist.size() > 24:
+		hist.pop_back()
+	sway = Vector2(sx, -absf(sx) * 0.12)   # 振れた側に少し沈む
 	# 高く持ち上げる：上半身を持ち上げ、そのぶん粘液の幹を引き伸ばす（床の水たまりは動かさない）
 	var lift: float = CRU_LIFT * ease(clampf(cru_t / 0.5, 0.0, 1.0), 0.4) - sway.y
 	var feet := float(FEET_Y + 1)
@@ -525,14 +563,24 @@ func _update_crucify(delta: float) -> void:
 	sprite.region_rect = Rect2(0, 0, 256, CRU_SPLIT)
 	sprite.offset = Vector2(-128, -feet)
 	sprite.position = Vector2(sway.x, -lift).round()
-	trunk.visible = true
-	trunk.texture = tex
-	trunk.material = hug_mat
-	trunk.region_rect = Rect2(0, CRU_SPLIT, 256, CRU_TRUNK)
-	trunk.offset = Vector2(-128, 0)
-	trunk.flip_h = sprite.flip_h
-	trunk.position = Vector2(roundf(sway.x * 0.5), -feet + CRU_SPLIT - lift)
-	trunk.scale = Vector2(1.0, (CRU_TRUNK + lift) / CRU_TRUNK)
+	# 幹：段ごとに、下ほど小さく遅れて振れる＝しなる
+	var total: float = CRU_TRUNK + lift
+	var rows_per := float(CRU_TRUNK) / SEG_N
+	for i in SEG_N:
+		var sg: Sprite2D = segs[i]
+		var from_top := float(i) / SEG_N               # 0=いちばん上
+		var w := pow(1.0 - from_top, 1.4)
+		var lag := int(from_top * 10.0)
+		var hx: float = hist[mini(lag, hist.size() - 1)]
+		sg.visible = true
+		sg.texture = tex
+		sg.material = hug_mat
+		sg.flip_h = sprite.flip_h
+		sg.region_rect = Rect2(0, CRU_SPLIT + i * rows_per, 256, rows_per)
+		sg.offset = Vector2(-128, 0)
+		sg.scale = Vector2(1.0, total / CRU_TRUNK)
+		sg.position = Vector2(roundf(hx * w), -feet + CRU_SPLIT - lift + i * rows_per * total / CRU_TRUNK)
+	trunk.visible = false
 	cru_base.visible = true
 	cru_base.texture = tex
 	cru_base.material = hug_mat
@@ -543,12 +591,14 @@ func _update_crucify(delta: float) -> void:
 	# 揺れるたびにネバネバが垂れ落ちて、根元に溜まる
 	if fmod(cru_t, 0.25) < delta:
 		main.add_goop(position + Vector2(randf_range(-50, 50), randf_range(-15, 15)), randf_range(40, 80), 0.3)
-	drip_vis.append({"x": randf_range(-90.0, 90.0) + sway.x, "y": -randf_range(140.0, 240.0), "v": 0.0})
-	if drip_vis.size() > 30:
+	if randf() < 0.5:
+		drip_vis.append({"x": randf_range(-90.0, 90.0) + sway.x, "y": -randf_range(140.0, 240.0), "v": 0.0, "vx": 0.0})
+	if drip_vis.size() > 60:
 		drip_vis.pop_front()
 	for d in drip_vis:
-		d.v += 400.0 * delta
+		d.v += 500.0 * delta
 		d.y += d.v * delta
+		d.x += d.vx * delta
 	drip_vis = drip_vis.filter(func(d): return d.y < 0.0)
 	front.queue_redraw()
 
@@ -666,8 +716,10 @@ func _update_pull(delta: float) -> void:
 func _draw_front() -> void:
 	if state == "crucify":
 		for d in drip_vis:
-			front.draw_rect(Rect2(roundf(d.x) - 2, roundf(d.y) - 7, 5, 9), Color("5a1240"))
-			front.draw_rect(Rect2(roundf(d.x) - 1, roundf(d.y) - 6, 3, 7), Color("ec5a9e"))
+			var big: bool = absf(d.vx) > 1.0
+			var r: float = 5.0 if big else 2.5
+			front.draw_circle(Vector2(d.x, d.y).round(), r + 1.5, Color("5a1240"))
+			front.draw_circle(Vector2(d.x, d.y).round(), r, Color("ec5a9e") if int(d.x) % 3 else Color("f9d84d"))
 		return
 	if mound_frames.size() == 8:
 		return   # 生成したドット絵の盛り上がりを使う

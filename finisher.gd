@@ -30,6 +30,7 @@ var rise_k := 1.0         # 0=まだ床の中 1=全身が出た
 var wani_frames: Array[Texture2D] = []   # 2対1：吐き出されたペンキから出てくるワニ（形成→マッスルポーズ）
 var wani_sprite: Sprite2D
 var vomited := false
+var sink_frames: Array[Texture2D] = []
 var done := false
 var is_new := false
 
@@ -54,6 +55,8 @@ func setup(k: String, at: Vector2) -> void:
 			wani_frames.append(load("res://assets/wani_emerge_%d.png" % i))
 		for i in 9:
 			wani_frames.append(load("res://assets/wani_flex_%d.png" % i))
+		for i in 9:
+			sink_frames.append(load("res://assets/same_sink2_%d.png" % i))
 	is_new = _record()
 
 
@@ -123,6 +126,9 @@ func _process(delta: float) -> void:
 	if kind == "duo":
 		dur += 2.8   # 吐いたあと、ワニが形成されてポーズを決めるまで
 		_update_duo(tt)
+		if tt > dur + 0.8:
+			done = true
+		return
 	var i := clampi(int(tt * info.fps), 0, frames.size() - 1)
 	sprite.visible = true
 	sprite.texture = frames[i]
@@ -185,10 +191,15 @@ func _update_duo(tt: float) -> void:
 	sprite.visible = true
 	sprite.texture = frames[i]
 	sprite.offset = Vector2(-frames[i].get_width() / 2.0, -float(info.feet))
+	# 吐き終わったら、満足げに沈んで退場（ワニの見せ場を空ける）
+	if tt > vomit_end + 0.2 and sink_frames.size() == 9:
+		var si := clampi(2 + int((tt - vomit_end - 0.2) * 9.0), 2, 8)
+		sprite.texture = sink_frames[si]
+		sprite.offset = Vector2(-128, -226)
 	# 吐き出す瞬間：床も壁も一気にペンキまみれ
 	if not vomited and i >= 4:
 		vomited = true
-		var spot := position + Vector2(190, 10)
+		var spot := position + Vector2(67, 14)   # 吐いたペンキが落ちる場所（絵の中で測った位置）
 		main.add_goop(spot, 320.0, 1.0)
 		for k in 10:
 			main.splat_wall(Vector2(spot.x + randf_range(-300, 300), main.FLOOR_TOP - randf_range(10, 260)), randf_range(40, 90))
@@ -207,8 +218,8 @@ func _update_duo(tt: float) -> void:
 		wani_sprite.visible = true
 		wani_sprite.texture = wani_frames[fi]
 		wani_sprite.offset = Vector2(-128, -253)
-		wani_sprite.position = Vector2(230, 14)
-		wani_sprite.flip_h = true   # サメの方を向いて余裕の顔
+		wani_sprite.position = Vector2(67, 14)
+		wani_sprite.flip_h = false   # 左のサメの方を向いて余裕の顔
 
 
 ## とどめの間の小窓の様子（belly_view が読む）
