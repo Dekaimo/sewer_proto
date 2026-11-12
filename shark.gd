@@ -165,7 +165,17 @@ func _process(delta: float) -> void:
 		z_index = main.player.z_index - 1 if not gulped_combo else int(position.y) + 300
 	else:
 		z_index = int(position.y) - 2
-	if main.game_over and state != "drag":
+	if main.game_over:
+		# 負けたら引き回しも盛り上がりも止める（とどめの演出に任せる）
+		if state == "drag" or overlay.visible:
+			overlay.stop()
+			mound.visible = false
+			collar.visible = false
+			eruptions.clear()
+			state = "done"
+		if state == "done":
+			queue_redraw()
+			return
 		state = "swim"
 	var p = main.player
 	match state:

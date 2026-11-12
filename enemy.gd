@@ -192,6 +192,11 @@ func _process(delta: float) -> void:
 	mound.visible = false
 	if overlay.visible and state != "pulldown" and state != "under":
 		overlay.stop()
+	if (state == "pulldown" or state == "under") and main.game_over:
+		# 負けたら地中の暴れ（盛り上がり・泡）は止める
+		overlay.stop()
+		front.queue_redraw()
+		return
 	if state == "pulldown" or state == "under":
 		_update_pull(delta)
 		# 盛り上がったドロドロ（沈みはじめは小さめにせり上がる）
@@ -884,7 +889,7 @@ func _update_pull(delta: float) -> void:
 
 ## 床に沈んでいく境目・地中で暴れている盛り上がりを、絵より手前に描く
 func _draw_front() -> void:
-	if state == "under" or state == "pulldown":
+	if (state == "under" or state == "pulldown") and not main.game_over:
 		heave.draw_bubbles(front, position)
 	if state == "crucify":
 		for d in drip_vis:
