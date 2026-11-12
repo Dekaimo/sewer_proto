@@ -1,0 +1,14 @@
+{
+  "name": "anim_dobe_throw",
+  "mode": "anim",
+  "src": "assets_raw/dobe_nelson_key.png",
+  "last": "assets_raw/dobe_throw_key.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge muscular Doberman monster made of glossy pink paint goo with yellow marble streaks holding a small black witch cat in a full nelson",
+  "variants": 1,
+  "desc": "The goo monster crouches a little, then heaves and flings the trapped cat straight up into the air with both arms; the cat flies up and out of the top of the picture, leaving sticky goo strands; the monster ends with both arms thrown up overhead, empty-handed, grinning upward.",
+  "generations_before": 1008.9,
+  "generations_after": 1007.9,
+  "used": 1.0
+}

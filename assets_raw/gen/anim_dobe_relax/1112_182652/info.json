@@ -1,0 +1,14 @@
+{
+  "name": "anim_dobe_relax",
+  "mode": "anim",
+  "src": "assets_raw/dobe_nelson_key.png",
+  "last": "assets_raw/dobe_relax_key.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge muscular Doberman monster made of glossy pink paint goo with yellow marble streaks holding a small black witch cat in a full nelson",
+  "variants": 1,
+  "desc": "Without letting go of the full nelson, the goo monster slowly sinks lower and leans back as if lounging comfortably, its body spreading into the puddle, lowering the trapped cat toward the floor, smug and relaxed. The cat keeps kicking. Slow, sticky.",
+  "generations_before": 1009.9,
+  "generations_after": 1008.9,
+  "used": 1.0
+}
