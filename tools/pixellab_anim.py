@@ -63,6 +63,25 @@ def run_job(j: dict) -> None:
             body["style_image"] = ref(j["style"], "pixel art style")
         if j.get("seed") is not None:
             body["seed"] = int(j["seed"])
+    elif j.get("mode") == "skel_est":
+        # 骨格の推定（すぐ返る）。keypoints.json に保存して終わり
+        r = call("POST", "/estimate-skeleton", {"image": b64img(j["src"])})
+        (out / "keypoints.json").write_text(json.dumps(r.get("keypoints"), indent=1))
+        (out / "info.json").write_text(json.dumps(dict(j, used=before - remaining()), indent=2, ensure_ascii=False))
+        print(name, "keypoints", len(r.get("keypoints") or []))
+        return
+    elif j.get("mode") == "skel":
+        # 骨格でポーズを付ける。first_kp: 元の絵の骨格（JSONファイル）、kp: コマごとの骨格の配列（JSONファイル）
+        path = "/animate-with-skeleton-v3"
+        def kpfix(k):
+            return [{kk: v for kk, v in p.items() if kk in ("x", "y", "label", "z_index", "depth") and v is not None} for p in k]
+        body = {"description": j["desc"], "action": j.get("action", "pose"), "direction": j.get("direction", "south-west"),
+                "view": j.get("view", "side"), "first_frame": b64img(j["src"]),
+                "first_frame_keypoints": kpfix(json.loads(Path(j["first_kp"]).read_text())),
+                "keypoints": [kpfix(k) for k in json.loads(Path(j["kp"]).read_text())],
+                "template_id": j.get("template", "mannequin"), "no_background": True}
+        if j.get("seed") is not None:
+            body["seed"] = int(j["seed"])
     elif j.get("mode") == "rot":
         # 1枚から8方向（south, south-east, east, ... の順で返る）
         path = "/generate-8-rotations-v3"
