@@ -356,7 +356,61 @@ func _process(delta: float) -> void:
 	if state == "crucified":
 		hidden_in_hug = true
 	sprite.visible = state != "defeated" and state != "swallowed" and not hidden_in_hug and not (invuln > 0.0 and state == "normal" and int(invuln * 20) % 2 == 0)
+	if state != "pinned" and pin_base != null:
+		pin_base.visible = false
+		pin_over.visible = false
+	elif state == "pinned" and pin_base != null and pin_base.visible:
+		sprite.visible = false   # サンドイッチの絵の中に描かれている
 	queue_redraw()
+
+
+## 地面のサンドイッチ（3対1から抜けた後）：下にワニ（抱きつきの絵を横倒し・上下反転）、
+## 真ん中に主人公、上からドーベルマンがのしかかってネバネバに抱きしめる。絵がそろっていれば true
+var pin_base: Sprite2D
+var pin_over: Sprite2D
+func _draw_sandwich() -> bool:
+	var w = null
+	for e in main.enemies:
+		if is_instance_valid(e) and e.state == "pinned":
+			w = e
+	var d = null
+	for x in main.dobes:
+		if is_instance_valid(x) and x.state == "pin" and x.frames.has("lie"):
+			d = x
+	if w == null or not w.anims.has("hug"):
+		return false
+	if pin_base == null:
+		pin_base = Sprite2D.new()
+		pin_base.centered = true
+		pin_base.region_enabled = true
+		pin_base.region_rect = Rect2(24, 0, 150, 205)
+		pin_base.rotation = -PI / 2.0
+		pin_base.flip_h = true   # 90度回しているので、画面では上下反転になる（ワニが下）
+		add_child(pin_base)
+		pin_over = Sprite2D.new()
+		pin_over.centered = true
+		add_child(pin_over)
+	var tt := Time.get_ticks_msec() / 1000.0
+	var f := int(tt * 8.0) % 16
+	var fi := f if f < 9 else 16 - f
+	sprite.visible = false
+	pin_base.visible = true
+	pin_base.texture = w.anims["hug"][fi]
+	w.hug_mat.set_shader_parameter("cat_mask", w.anim_masks["hug"][fi])
+	w.hug_mat.set_shader_parameter("contamination", contamination())
+	pin_base.material = w.hug_mat
+	# 上から押しつぶされるたびに、ぐにゅっと潰れる
+	var sq := absf(sin(tt * 3.2))
+	pin_base.position = Vector2(0, -78.0 + sq * 3.0).round()
+	pin_base.scale = Vector2(1.0, 1.0)
+	pin_over.visible = d != null
+	if d != null:
+		var arr: Array = d.frames["lie"]
+		pin_over.texture = arr[int(tt * 6.0) % arr.size()]
+		pin_over.flip_h = false
+		# 上から胸板を擦りつける：前後にぐりぐり、押しつけるたびに沈む
+		pin_over.position = Vector2(34.0 + sin(tt * 3.2) * 5.0, -106.0 + sq * 7.0).round()
+	return true
 
 
 func _update_frame(delta: float) -> void:
@@ -402,7 +456,9 @@ func _update_frame(delta: float) -> void:
 			sprite.scale = Vector2(1.0 - 0.015 * br * ft, 1.0 + 0.025 * br * ft)
 			sprite.rotation = facing * (0.05 if ft == 1 else 0.09)
 	elif state == "pinned":
-		if pin_frames.size() > 0:
+		if _draw_sandwich():
+			pass
+		elif pin_frames.size() > 0:
 			sprite.texture = pin_frames[int(Time.get_ticks_msec() / 110) % pin_frames.size()]
 		else:
 			# 仮：横倒しで小刻みにもがく

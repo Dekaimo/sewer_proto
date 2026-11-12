@@ -120,12 +120,24 @@ func _process(delta: float) -> void:
 	content.rotation = -PI / 2.0   # 90度なのでドットは崩れない
 	content.scale = Vector2(2.0 * (1.0 - 0.05 * sq), 2.0 * (1.0 + 0.06 * sq))
 	content.modulate = Color(0.7, 0.6, 0.65) if limp else Color.WHITE
-	content.flip_h = false
-	content.position = Vector2(W * 0.5, H * 0.5 + sink * 50.0) + Vector2(sin(t * 37.0) * shake, cos(t * 29.0) * shake * 0.7).round()
-	# ドーベルマンも中にいる：主人公の下側（小窓では右＝足側の下）から抱きついて、ぐりぐり押し上げる
+	# 3対1：ドーベルマンが上からのしかかって抱きしめるので、ワニの抱きつきは上下反転して下側に（90度回しているので flip_h が画面の上下）
 	var dobe = shark.get("caught_dobe")
-	dobe_layer.visible = dobe != null and is_instance_valid(dobe) and dobe.frames.has("belly")
-	if dobe_layer.visible:
+	var lie: bool = dobe != null and is_instance_valid(dobe) and dobe.frames.has("lie")
+	content.flip_h = lie
+	content.position = Vector2(W * 0.5, H * 0.5 + sink * 50.0) + Vector2(sin(t * 37.0) * shake, cos(t * 29.0) * shake * 0.7).round()
+	# ドーベルマンも中にいる：横倒しで上からのしかかり、主人公をワニとサンドイッチにしてネバネバに抱きしめる（手前に描く）
+	dobe_layer.visible = lie
+	if lie:
+		if dobe_layer.get_index() < content.get_index():
+			bg.move_child(dobe_layer, content.get_index())
+		var la: Array = dobe.frames["lie"]
+		dobe_layer.texture = la[int(t * 6.0) % la.size()]
+		dobe_layer.scale = Vector2(1.5, 1.5)
+		dobe_layer.flip_h = false
+		dobe_layer.position = Vector2(W * 0.5 + 50.0 + sin(t * 3.0) * 4.0, H * 0.5 - 34.0 + sq * 8.0 + sink * 50.0).round()
+		dobe_layer.modulate = content.modulate
+	elif dobe != null and is_instance_valid(dobe) and dobe.frames.has("belly"):
+		dobe_layer.visible = true
 		var arr: Array = dobe.frames["belly"]
 		dobe_layer.texture = arr[int(t * 8.0) % arr.size()]
 		dobe_layer.scale = Vector2(2.0, 2.0)
