@@ -53,7 +53,12 @@ var drip_vis: Array = []
 const CRU_SPLIT := 192     # 磔の絵：ここより上（主人公の足先まで）を持ち上げる
 const CRU_TRUNK := 14      # 繰り返して並べる粘液の幹の帯（主人公が入らない行）
 const CRU_LIFT := 140.0    # どれだけ高く吊り上げるか（晒し者なので高く）
-const RISE_LIFT := 110.0   # 立ち上がりの時点で、柱をここまで伸ばす
+const RISE_LIFT := 110.0
+# 下半身の絵（逞しい胴〜床のドロドロ）。上半身はこの行で切って、下半身の上端に重ねる
+const JOIN := 170
+const LOWER_TOP := 24     # 下半身の絵の、この行から下を使う（上端の縁は見せない）
+const LOWER_FEET := 222
+const LEAN_SHADER = preload("res://lean.gdshader")   # 立ち上がりの時点で、柱をここまで伸ばす
 var trunk: Sprite2D
 var bend_mat: ShaderMaterial
 var segs: Array[Sprite2D] = []   # しなる幹（下ほど揺れが小さく、遅れて追いかける）
@@ -70,7 +75,9 @@ var cru_stage := 0         # 0=晒し 1=半分取り込まれる 2=ほぼ取り�
 var cru_base: Sprite2D
 var xfade: Sprite2D          # 次のコマを重ねて、コマ間をぬるっとつなぐ
 var xfade_mat: ShaderMaterial
-var trunk_edges := {}        # コマごとの幹の左右の端（つなぎ目・床側）
+var trunk_edges := {}
+var lower_sp: Sprite2D
+var lower_mat: ShaderMaterial        # コマごとの幹の左右の端（つなぎ目・床側）
 var tilt := 0.0              # 上体の傾き（ラジアン）
 var tilt_amp := 0.0          # 振れ幅（なめらかに追従させる）
 const RISE_T := 1.5          # 柱が立ち上がって持ち上げるまで（スピーディに）
@@ -145,6 +152,21 @@ func _ready() -> void:
 	sprite.offset = Vector2(-128, -FEET_Y - 1)
 	add_child(cru_base)
 	add_child(trunk)
+	if ResourceLoader.exists("res://assets/wani_cru_lower.png"):
+		lower_sp = Sprite2D.new()
+		lower_sp.texture = load("res://assets/wani_cru_lower.png")
+		lower_sp.centered = false
+		lower_sp.region_enabled = true
+		lower_sp.region_rect = Rect2(0, LOWER_TOP, 256, 256 - LOWER_TOP)
+		lower_sp.offset = Vector2(-128, -(LOWER_FEET - LOWER_TOP))
+		lower_mat = ShaderMaterial.new()
+		lower_mat.shader = LEAN_SHADER
+		lower_mat.set_shader_parameter("top_v", float(LOWER_TOP) / 256.0)
+		lower_mat.set_shader_parameter("foot_v", float(LOWER_FEET) / 256.0)
+		lower_sp.material = lower_mat
+		lower_sp.visible = false
+		add_child(lower_sp)
+		move_child(lower_sp, 0)
 	xfade_mat = ShaderMaterial.new()
 	xfade_mat.shader = HUG_SHADER
 	xfade = Sprite2D.new()
@@ -184,6 +206,9 @@ func _process(delta: float) -> void:
 	trunk.visible = false
 	cru_base.visible = false
 	sprite.rotation = 0.0
+	if lower_sp:
+		lower_sp.visible = false
+	hug_mat.set_shader_parameter("cut_y", 2.0)
 	if xfade:
 		xfade.visible = false
 	for sg in segs:
@@ -542,6 +567,9 @@ func _update_crucify(delta: float) -> void:
 		trunk.visible = false
 		cru_base.visible = false
 		xfade.visible = false
+		if lower_sp:
+			lower_sp.visible = false
+		hug_mat.set_shader_parameter("cut_y", 2.0)
 		sprite.visible = true
 		state = "emerge"
 		anim_t = 0.6
@@ -625,6 +653,7 @@ func _update_crucify(delta: float) -> void:
 	lift -= absf(sin(tilt)) * 10.0      # 倒れた側へぐにゃっと沈む
 	var mkey := "crucify"
 	var midx := -1
+	var use_lower: bool = lower_sp != null and not morphing
 	if morphing:
 		var arr2: Array = cru_frames["morph"]
 		var fpos2 := mk * float(arr2.size() - 1)
@@ -632,18 +661,35 @@ func _update_crucify(delta: float) -> void:
 		midx = int(fpos2)
 		_render_split(tex, mkey, midx, lift, tilt, lean_x, hist[mini(12, hist.size() - 1)])
 		_xfade_split(arr2, "morph", fpos2)
+		# 変身の後半：逞しい下半身がにじみ出てくる
+		if lower_sp:
+			lower_sp.visible = mk > 0.55
+			lower_mat.set_shader_parameter("appear", clampf((mk - 0.55) / 0.4, 0.0, 1.0))
+			lower_mat.set_shader_parameter("lean_px", 0.0)
+			lower_sp.flip_h = sprite.flip_h
+			lower_sp.z_index = 0
+			move_child(lower_sp, sprite.get_index() - 1 if sprite.get_index() > 0 else 0)
 	else:
-		if cru_frames.has("struggle"):
+		var arr3: Array = cru_frames.get("struggle", [])
+		var fp3 := 0.0
+		if arr3.size() > 0:
 			# もがき＋ワニのおどけた揺れのループ（傾けと重ねる）
-			var arr3: Array = cru_frames["struggle"]
-			var fp3 := fmod(cru_t * 7.0, float(arr3.size()))
+			fp3 = fmod(cru_t * 7.0, float(arr3.size()))
 			tex = arr3[int(fp3)]
 			mkey = "struggle"
 			midx = int(fp3)
-			_render_split(tex, mkey, midx, lift, tilt, lean_x, hist[mini(12, hist.size() - 1)])
-			_xfade_split(arr3, "struggle", fp3, true)
+		if use_lower:
+			_render_lower(tex, mkey, midx, tilt, lean_x)
 		else:
 			_render_split(tex, mkey, midx, lift, tilt, lean_x, hist[mini(12, hist.size() - 1)])
+		if arr3.size() > 0:
+			_xfade_split(arr3, "struggle", fp3, true)
+			if use_lower:
+				xfade.region_rect = sprite.region_rect
+				xfade.offset = sprite.offset
+				xfade.position = sprite.position
+				xfade_mat.set_shader_parameter("cut_y", float(JOIN + 2) / 256.0)
+		else:
 			xfade.visible = false
 	# 揺れるたびにネバネバが垂れ落ちて、根元に溜まる
 	if fmod(cru_t, 0.25) < delta:
@@ -656,6 +702,8 @@ func _update_crucify(delta: float) -> void:
 # 上半身（回転して傾ける）＋引き伸ばした幹＋床の水たまり、の3枚で描く
 func _render_split(tex: Texture2D, key: String, idx: int, lift: float, tl: float, lean_x: float, lag_x: float) -> void:
 	var feet := float(FEET_Y + 1)
+	hug_mat.set_shader_parameter("cut_y", 2.0)
+	xfade_mat.set_shader_parameter("cut_y", 2.0)
 	if idx >= 0:
 		_set_mask(key, idx)
 	else:
@@ -696,6 +744,32 @@ func _render_split(tex: Texture2D, key: String, idx: int, lift: float, tl: float
 	cru_base.offset = Vector2(-128, -feet + CRU_SPLIT + CRU_TRUNK)
 	cru_base.flip_h = sprite.flip_h
 	cru_base.position = Vector2.ZERO
+
+
+# 逞しい下半身の絵の上に、上半身（腰で切ったもの）を載せて、腰を支点に傾ける
+func _render_lower(tex: Texture2D, key: String, idx: int, tl: float, lean_x: float) -> void:
+	if idx >= 0:
+		_set_mask(key, idx)
+	else:
+		_set_mask(key)
+	trunk.visible = false
+	cru_base.visible = false
+	for sg in segs:
+		sg.visible = false
+	lower_sp.visible = true
+	lower_sp.flip_h = sprite.flip_h
+	lower_sp.position = Vector2.ZERO
+	lower_mat.set_shader_parameter("appear", 1.0)
+	lower_mat.set_shader_parameter("lean_px", lean_x * (-1.0 if sprite.flip_h else 1.0))
+	if lower_sp.get_index() > sprite.get_index():
+		move_child(lower_sp, sprite.get_index())
+	sprite.texture = tex
+	sprite.region_enabled = true
+	sprite.region_rect = Rect2(0, 0, 256, 196)   # 主人公の足先まで（腰より下はワニの部分を消す）
+	sprite.offset = Vector2(-128, -JOIN)
+	sprite.position = Vector2(lean_x, -float(LOWER_FEET - LOWER_TOP) + 5.0).round()
+	sprite.rotation = tl
+	hug_mat.set_shader_parameter("cut_y", float(JOIN + 2) / 256.0)
 
 
 # 次のコマを上半身に重ねて、コマ間をなめらかにつなぐ

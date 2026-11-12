@@ -7,6 +7,8 @@ uniform float contamination = 0.0;
 uniform sampler2D cat_mask : filter_nearest;
 // 取り込み：主人公の部分のうち、この高さ（UV）より下はワニの粘液に呑まれる。1.0=呑まれていない
 uniform float absorb_y = 1.0;
+// この高さ（UVのy）より下は、主人公の画素だけ残す（磔：ワニの細い柱を消して、下半身の絵に差し替える）
+uniform float cut_y = 2.0;
 uniform vec4 pink : source_color = vec4(1.0, 0.30, 0.66, 1.0);
 uniform vec4 pink_dark : source_color = vec4(0.58, 0.14, 0.38, 1.0);
 uniform vec4 yellow : source_color = vec4(1.0, 0.90, 0.20, 1.0);
@@ -21,6 +23,7 @@ float noise(vec2 p) {
 
 void fragment() {
 	vec4 base = texture(TEXTURE, UV);
+	if (UV.y > cut_y && texture(cat_mask, UV).r < 0.5) discard;
 	COLOR = base;
 	if (base.a > 0.0) {
 		vec3 c = base.rgb;
