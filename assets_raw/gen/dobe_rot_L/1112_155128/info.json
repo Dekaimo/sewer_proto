@@ -1,0 +1,10 @@
+{
+  "name": "dobe_rot_L",
+  "mode": "rot",
+  "src": "assets_raw/dobe_v3_baseL.png",
+  "desc": "Huge muscular pink paint goo Doberman monster with yellow marble streaks, very broad soft glossy chest, thick arms with fists, lower body melting into a goo puddle. Pixel art.",
+  "seed": 7301,
+  "generations_before": 1249.0,
+  "generations_after": 1241.0,
+  "used": 8.0
+}
