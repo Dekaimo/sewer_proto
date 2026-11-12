@@ -12,26 +12,6 @@ uniform int heave_n = 0;
 uniform vec4 rings[6];
 uniform int ring_n = 0;
 
-float heave_h(vec2 p) {
-	float h = 0.0;
-	for (int i = 0; i < 12; i++) {
-		if (i >= heave_n) break;
-		vec4 hv = heaves[i];
-		vec2 d = (p - hv.xy) / vec2(hv.z, hv.z * 0.36);
-		float r2 = dot(d, d);
-		// 裾はなだらか、頂上は丸い（ガウス）
-		h += hv.w * exp(-r2 * 2.2);
-	}
-	for (int j = 0; j < 6; j++) {
-		if (j >= ring_n) break;
-		vec4 rg = rings[j];
-		vec2 d2 = (p - rg.xy) / vec2(1.0, 0.36);
-		float dist = length(d2);
-		h += rg.w * exp(-pow((dist - rg.z) / 5.0, 2.0));
-	}
-	return h;
-}
-
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float noise(vec2 p) {
 	vec2 i = floor(p);
@@ -44,6 +24,36 @@ float fbm(vec2 p) {
 	float a = 0.5;
 	for (int i = 0; i < 4; i++) { v += a * noise(p); p *= 2.0; a *= 0.5; }
 	return v;
+}
+
+float heave_h(vec2 p) {
+	float h = 0.0;
+	float tt = TIME * 1.3;
+	for (int i = 0; i < 12; i++) {
+		if (i >= heave_n) break;
+		vec4 hv = heaves[i];
+		vec2 d = (p - hv.xy) / vec2(hv.z, hv.z * 0.36);
+		// 輪郭をいびつに：角度と時間でうねるノイズで半径を揺らす（ぬるっと形が崩れ続ける）
+		float ang = atan(d.y, d.x);
+		float lump = noise(vec2(ang * 1.7 + float(i) * 3.1, tt + float(i))) - 0.5;
+		float r2 = dot(d, d) * (1.0 + 0.55 * lump);
+		// 表面のこぶ（ドロドロの塊が浮いている）
+		float knob = noise(p / 7.0 + vec2(tt * 0.6, float(i))) - 0.5;
+		h += hv.w * exp(-r2 * 2.2) * (1.0 + 0.35 * knob);
+	}
+	for (int j = 0; j < 6; j++) {
+		if (j >= ring_n) break;
+		vec4 rg = rings[j];
+		vec2 d2 = (p - rg.xy) / vec2(1.0, 0.36);
+		float dist = length(d2);
+		// 波紋もいびつに。粘っこいので幅が太く、ところどころ途切れる
+		float a2 = atan(d2.y, d2.x);
+		float wob2 = (noise(vec2(a2 * 2.3, float(j) * 5.0 + tt)) - 0.5) * 14.0;
+		float brk = smoothstep(0.25, 0.55, noise(vec2(a2 * 3.0 + float(j), tt * 0.5)));
+		float rr = (dist + wob2 - rg.z) / 7.0;
+		h += rg.w * brk * exp(-rr * rr);
+	}
+	return h;
 }
 
 void fragment() {
@@ -93,17 +103,24 @@ void fragment() {
 		else if (g_up < th + 0.02 && swirl < 0.3) gc = vec3(1.0, 0.72, 0.86);   // 奥の縁はてかり
 		if (m > 0.70 && swirl < -0.2 && v > th + 0.2) gc = vec3(1.0, 0.86, 0.94);   // 面のてかり
 		if (v < th + 0.05) gc = vec3(0.26, 0.05, 0.19);                      // 暗い輪郭
-		// 盛り上がりの陰影：手前側の斜面は暗く、頂上はてかる。上側の輪郭は暗い線
+		// 盛り上がりの陰影（ドット絵らしく段で塗り分ける）：手前の斜面は暗く、上はてかり、上側は暗い輪郭
 		if (hh > 0.8) {
 			float hd = heave_h(p + vec2(0.0, 2.0));
 			float hu = heave_h(p - vec2(0.0, 2.0));
-			float slope = (hu - hd) * 0.5;   // 手前に向かって下る＝こちら向きの斜面
-			if (slope > 0.9) gc = mix(gc, pink_dark, clamp((slope - 0.9) / 1.5, 0.0, 0.85));
-			if (slope > 2.4) gc = mix(gc, vec3(0.42, 0.10, 0.30), 0.6);
-			if (slope < -0.4 && slope > -1.6 && swirl < 0.4) gc = mix(gc, vec3(1.0, 0.78, 0.90), 0.55);
-			// 頂上の小さなてかり
-			if (abs(slope) < 0.25 && hh > 4.0 && fract(p.x / 9.0 + m) < 0.3) gc = vec3(1.0, 0.90, 0.96);
-			// 上側のシルエット：一つ上の画素が、ずっと低い面を見ているなら輪郭
+			float slope = (hu - hd) * 0.5;
+			// ディザ（市松）で段の境目をざらっとさせる
+			float dith = mod(p.x + p.y, 2.0) * 0.35;
+			float sl = slope + dith;
+			if (sl > 1.1) gc = pink_dark;
+			if (sl > 2.6) gc = vec3(0.50, 0.12, 0.34);
+			if (sl > 4.2) gc = vec3(0.34, 0.06, 0.24);
+			if (sl < -0.5 && sl > -1.8 && swirl < 0.5) gc = vec3(1.0, 0.72, 0.86);
+			// 濡れたてかり：頂上付近に、ぬめっとした横長の光
+			float gl = noise(vec2(p.x / 6.0, p.y / 2.0) + TIME * 0.3);
+			if (abs(slope) < 0.6 && hh > 5.0 && gl > 0.62) gc = vec3(1.0, 0.90, 0.96);
+			// 斜面を伝って垂れる、濃い筋
+			float drip = noise(vec2(p.x / 2.5, p.y / 18.0 - TIME * 0.8));
+			if (slope > 1.4 && drip > 0.68) gc = mix(gc, vec3(0.42, 0.08, 0.28), 0.7);
 			vec2 pa = vec2(p0.x, p0.y - 1.0);
 			float ha = 0.0;
 			vec2 qa = pa;

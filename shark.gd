@@ -338,8 +338,8 @@ func _drag(delta: float, p) -> void:
 	# グチュグチュ音
 	gurgle_t -= delta
 	if gurgle_t <= 0.0:
-		gurgle_t = randf_range(0.35, 0.7)
-		main.sfx.play_any(["gurgle", "grab_loop"], -2.0)
+		gurgle_t = randf_range(0.18, 0.42)
+		main.sfx.play_any(["gurgle", "grab_loop"] if randf() < 0.6 else ["grab_loop", "gurgle"], randf_range(-3.0, 1.0))
 	if view_mode == "splat":
 		# 中で何をされているかは見せず、床を突き破ってペンキが何度も噴き出す
 		erupt_t -= delta
