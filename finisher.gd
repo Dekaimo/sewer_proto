@@ -29,6 +29,8 @@ var rise := 0.0           # 床からゆっくり出てくる時間
 var rise_k := 1.0         # 0=まだ床の中 1=全身が出た
 var wani_frames: Array[Texture2D] = []   # 2対1：吐き出されたペンキから出てくるワニ（形成→マッスルポーズ）
 var wani_sprite: Sprite2D
+var pile: Sprite2D       # 2対1：吐き出されたペンキの山（ワニはこの中から形成される）
+var pile_frames: Array[Texture2D] = []
 var hat: Sprite2D        # サメのゲップ：主人公の帽子（本物の帽子をペンキまみれにした絵）
 const HAT_PATH := [[2.0, 207, 90, -0.5], [3.0, 216, 107, 0.9], [4.0, 217, 132, 2.4], [5.0, 209, 178, 4.4], [6.0, 206, 205, 6.283]]   # [コマ, x, y, 回転]（絵の座標）
 var vomited := false
@@ -72,6 +74,14 @@ func _ready() -> void:
 	wani_sprite.visible = false
 	wani_sprite.z_index = 1
 	add_child(wani_sprite)
+	pile = Sprite2D.new()
+	pile.centered = false
+	pile.visible = false
+	pile.z_index = 2
+	add_child(pile)
+	for i in 8:
+		if ResourceLoader.exists("res://assets/goo_mound_%d.png" % i):
+			pile_frames.append(load("res://assets/goo_mound_%d.png" % i))
 	hat = Sprite2D.new()
 	hat.texture = load("res://assets/fin_hat.png") if ResourceLoader.exists("res://assets/fin_hat.png") else null
 	hat.visible = false
@@ -138,7 +148,7 @@ func _process(delta: float) -> void:
 	tt -= rise
 	var dur: float = frames.size() / float(info.fps)
 	if kind == "duo":
-		dur += 2.8   # 吐いたあと、ワニが形成されてポーズを決めるまで
+		dur += 3.6   # 吐いたあと、ワニが形成されてポーズを決めるまで
 		_update_duo(tt)
 		if tt > dur + 0.8:
 			done = true
@@ -247,14 +257,23 @@ func _update_duo(tt: float) -> void:
 			main.add_goop(spot + Vector2(randf_range(-260, 260), randf_range(-50, 50)), randf_range(60, 140), 0.7)
 		main.sfx.play("assist", 3.0)
 		main.sfx.play("defeat", 0.0)
-	# ワニ：吐き出された山（サメの口の先）から形成 → マッスルポーズで止める
-	var wt := tt - vomit_end + 0.3
+	# ワニ：吐き出された山（サメの口の先）の中から、ゆっくり形成 → マッスルポーズで止める
+	var wt := tt - vomit_end + 0.1
+	const RISE_W := 1.8
+	# 山：吐いた瞬間から手前に盛り上がり、ワニが形成されるにつれて吸い込まれて低くなる
+	if vomited and pile_frames.size() == 8:
+		var pk := clampf(wt / RISE_W, 0.0, 1.0)
+		pile.visible = pk < 1.0
+		pile.texture = pile_frames[int(tt * 9.0) % 8]
+		pile.offset = Vector2(-128, -232)
+		pile.position = Vector2(67, 16)
+		pile.scale = Vector2(1.15 - 0.25 * pk, maxf(1.0 - pk * 1.05, 0.05))
 	if wt > 0.0 and wani_frames.size() == 18:
 		var fi := 0
-		if wt < 0.9:
-			fi = clampi(int(wt * 10.0), 0, 8)
+		if wt < RISE_W:
+			fi = clampi(int(wt / RISE_W * 9.0), 0, 8)
 		else:
-			var ft := wt - 0.9
+			var ft := wt - RISE_W
 			fi = 9 + (clampi(int(ft * 8.0), 0, 5) if ft < 1.2 else 5)
 		wani_sprite.visible = true
 		wani_sprite.texture = wani_frames[fi]

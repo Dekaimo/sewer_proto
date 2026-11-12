@@ -112,7 +112,8 @@ func _process(delta: float) -> void:
 	content.material = mat
 	# 横倒しにして2倍でアップにする（2倍ならドットは崩れない）。
 	# 見せるのは主人公と、それを抱え込む腕・胸だけ＝ワニの溶けた下半身は映さない
-	var crop := Rect2(44, 52, 90, 140) if tex.get_height() > 160 else Rect2(20, 0, 84, 128)
+	# 小窓より大きめに切り出して、端は小窓の枠で切る（沈むときに切り口が見えないように）
+	var crop := Rect2(24, 0, 150, 205) if tex.get_height() > 160 else Rect2(10, 0, 108, 128)
 	content.centered = true
 	content.region_enabled = true
 	content.region_rect = crop

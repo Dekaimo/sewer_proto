@@ -327,7 +327,8 @@ func _sink_after_attack() -> void:
 	if caught_player:
 		state = "drag"
 		t = 0.0
-		view_mode = "inside" if randf() < 0.5 else "splat"
+		# 2対1・3対1は必ず小窓で見せる。1人のときはたまに「見せずに噴き出すだけ」
+		view_mode = "inside" if (caught_wani != null or randf() < 0.6) else "splat"
 	else:
 		state = "swim"
 		cd = randf_range(2.5, 4.0)
