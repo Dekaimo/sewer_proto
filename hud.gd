@@ -43,7 +43,7 @@ func _draw() -> void:
 		draw_rect(Rect2(pos2.x, pos2.y, 120 * p.struggle, 8), Color("bfefff"))
 
 	if p.state == "crucified":
-		var pos3: Vector2 = Vector2(clampf(p.position.x - 60.0, 10.0, 820.0), 120.0)
+		var pos3: Vector2 = Vector2(clampf(p.position.x - 60.0, 10.0, 820.0), 505.0)
 		if p.sandwicher != null and is_instance_valid(p.sandwicher):
 			# ドーベルマンに挟まれている：まず押し返す
 			_txt(pos3 + Vector2(-10, -12), "SANDWICHED! SHOVE  <- ->", Color("ff8fc8"))
