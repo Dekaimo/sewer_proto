@@ -1,0 +1,14 @@
+{
+  "name": "anim_dobe_rise_back",
+  "mode": "anim",
+  "src": "assets_raw/dobe_puddle.png",
+  "last": "assets_raw/dobe_back_faceless.png",
+  "frames": 16,
+  "direction": "north-west",
+  "subject": "thick glossy pink paint goo with yellow marble streaks",
+  "variants": 1,
+  "desc": "Very slowly and stickily rising out of a flat paint puddle, seen from behind: a big gooey lump heaves up, drapes and sags, the hunched back rises first like someone heavily getting up from lying face down, thick viscous goo stretching in long sticky strands between the body and the puddle, the shoulders and arms peel up from the puddle dripping, the body straightens into a huge broad-backed faceless goo humanoid seen from behind. Slow, heavy, viscous, constantly dripping.",
+  "generations_before": 1051.0,
+  "generations_after": 1049.0,
+  "used": 2.0
+}
