@@ -1,0 +1,10 @@
+{
+  "name": "pillar_clean",
+  "mode": "edit",
+  "src": "assets_raw/pillar_draft.png",
+  "variants": 3,
+  "desc": "Redraw this as a clean tall column of thick sticky glossy pink paint goo, crisp pixel art in the same style as a pink paint crocodile monster: smooth rounded shading, a soft glossy highlight running down the left side, darker pink on the right, a few smooth thin yellow marble streaks flowing down, a few thick drips bulging and sliding down the surface, clean dark outline. Fill the whole height, keep the same silhouette, slightly wider at the bottom. Nothing else.",
+  "generations_before": 1476.0,
+  "generations_after": 1473.0,
+  "used": 3.0
+}
