@@ -1,0 +1,10 @@
+{
+  "name": "same_head_open",
+  "mode": "editv2",
+  "src": "assets_raw/same_open_head.png",
+  "variants": 1,
+  "desc": "The rear half of the shark (on the right side) is sunk under the surface: its back slopes down and melts smoothly into a wide glossy pink paint puddle on the floor, so there is no cut edge on the right; only the front half, head and dorsal fin rise out of the puddle. Keep the head, face, mouth, teeth, colors, yellow marble streaks, outline and pixel art style exactly the same.",
+  "generations_before": 997.9,
+  "generations_after": 987.9,
+  "used": 10.0
+}
