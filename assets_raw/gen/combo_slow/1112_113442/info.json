@@ -1,0 +1,12 @@
+{
+  "name": "combo_slow",
+  "mode": "anim",
+  "src": "assets/same_combo_0.png",
+  "last": "assets/same_combo_8.png",
+  "frames": 16,
+  "variants": 2,
+  "desc": "The pink paint shark slowly swallows the muscular paint crocodile that is tightly hugging a small black witch cat: the crocodile squeezes the struggling cat in a firm bear hug as the shark jaws close over them inch by inch, goo and strings oozing from the shark mouth, then a big gulp and the shark body bulges with the shape of the two inside. Slow, heavy, gooey.",
+  "generations_before": 1518.0,
+  "generations_after": 1514.0,
+  "used": 4.0
+}

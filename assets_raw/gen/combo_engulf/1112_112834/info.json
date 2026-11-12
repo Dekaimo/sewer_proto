@@ -1,0 +1,12 @@
+{
+  "name": "combo_engulf",
+  "mode": "anim",
+  "src": "assets/wani_hug_6.png",
+  "last": "assets/same_combo_8.png",
+  "frames": 16,
+  "variants": 2,
+  "desc": "A huge pink marbled paint shark erupts up from the goo puddle beneath the muscular paint crocodile, which is tightly hugging a small black witch cat in its arms. The shark opens its gaping mouth wide and slowly engulfs them from below, the crocodile keeps squeezing the struggling cat tight as both sink into the shark mouth, thick gooey strings stretching, then the shark closes its mouth and gulps, its body bulging. Viscous, gooey.",
+  "generations_before": 1522.0,
+  "generations_after": 1520.0,
+  "used": 2.0
+}
