@@ -1,0 +1,14 @@
+{
+  "name": "anim_dobe_reel",
+  "mode": "anim",
+  "src": "assets_raw/dobe_backhug_key.png",
+  "last": "assets_raw/dobe_backlean_key.png",
+  "frames": 8,
+  "direction": "north",
+  "subject": "a huge muscular Doberman monster made of glossy pink paint goo with yellow marble streaks, seen from behind",
+  "variants": 1,
+  "desc": "Seen from behind, it lets go and theatrically reels back as if pushed away, leaning its upper body far back with arms flung open, head thrown back in mocking laughter, sticky goo strands stretching forward.",
+  "generations_before": 944.9000000000001,
+  "generations_after": 942.9000000000001,
+  "used": 2.0
+}

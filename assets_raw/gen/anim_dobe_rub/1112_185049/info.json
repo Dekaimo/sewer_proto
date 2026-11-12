@@ -1,0 +1,14 @@
+{
+  "name": "anim_dobe_rub",
+  "mode": "anim",
+  "src": "assets_raw/dobe_backhug_key.png",
+  "last": "assets_raw/dobe_backhug_key.png",
+  "frames": 8,
+  "direction": "north",
+  "subject": "a huge muscular Doberman monster made of glossy pink paint goo with yellow marble streaks, seen from behind",
+  "variants": 1,
+  "desc": "Seen from behind, it hugs someone hidden in front of it and grinds its whole body up and down against them, slowly and heavily, its broad back and shoulders rolling, goo squelching and dripping down its back. Loop.",
+  "generations_before": 944.9000000000001,
+  "generations_after": 944.9000000000001,
+  "used": 0.0
+}
