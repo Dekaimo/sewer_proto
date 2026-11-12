@@ -35,6 +35,7 @@ var target := Vector2.ZERO  # 潜伏中に向かう場所
 var show_dur := 2.0
 var base_tex: Texture2D
 var maw_started := false
+var sub := ""              # 磔便乗の段階：form / tease / hug
 var combo := ""            # 羽交い締め中の連携："relax"（サメ）/ "throw"（ワニ）
 var combo_t := 0.0
 var thrown := false
@@ -323,79 +324,136 @@ func _update_burst(delta: float, p) -> void:
 
 
 # ---------- 磔の挟み撃ち ----------
+## 磔に便乗：ワニの股座あたりから背中を向けて形成（form）→ 抱きつこうとして押し問答（tease：わざとらしく前後に揺れる）
+## → 押し返されるとわざとらしくのけぞって嗤う（pushed）→ 押されたフリを使い切ると、がっちり抱きしめる（hug：背中しか見えない）
+const SW_LIFT := 60.0      # 磔の高さに合わせて持ち上げる量（絵の下端＝ワニの粘液の幹に溶け込む）
+const SW_STRETCH := 1.3    # 縦に伸ばして胸を主人公の高さまで届かせる
 func _start_sandwich(p) -> void:
 	state = "sandwich"
+	sub = "form"
 	rise = 1.0
 	sprite.visible = true
-	sprite.scale = Vector2.ONE
+	sprite.scale = Vector2(1.0, SW_STRETCH)
 	sprite.texture = base_tex
 	t = 0.0
 	rub_t = 0.0
 	push_off = 0.0
 	fake_left = randi_range(1, 3)
+	position.x = p.position.x
 	p.sandwicher = self
 	p.push = 0.0
-	main.sfx.play("grab")
-	main.zoom_moment(p.position + Vector2(0, -150), 1.0)
-	for i in 4:
-		p.add_dirt(p.random_body_point(), 3)
+	main.sfx.play("gurgle", 0.0)
+	main.zoom_moment(p.position + Vector2(0, -150), 1.4)
+
+
+func _sw_place(r: float) -> void:
+	sprite.scale = Vector2(1.0, SW_STRETCH)
+	sprite.position = Vector2(-facing * push_off, -SW_LIFT + r).round()
 
 
 func _update_sandwich(delta: float, p) -> void:
 	if p.sandwicher != self or (p.state != "crucified" and p.state != "defeated"):
 		_leave(false)
 		return
-	# 胸をこすりつける：ぐりぐりと上下に。こするたびにペンキが主人公にのる
-	rub_t += delta * (2.4 if not main.game_over else 1.6)
-	var r := sin(rub_t * TAU * 0.5)
 	push_off = move_toward(push_off, 0.0, 90.0 * delta)
-	sprite.position = Vector2(-facing * push_off, -40.0 - 70.0 + r * 8.0).round()   # 磔の高さまで伸び上がって抱きつく
-	_frame("rub", int(rub_t * 4.0))
-	if absf(r) > 0.97 and fmod(rub_t, 1.0) < delta * 2.4:
-		main.sfx.play_any(["grab_loop", "gurgle"], -3.0, 0.2)
-		for i in 2:
-			p.add_dirt(p.random_body_point(), 2)
-		p.damage(1.0)
-		main.add_goop(p.position + Vector2(randf_range(-30, 30), 0), 50.0, 0.2)
+	match sub:
+		"form":
+			# 背中を向けて、グチュヌルと巨体が形成される（主人公が怯える）
+			p.push = 0.0
+			if frames.has("rise_back"):
+				_play_once("rise_back", t / 1.8)
+			else:
+				sprite.texture = base_tex
+			_sw_place(0.0)
+			if t > 1.8:
+				sub = "tease"
+				t = 0.0
+				main.sfx.play("grab")
+				for i in 3:
+					p.add_dirt(p.random_body_point(), 2)
+		"tease":
+			# 抱きしめようとして、嗤いながら上体を前後にグッチャグッチャ揺らす（押し返しゲージは有効）
+			rub_t += delta * 1.6
+			var r := sin(rub_t * TAU * 0.5)
+			if frames.has("reel"):
+				var arr: Array = frames["reel"]
+				var n := mini(2, arr.size())
+				sprite.texture = arr[clampi(int((r * 0.5 + 0.5) * float(n - 1) + 0.5), 0, n - 1)]
+			elif frames.has("rub"):
+				_frame("rub", int(rub_t * 4.0))
+			_sw_place(r * 4.0)
+			if absf(r) > 0.97 and fmod(rub_t, 1.0) < delta * 1.6:
+				main.sfx.play_any(["grab_loop", "gurgle"], -6.0, 0.2)
+				p.add_dirt(p.random_body_point(), 2)
+				p.damage(0.5)
+		"hug":
+			# がっちり抱きしめた：背中しか見えない。裏で体を上下にこすりつけて汚す（背中の揺れと音とペンキで見せる）
+			p.push = 0.0
+			rub_t += delta * (2.4 if not main.game_over else 1.6)
+			var r2 := sin(rub_t * TAU * 0.5)
+			if frames.has("rub"):
+				_frame("rub", int(rub_t * 4.0))
+			_sw_place(r2 * 8.0)
+			if absf(r2) > 0.97 and fmod(rub_t, 1.0) < delta * 2.4:
+				main.sfx.play_any(["grab_loop", "gurgle"], -3.0, 0.2)
+				for i in 2:
+					p.add_dirt(p.random_body_point(), 2)
+				p.damage(1.2)
+				main.add_goop(p.position + Vector2(randf_range(-30, 30), 0), 50.0, 0.2)
+				main.splat_wall(Vector2(position.x + randf_range(-90, 90), main.FLOOR_TOP - randf_range(40, 200)), 28.0, 0.6)
 
 
 ## 主人公が押し返しゲージを満タンにした
 func on_pushed(p) -> void:
+	if state != "sandwich" or sub != "tease":
+		p.push = 0.0
+		return
 	if fake_left > 0:
-		# 押されたフリ：「うわー」とよろけて離れる…
+		# 押されたフリ：わざとらしくのけぞって嗤う…がすぐ戻ってくる
 		fake_left -= 1
 		state = "pushed"
 		t = 0.0
 		main.sfx.play("hit", -4.0)
 		return
-	_leave(true)
+	# 押されたフリを使い切った：遊びは終わり。がっちり抱きしめる
+	state = "sandwich"
+	sub = "hug"
+	t = 0.0
+	main.sfx.play("grab", 2.0)
+	main.zoom_moment(p.position + Vector2(0, -150), 1.0)
+	for i in 5:
+		p.add_dirt(p.random_body_point(), 3)
+	p.damage(3.0)
 
 
 func _update_pushed(delta: float, p) -> void:
 	if p.sandwicher != self or (p.state != "crucified" and p.state != "defeated"):
 		_leave(false)
 		return
-	# 0〜0.5秒：大げさによろけて離れる → 0.5〜1.1秒：振り向いてニヤッ → 戻ってきて前より強く押しつける
+	# 0〜0.5秒：大げさにのけぞる → 〜1.1秒：のけぞったまま嗤う → 戻ってきて、さっきより強く押しつける
+	if frames.has("reel"):
+		var arr: Array = frames["reel"]
+		var f := t / 0.5 if t < 0.5 else (1.0 if t < 1.1 else maxf(1.0 - (t - 1.1) / 0.35, 0.0))
+		sprite.texture = arr[clampi(int(f * float(arr.size() - 1) + 0.5), 0, arr.size() - 1)]
 	if t < 0.5:
-		push_off = lerpf(push_off, 70.0, 1.0 - exp(-delta * 10.0))
-		_frame("reel", int(t * 10.0))
-	elif t < 1.1:
-		_frame("idle", 0)
-	else:
-		push_off = move_toward(push_off, 0.0, 400.0 * delta)
-		if push_off <= 0.0:
+		push_off = lerpf(push_off, 40.0, 1.0 - exp(-delta * 10.0))
+	elif t > 1.1:
+		push_off = move_toward(push_off, 0.0, 200.0 * delta)
+		if t > 1.45:
 			state = "sandwich"
+			sub = "tease"
 			t = 0.0
 			p.push = 0.0
 			main.sfx.play("grab", 0.0)
-			for i in 5:
+			for i in 4:
 				p.add_dirt(p.random_body_point(), 3)
-			p.damage(3.0)
-	sprite.position = Vector2(-facing * push_off, -110.0).round()
+			p.damage(2.0)
+	_sw_place(0.0)
 
 
 func _leave(real: bool) -> void:
 	var p = main.player
+	sprite.scale = Vector2.ONE
 	sprite.rotation = 0.0
 	maw_started = false
 	combo = ""
