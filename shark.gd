@@ -32,6 +32,7 @@ var caught_player := false
 var caught_wani = null
 var caught_dobe = null   # ドーベルマンも中にいる（3対1 / ドーベルマンとの2対1）
 var maw_dobe = null      # ゆっくり丸呑み：主人公を羽交い締めにしているドーベルマン
+var maw_flip := false
 var maw_frames: Array[Texture2D] = []   # 正面向きで口をゆっくり開ける（same_front_0..）
 const MAW_T := 3.2       # 口を開ききるまで（このあいだに振りほどけば助かる）
 var view_mode := "inside"   # 地中の見せ方：inside=体内の小窓 / splat=見せずにペンキが噴き出すだけ
@@ -105,8 +106,9 @@ func start_maw(p, dobe) -> void:
 	state = "maw"
 	t = 0.0
 	maw_dobe = dobe
-	# 獲物の正面（手前）に浮上する
-	position = Vector2(p.position.x, clampf(p.position.y + 24.0, main.DEPTH_MIN, main.DEPTH_MAX))
+	# 獲物の向いている先に、獲物のほうを向いて頭だけ浮上する（絵は左向き＝口が左）
+	maw_flip = p.facing < 0
+	position = Vector2(clampf(p.position.x + p.facing * 158.0, main.ARENA_L, main.ARENA_R), clampf(p.position.y + 4.0, main.DEPTH_MIN, main.DEPTH_MAX))
 	main.sfx.play("gurgle", 0.0)
 	main.add_goop(position, 160.0, 0.5)
 
@@ -455,9 +457,9 @@ func _clamp() -> void:
 # ---------- 見た目 ----------
 func _update_sprite() -> void:
 	if state == "maw" and maw_frames.size() > 0:
-		# 正面向き：テクスチャは _maw で選んでいる。下端を床に合わせ、浮上分だけせり上げる
+		# 頭だけ浮上：テクスチャは _maw で選んでいる。下端を床に合わせ、浮上分だけせり上げる
 		sprite.visible = true
-		sprite.flip_h = false
+		sprite.flip_h = maw_flip
 		sprite.rotation = 0.0
 		var th := float(sprite.texture.get_height())
 		var up := clampf(t / 0.8, 0.0, 1.0)
