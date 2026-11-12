@@ -13,6 +13,7 @@ var main
 var bg: CanvasItem
 var bg_mat: ShaderMaterial
 var content: Sprite2D
+var dobe_layer: Sprite2D   # 3対1：下から抱きつくドーベルマン（素材 dobe_belly_* があれば）
 var goo_fg: Node2D     # 中身の手前にかぶさるネバネバ（糸・垂れ・底に溜まる粘液）
 var sq_now := 0.0
 var flash := 0.0
@@ -39,6 +40,10 @@ func _ready() -> void:
 	add_child(bg)
 	# 中身は小窓の外にはみ出さないように切り抜く
 	bg.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
+	dobe_layer = Sprite2D.new()
+	dobe_layer.centered = true
+	dobe_layer.visible = false
+	bg.add_child(dobe_layer)
 	content = Sprite2D.new()
 	content.centered = false
 	bg.add_child(content)
@@ -116,6 +121,15 @@ func _process(delta: float) -> void:
 	content.modulate = Color(0.7, 0.6, 0.65) if limp else Color.WHITE
 	content.flip_h = false
 	content.position = Vector2(W * 0.5, H * 0.5 + sink * 50.0) + Vector2(sin(t * 37.0) * shake, cos(t * 29.0) * shake * 0.7).round()
+	# ドーベルマンも中にいる：主人公の下側（小窓では右＝足側の下）から抱きついて、ぐりぐり押し上げる
+	var dobe = shark.get("caught_dobe")
+	dobe_layer.visible = dobe != null and is_instance_valid(dobe) and dobe.frames.has("belly")
+	if dobe_layer.visible:
+		var arr: Array = dobe.frames["belly"]
+		dobe_layer.texture = arr[int(t * 8.0) % arr.size()]
+		dobe_layer.scale = Vector2(2.0, 2.0)
+		dobe_layer.position = Vector2(W * 0.5, H * 0.5 + 30.0 + sq * 6.0 + sink * 50.0).round()
+		dobe_layer.modulate = content.modulate
 
 
 ## 手前にかぶさるネバネバ。締まるほど糸が太く、底の粘液がせり上がる

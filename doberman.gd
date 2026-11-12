@@ -3,7 +3,10 @@ extends Node2D
 ## 素材（assets/dobe_idle.png）がそろうまではゲームに出さない。
 ## DEBUG_SHOW を true にすると、仮の絵（ワニの待機を色替え）で動きだけ確認できる。
 ##
-## いまの動き：
+## いまの動き（素材がそろうまでは中身だけ）：
+##   hold     背後から羽交い締め → 正面にサメが浮上して汚い口をゆっくり開ける（振りほどけなければ2匹まとめて丸呑み）
+##   dive     地中で2対1にされていると、自分からサメの口に飛び込んで3対1（腹の中で下から抱きつく）
+##   pin      3対1から抜けた主人公に、地面で上からのしかかる（下にはワニ）
 ##   enter    水たまりから形成
 ##   prowl    主人公のまわりをうろつく。フェイント（飛びかかるフリ→寸止めしてニヤつく）
 ##   sandwich 主人公がワニに磔にされていると駆け寄り、正面から抱きついて胸をこすりつける（挟み撃ち）
@@ -37,7 +40,7 @@ func _ready() -> void:
 	sprite.centered = false
 	sprite.offset = Vector2(-128, -FEET_Y)
 	add_child(sprite)
-	for k in ["idle", "walk", "rub", "reel", "emerge", "feint"]:
+	for k in ["idle", "walk", "rub", "reel", "emerge", "feint", "hold", "belly"]:
 		var arr: Array[Texture2D] = []
 		var i := 0
 		while ResourceLoader.exists("res://assets/dobe_%s_%d.png" % [k, i]):
@@ -84,6 +87,16 @@ func _process(delta: float) -> void:
 			_update_sandwich(delta, p)
 		"pushed":
 			_update_pushed(delta, p)
+		"hold":
+			_update_hold(delta, p)
+		"dive":
+			_update_dive(delta, p)
+		"in_shark", "pin":
+			visible = false
+			if state == "pin":
+				position = p.position
+				if p.state != "pinned" and not main.game_over:
+					spit_out(position + Vector2(60.0, 0.0))
 		"recover":
 			vel_x = move_toward(vel_x, 0.0, 300.0 * delta)
 			position.x += vel_x * delta
@@ -106,6 +119,23 @@ func _update_prowl(delta: float, p) -> void:
 		_frame("walk", int(t * 10.0))
 		if absf(dx) < 6.0:
 			_start_sandwich(p)
+		return
+	# 地中で2対1にされている：自分からサメの口に飛び込んで3対1にする
+	if p.state == "swallowed" and p.swallower != null and is_instance_valid(p.swallower) and p.swallower.has_method("take_dobe"):
+		var sh = p.swallower
+		if sh.caught_wani != null and sh.caught_dobe == null and sh.state == "drag" and sh.t > 2.0:
+			state = "dive"
+			t = 0.0
+			dive_from = position
+			main.sfx.play("assist", -2.0)
+			return
+	# 背後から羽交い締め → 正面にサメが浮上して、ゆっくり口を開ける
+	var sh2 = _maw_shark()
+	if sh2 != null and p.state in ["normal", "slipped"] and p.invuln <= 0.0 and absf(p.position.x - position.x) < 60.0 and absf(p.position.y - position.y) < 26.0 and p.z < 20.0:
+		state = "hold"
+		t = 0.0
+		p.get_held(self)
+		sh2.start_maw(p, self)
 		return
 	# うろうろ：近づきすぎず、ときどきフェイント
 	var dxp: float = p.position.x - position.x
@@ -205,6 +235,61 @@ func _leave(real: bool) -> void:
 	vel_x = -facing * (260.0 if real else 120.0)
 	if real:
 		main.sfx.play("escape", -4.0)
+
+
+var dive_from := Vector2.ZERO
+
+
+func _maw_shark():
+	for c in main.get_children():
+		if c.has_method("can_maw") and c.can_maw():
+			return c
+	return null
+
+
+func _update_hold(delta: float, p) -> void:
+	# 羽交い締め：主人公の背後にぴったりくっついて、正面のサメのほうへ突き出す
+	if p.state != "held" or p.held_by != self:
+		_leave(true)
+		return
+	position = p.position + Vector2(-p.facing * 20.0, -2.0)
+	facing = p.facing
+	_frame("hold", int(t * 8.0))
+
+
+func _update_dive(delta: float, p) -> void:
+	var sh = p.swallower
+	if sh == null or not is_instance_valid(sh) or p.state != "swallowed":
+		state = "prowl"
+		sprite.position = Vector2.ZERO
+		return
+	var k := clampf(t / 0.8, 0.0, 1.0)
+	position = dive_from.lerp(sh.position, k)
+	sprite.position = Vector2(0, -sin(k * PI) * 160.0).round()
+	_frame("feint", 0)
+	if k >= 1.0:
+		sprite.position = Vector2.ZERO
+		get_swallowed(sh)
+		sh.take_dobe(self)
+
+
+func get_swallowed(_sh) -> void:
+	state = "in_shark"
+	visible = false
+
+
+func spit_out(pos: Vector2) -> void:
+	visible = true
+	position = pos
+	state = "enter"
+	t = 0.0
+
+
+## 3対1から主人公が抜けた：地面に吐き出されたところへ、上からのしかかる
+func pin_on(p) -> void:
+	state = "pin"
+	position = p.position
+	visible = false
 
 
 func on_hit(dir: int) -> void:

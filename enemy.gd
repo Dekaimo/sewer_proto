@@ -214,6 +214,13 @@ func _process(delta: float) -> void:
 		var j := clampi(int(anim_t * 7.0), 0, 8)
 		sprite.texture = swallow_frames[j]
 		return
+	if state == "pinned":
+		# 地面で主人公の下敷きになって抱え込んでいる（絵は主人公側の合成絵）
+		sprite.visible = false
+		position = main.player.position
+		if main.player.state != "pinned" and not main.game_over:
+			spit_out(position + Vector2(-60.0, 0.0))
+		return
 	if state == "swallowed":
 		swallow_t += delta
 		if swallow_t < 0.8:
@@ -917,6 +924,14 @@ func get_swallowed(shark) -> void:
 	# 抱えた主人公ごと、サメの口の中へ沈んでいく姿を少しだけ見せる（抱きつきの絵のまま）
 	sprite.material = hug_mat
 	sprite.visible = true
+
+
+## 3対1から主人公が抜けた：地面に吐き出された主人公を、下から抱え込んで離さない
+func pin_under(p) -> void:
+	swallowed_by = null
+	state = "pinned"
+	position = p.position
+	sprite.visible = false
 
 
 ## 主人公が脱出したら、ワニも吐き出されて床から形成し直す

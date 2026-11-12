@@ -39,6 +39,8 @@ var swallower = null     # 呑み込んでいるサメ
 var crucifier = null     # 磔にしているワニ
 var sandwicher = null    # 磔の正面から抱きついているドーベルマン
 var push := 0.0          # ドーベルマンを押し返すゲージ
+var held_by = null       # 羽交い締めにしているドーベルマン
+var pin_frames: Array[Texture2D] = []   # 地面で上下から挟まれている合成絵（cat_pinned_0..）
 var swallow_combo := false   # ワニごと呑まれた（地中で2対1）
 var slip_t := 0.0
 var hidden_in_hug := false   # 抱きつきの1枚絵に描かれている間は自分を表示しない       # 転んでいる残り時間
@@ -90,6 +92,10 @@ func _ready() -> void:
 
 	sprite = Sprite2D.new()
 	sprite.texture = FRAMES[0]
+	var pi := 0
+	while ResourceLoader.exists("res://assets/cat_pinned_%d.png" % pi):
+		pin_frames.append(load("res://assets/cat_pinned_%d.png" % pi))
+		pi += 1
 	for k in ["idle1", "walk1", "idle2", "walk2", "stumble", "getup", "land"]:
 		var arr: Array[Texture2D] = []
 		var i := 0
@@ -338,10 +344,14 @@ func _process(delta: float) -> void:
 			_update_swallowed(delta)
 		"crucified":
 			_update_crucified(delta)
+		"held":
+			_update_held(delta)
+		"pinned":
+			_update_pinned(delta)
 	_update_frame(delta)
 	z_index = int(position.y)   # 手前にいるほど前に描く
 	sprite.flip_h = facing < 0
-	if state != "grabbed" and state != "crucified":
+	if state != "grabbed" and state != "crucified" and state != "held":
 		hidden_in_hug = false
 	if state == "crucified":
 		hidden_in_hug = true
@@ -390,6 +400,17 @@ func _update_frame(delta: float) -> void:
 			var br := sin(Time.get_ticks_msec() / 1000.0 * (7.0 if ft == 1 else 10.0))
 			sprite.scale = Vector2(1.0 - 0.02 * br * ft, 1.0 + 0.03 * br * ft)
 			sprite.rotation = facing * 0.06 * ft
+	elif state == "pinned":
+		if pin_frames.size() > 0:
+			sprite.texture = pin_frames[int(Time.get_ticks_msec() / 110) % pin_frames.size()]
+		else:
+			# 仮：横倒しで小刻みにもがく
+			sprite.texture = FRAMES[1 + int(Time.get_ticks_msec() / 90) % 3]
+			sprite.rotation = facing * PI * 0.5
+			sprite.position = Vector2(facing * 55.0, -32.0) + Vector2(randf_range(-1, 1), 0).round()
+	elif state == "held":
+		sprite.texture = FRAMES[1 + int(Time.get_ticks_msec() / 90) % 3]
+		sprite.position.x += randf_range(-1.5, 1.5)
 	elif state == "slipped":
 		sprite.position = Vector2(facing * 55.0, -32.0)   # 横倒しで床に寝そべる（足元を中心に）
 		if tired_anims.has("getup") and slip_t < 0.5:
@@ -548,23 +569,39 @@ func _update_swallowed(delta: float) -> void:
 		return
 	position = swallower.position
 	# 2対1のときは抜け出しにくく、汚れるのも速い
-	struggle -= (0.2 if swallow_combo else 0.15) * delta
+	var trio: bool = swallower.has_method("is_trio") and swallower.is_trio()
+	struggle -= (0.26 if trio else (0.2 if swallow_combo else 0.15)) * delta
 	var d := 0
 	if Input.is_action_just_pressed("left"):
 		d = -1
 	elif Input.is_action_just_pressed("right"):
 		d = 1
 	if d != 0 and d != last_dir:
-		struggle += 0.05 if swallow_combo else 0.07
+		struggle += 0.035 if trio else (0.05 if swallow_combo else 0.07)
 		last_dir = d
 	drip_timer += delta
-	if drip_timer > (0.14 if swallow_combo else 0.24):
+	if drip_timer > (0.1 if trio else (0.14 if swallow_combo else 0.24)):
 		drip_timer = 0.0
-		add_dirt(random_body_point(), 2)
-		damage(2.0 if swallow_combo else 1.2)
+		add_dirt(random_body_point(), 3 if trio else 2)
+		damage(2.6 if trio else (2.0 if swallow_combo else 1.2))
 		if state == "swallowed":
 			main.sfx.play("grab_loop", -4.0, 0.3)
 	struggle = clampf(struggle, 0.0, 1.0)
+	if struggle >= 1.0 and state == "swallowed" and trio:
+		# 3対1から抜けた…が、吐き出された先でワニ（下）とドーベルマン（上）に地面で挟まれる
+		var s3 = swallower
+		swallower = null
+		state = "pinned"
+		struggle = 0.15
+		last_dir = 0
+		vel = Vector2.ZERO
+		z = 0.0
+		on_floor = true
+		main.add_goop(position, 160.0, 0.6)
+		main.sfx.play("grab", 0.0)
+		main.zoom_moment(position + Vector2(0, -40), 0.9)
+		s3.on_escaped()
+		return
 	if struggle >= 1.0 and state == "swallowed":
 		# 床から飛び出して脱出
 		state = "normal"
@@ -577,6 +614,83 @@ func _update_swallowed(delta: float) -> void:
 		main.add_goop(position, 120.0, 0.4)
 		main.sfx.play("escape")
 		s.on_escaped()
+
+
+# ---------- 羽交い締め（ドーベルマン）→ 正面でサメがゆっくり口を開ける ----------
+func get_held(dobe) -> void:
+	state = "held"
+	held_by = dobe
+	grabbed_by = null
+	struggle = 0.2
+	last_dir = 0
+	vel = Vector2.ZERO
+	z = 0.0
+	on_floor = true
+	hidden_in_hug = dobe.frames.has("hold")   # 合成絵があればそちらに描かれている
+	for i in 3:
+		add_dirt(random_body_point(), 2)
+	main.sfx.play("grab")
+
+
+func _update_held(delta: float) -> void:
+	if held_by == null or not is_instance_valid(held_by):
+		state = "normal"
+		return
+	# 口が開いていくほど焦って、振りほどく力が落ちていく（でも間に合えば助かる）
+	struggle -= 0.16 * delta
+	var d := 0
+	if Input.is_action_just_pressed("left"):
+		d = -1
+	elif Input.is_action_just_pressed("right"):
+		d = 1
+	if d != 0 and d != last_dir:
+		struggle += 0.075
+		last_dir = d
+	drip_timer += delta
+	if drip_timer > 0.3:
+		drip_timer = 0.0
+		add_dirt(random_body_point(), 1)
+		damage(0.8)
+	struggle = clampf(struggle, 0.0, 1.0)
+	if struggle >= 1.0:
+		var hb = held_by
+		held_by = null
+		state = "normal"
+		invuln = 1.2
+		vel = Vector2(facing * 180.0, 0.0)
+		main.sfx.play("escape")
+		hb.on_escaped()
+
+
+# ---------- 地面で上下から挟まれる（3対1から抜けたあと） ----------
+func _update_pinned(delta: float) -> void:
+	# 一度抜けたぶん少しだけ抜けやすい。そのかわり上からぐりぐり押しつけられて汚れる
+	struggle -= 0.12 * delta
+	var d := 0
+	if Input.is_action_just_pressed("left"):
+		d = -1
+	elif Input.is_action_just_pressed("right"):
+		d = 1
+	if d != 0 and d != last_dir:
+		struggle += 0.08
+		last_dir = d
+	drip_timer += delta
+	if drip_timer > 0.2:
+		drip_timer = 0.0
+		add_dirt(random_body_point(), 2)
+		damage(1.5)
+		if state == "pinned":
+			main.sfx.play_any(["grab_loop", "gurgle"], -4.0, 0.2)
+			main.add_goop(position + Vector2(randf_range(-40, 40), randf_range(-8, 8)), 50.0, 0.2)
+	struggle = clampf(struggle, 0.0, 1.0)
+	if struggle >= 1.0 and state == "pinned":
+		state = "normal"
+		invuln = 1.6
+		on_floor = false
+		vz = 260.0
+		vel = Vector2(randf_range(-160.0, 160.0), 0.0)
+		main.sfx.play("escape")
+		main.add_goop(position, 120.0, 0.4)
 
 
 # ---------- 磔 ----------

@@ -26,6 +26,10 @@ var leap_to := Vector2.ZERO
 var z := 0.0
 var caught_player := false
 var caught_wani = null
+var caught_dobe = null   # ドーベルマンも中にいる（3対1 / ドーベルマンとの2対1）
+var maw_dobe = null      # ゆっくり丸呑み：主人公を羽交い締めにしているドーベルマン
+var maw_frames: Array[Texture2D] = []   # 正面向きで口をゆっくり開ける（same_front_0..）
+const MAW_T := 3.2       # 口を開ききるまで（このあいだに振りほどけば助かる）
 var view_mode := "inside"   # 地中の見せ方：inside=体内の小窓 / splat=見せずにペンキが噴き出すだけ
 var erupt_t := 0.0
 var eruptions: Array = []   # 噴き出しの見た目 {pos, t}
@@ -47,6 +51,10 @@ var cut_on := false
 
 
 func _ready() -> void:
+	var mi := 0
+	while ResourceLoader.exists("res://assets/same_front_%d.png" % mi):
+		maw_frames.append(load("res://assets/same_front_%d.png" % mi))
+		mi += 1
 	tex_base = load(BASE_PATH) if ResourceLoader.exists(BASE_PATH) else null
 	tex_open = load(OPEN_PATH) if ResourceLoader.exists(OPEN_PATH) else tex_base
 	for k in ["breach", "sink", "dive", "breach2", "sink2", "gulp", "struggle", "combo"]:
@@ -72,6 +80,63 @@ func _ready() -> void:
 	mound.visible = false
 	add_child(mound)
 	cd = 2.0
+
+
+## 正面向きの素材があれば、ドーベルマンと組んだ「ゆっくり丸呑み」ができる
+func can_maw() -> bool:
+	return maw_frames.size() > 0 and state == "swim" and cd <= 0.0 and not caught_player
+
+
+func start_maw(p, dobe) -> void:
+	state = "maw"
+	t = 0.0
+	maw_dobe = dobe
+	# 獲物の正面（手前）に浮上する
+	position = Vector2(p.position.x, clampf(p.position.y + 24.0, main.DEPTH_MIN, main.DEPTH_MAX))
+	main.sfx.play("gurgle", 0.0)
+	main.add_goop(position, 160.0, 0.5)
+
+
+func _maw(delta: float, p) -> void:
+	# 0〜0.8秒：ゴポゴポと浮上 → 〜MAW_T：汚い口をゆっくり開けていく → 2匹まとめてバクン
+	if maw_dobe == null or not is_instance_valid(maw_dobe) or p.state != "held":
+		# 振りほどかれた：口を閉じて、ばつが悪そうに沈む
+		maw_dobe = null
+		state = "swim"
+		cd = 3.0
+		main.sfx.play("gurgle", -4.0)
+		return
+	var k := clampf(t / MAW_T, 0.0, 1.0)
+	if maw_frames.size() > 0:
+		sprite.texture = maw_frames[int(ease(k, 2.2) * float(maw_frames.size() - 1))]
+	gurgle_t -= delta
+	if gurgle_t <= 0.0:
+		gurgle_t = lerpf(0.6, 0.25, k)
+		main.sfx.play_any(["gurgle", "grab_loop"], -6.0 + 4.0 * k)
+		main.add_goop(position + Vector2(randf_range(-60, 60), 0), 60.0, 0.2)
+	if t >= MAW_T:
+		# バクン：羽交い締めにされたまま2匹まとめて呑み込む
+		main.zoom_moment(position + Vector2(0, -100), 1.2)
+		main.add_goop(position, 240.0, 0.8)
+		for i in 5:
+			main.splat_wall(Vector2(position.x + randf_range(-220.0, 220.0), main.FLOOR_TOP - randf_range(10.0, 220.0)), randf_range(35.0, 70.0))
+		caught_dobe = maw_dobe
+		maw_dobe = null
+		caught_dobe.get_swallowed(self)
+		caught_player = p.get_swallowed(self, true)
+		_sink_after_attack()
+
+
+## ドーベルマンが自分から口に飛び込んできた（地中で引き回し中の2対1 → 3対1）
+func take_dobe(dobe) -> void:
+	caught_dobe = dobe
+	main.sfx.play("assist", 0.0)
+	main.add_goop(position, 180.0, 0.6)
+	main.zoom_moment(position + Vector2(0, -60), 0.8)
+
+
+func is_trio() -> bool:
+	return caught_wani != null and is_instance_valid(caught_wani) and caught_dobe != null and is_instance_valid(caught_dobe)
 
 
 func is_dragging() -> bool:
@@ -112,6 +177,8 @@ func _process(delta: float) -> void:
 				_sink_after_attack()
 		"drag":
 			_drag(delta, p)
+		"maw":
+			_maw(delta, p)
 	for er in eruptions:
 		er.t += delta
 	eruptions = eruptions.filter(func(er): return er.t < 0.6)
@@ -287,8 +354,18 @@ func _drag(delta: float, p) -> void:
 ## 主人公が自力で脱出したとき
 func on_escaped() -> void:
 	caught_player = false
+	var trio := is_trio()
 	if caught_wani != null and is_instance_valid(caught_wani):
-		caught_wani.spit_out(position + Vector2(-facing * 60.0, 0.0))
+		if trio:
+			caught_wani.pin_under(main.player)    # 3対1から抜けても、地面で下から挟まれる
+		else:
+			caught_wani.spit_out(position + Vector2(-facing * 60.0, 0.0))
+	if caught_dobe != null and is_instance_valid(caught_dobe):
+		if trio:
+			caught_dobe.pin_on(main.player)       # …上からはドーベルマンがのしかかる
+		else:
+			caught_dobe.spit_out(position + Vector2(facing * 60.0, 0.0))
+	caught_dobe = null
 	caught_wani = null
 	state = "stunned"
 	t = 0.0
@@ -302,6 +379,18 @@ func _clamp() -> void:
 
 # ---------- 見た目 ----------
 func _update_sprite() -> void:
+	if state == "maw" and maw_frames.size() > 0:
+		# 正面向き：テクスチャは _maw で選んでいる。下端を床に合わせ、浮上分だけせり上げる
+		sprite.visible = true
+		sprite.flip_h = false
+		sprite.rotation = 0.0
+		var th := float(sprite.texture.get_height())
+		var up := clampf(t / 0.8, 0.0, 1.0)
+		sprite.region_enabled = true
+		sprite.region_rect = Rect2(0, 0, sprite.texture.get_width(), th * up)
+		sprite.offset = Vector2(-sprite.texture.get_width() * 0.5, -th * up)
+		sprite.position = Vector2.ZERO
+		return
 	if tex_base == null:
 		sprite.visible = false
 		return

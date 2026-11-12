@@ -232,8 +232,21 @@ func on_player_defeated(grabber) -> void:
 		fin.setup("crucify", player.crucifier.position)
 		finisher = fin
 		return
+	if player.state == "pinned" or player.state == "held":
+		# ドーベルマン絡みの負け。専用のとどめは素材ができてから（いまは地上の負けを流用）
+		for d in dobes:
+			d.visible = false
+		for s2 in get_children():
+			if s2.has_method("can_maw"):
+				s2.state = "swim"
+		var near = enemies[0] if enemies.size() > 0 else null
+		_start_finisher("hug", player.position if near == null else player.position)
+		return
 	var sw = player.swallower
 	if sw != null and is_instance_valid(sw):
+		for d in dobes:
+			if d.state == "in_shark":
+				d.visible = false
 		# 地中で力尽きた：相手ごとのフィニッシュ演出
 		var kind := "wani" if sw.has_method("get_swallowed") else ("duo" if player.swallow_combo else "shark")
 		var at: Vector2 = sw.position
