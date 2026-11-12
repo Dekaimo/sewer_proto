@@ -55,6 +55,7 @@ var segs: Array[Sprite2D] = []   # しなる幹（下ほど揺れが小さく、
 const SEG_N := 9
 var hist: Array[float] = []
 var met_phase := 0.0
+var depth_phase := 0.0
 var met_amp := 1.0
 var met_dir := 1.0
 var met_speed := 1.3       # 揺れの速さ（負けたあとはさらに遅く・大きく）
@@ -107,6 +108,16 @@ func _ready() -> void:
 				cru_masks["morph_%d" % i] = load(mp2)
 	if morph.size() > 0:
 		cru_frames["morph"] = morph
+	var swayf: Array[Texture2D] = []
+	for i in 8:
+		var pth4 := "res://assets/wani_sway_%d.png" % i
+		if ResourceLoader.exists(pth4):
+			swayf.append(load(pth4))
+			var mp4 := "res://assets/masks/wani_sway_%d_mask.png" % i
+			if ResourceLoader.exists(mp4):
+				cru_masks["sway_%d" % i] = load(mp4)
+	if swayf.size() == 8:
+		cru_frames["sway"] = swayf
 	var burst: Array[Texture2D] = []
 	for i in 7:
 		var pth3 := "res://assets/wani_burst_%d.png" % i
@@ -545,6 +556,13 @@ func _update_crucify(delta: float) -> void:
 			key = "absorb1"
 		tex = cru_frames[key] if has_art else IDLE
 		_set_mask(key)
+		# 奥・手前に揺れるループ（手前に倒れ込む／奥へ反る、の端で長めに止まる）
+		if key == "crucify" and cru_frames.has("sway"):
+			var dp := fmod(depth_phase, TAU) / TAU          # 0〜1
+			var eased := dp + sin(dp * TAU * 2.0) * 0.06    # 端（コマ1付近と5付近）でためる
+			var si := posmod(int(eased * 8.0), 8)
+			tex = cru_frames["sway"][si]
+			_set_mask("sway", si)
 	# メトロノーム：端で一瞬ためて、ぐーっと反対側へ。ときどき勢い余って大きく振れる
 	var prev_c := cos(met_phase)
 	met_phase += delta * met_speed
@@ -565,8 +583,9 @@ func _update_crucify(delta: float) -> void:
 	var target_y: float = [1.0, 0.48, 0.35][cru_stage]
 	absorb_y = move_toward(absorb_y, target_y, delta * 0.12)
 	hug_mat.set_shader_parameter("absorb_y", absorb_y)
+	depth_phase += delta * met_speed * 0.55
 	var s := sin(met_phase)
-	var sx: float = 40.0 * met_amp * met_scale * signf(s) * pow(absf(s), 0.4)
+	var sx: float = 16.0 * met_amp * met_scale * signf(s) * pow(absf(s), 0.4)   # 左右は控えめ（主役は奥行きのループ）
 	hist.push_front(sx)
 	if hist.size() > 40:
 		hist.pop_back()
