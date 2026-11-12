@@ -264,7 +264,7 @@ var hug_flip := false
 var hugeat_frames: Array[Texture2D] = []
 var hugeat_masks: Array = []
 var hugeat_mat: ShaderMaterial
-const HUGEAT_T := 2.6     # ワニに捕まっている獲物を狙った（飛び出しざまに一気に呑んで、すぐドプンと沈む）
+const HUGEAT_T := 3.2     # ワニに捕まっている獲物を狙った（飛び出しざまに一気に呑んで、すぐドプンと沈む）
 
 
 func _gulp(delta: float, p) -> void:
@@ -294,7 +294,7 @@ func _gulp(delta: float, p) -> void:
 			for i in 4:
 				main.splat_wall(Vector2(position.x + randf_range(-200.0, 200.0), main.FLOOR_TOP - randf_range(10.0, 200.0)), randf_range(35.0, 65.0))
 			main.sfx.play("assist", 0.0)
-		if hf == 12 and not has_meta("hug_gulp"):
+		if hf == 11 and not has_meta("hug_gulp"):
 			set_meta("hug_gulp", true)
 			main.sfx.play("defeat", -1.0)
 			main.add_goop(position, 160.0, 0.5)
@@ -487,7 +487,7 @@ func _update_sprite() -> void:
 			var s2: Array = anims.get("sink2", [])
 			if s2.size() == 9:
 				sprite.texture = s2[clampi(2 + int((t - HUGEAT_T) / 0.6 * 7.0), 2, 8)]
-				sprite.flip_h = facing < 0
+				sprite.flip_h = hug_flip
 				sprite.offset = Vector2(-128, -B2_FEET)
 				sprite.position = Vector2.ZERO
 		cut_on = false
