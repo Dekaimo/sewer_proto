@@ -370,8 +370,40 @@ var pin_base: Sprite2D
 var pin_over: Sprite2D
 var pin_mat: ShaderMaterial
 ## ワニとドーベルマンが抱き合って主人公を挟んだ絵（3対1の小窓と、抜けた後の地面で使う）
-var embrace_tex: Texture2D = load("res://assets/embrace_0.png") if ResourceLoader.exists("res://assets/embrace_0.png") else null
-var embrace_mask: Texture2D = load("res://assets/masks/embrace_0_mask.png") if ResourceLoader.exists("res://assets/masks/embrace_0_mask.png") else null
+var embrace_frames: Array[Texture2D] = []
+var embrace_masks: Array = []
+var embrace_tex: Texture2D = null    # 今のコマ（小窓が読む）
+var embrace_mask: Texture2D = null
+## 締め上げのループ：寄せきった所で止めて、ゆっくり緩む
+const EMBRACE_W := [1.6, 1.0, 0.8, 1.4, 2.2, 1.4, 1.0, 1.2]
+func embrace_step() -> void:
+	if embrace_frames.is_empty():
+		var i := 0
+		while ResourceLoader.exists("res://assets/embrace_%d.png" % i):
+			embrace_frames.append(load("res://assets/embrace_%d.png" % i))
+			var mp := "res://assets/masks/embrace_%d_mask.png" % i
+			embrace_masks.append(load(mp) if ResourceLoader.exists(mp) else null)
+			i += 1
+		if embrace_frames.is_empty():
+			embrace_frames.append(null)
+	if embrace_frames[0] == null:
+		return
+	var n := embrace_frames.size()
+	var cyc := float(n) / 5.0
+	var f := fmod(Time.get_ticks_msec() / 1000.0, cyc) / cyc
+	var idx := clampi(int(f * n), 0, n - 1)
+	if EMBRACE_W.size() == n:
+		var tot := 0.0
+		for x in EMBRACE_W:
+			tot += x
+		var acc := 0.0
+		for k in n:
+			acc += EMBRACE_W[k]
+			if f * tot < acc:
+				idx = k
+				break
+	embrace_tex = embrace_frames[idx]
+	embrace_mask = embrace_masks[idx]
 func _draw_sandwich() -> bool:
 	var w = null
 	for e in main.enemies:
@@ -394,16 +426,17 @@ func _draw_sandwich() -> bool:
 	sprite.visible = false
 	pin_over.visible = false
 	pin_base.visible = true
+	embrace_step()
 	if embrace_tex != null:
 		# ワニとドーベルマンが抱き合い、その胸の間に主人公が挟まってネバネバにくっついている
 		pin_base.texture = embrace_tex
-		pin_base.region_rect = Rect2(40, 0, 290, 256)
+		pin_base.region_rect = Rect2(0, 40, 256, 216)
 		pin_mat.set_shader_parameter("cat_mask", embrace_mask)
 		pin_mat.set_shader_parameter("contamination", contamination())
 		pin_base.material = pin_mat
 		# 上から押しつぶされるたびに、ぐにゅっと潰れる
 		pin_base.scale = Vector2(1.0 + 0.03 * sq, 1.0 - 0.02 * sq)
-		pin_base.position = Vector2(0, -132.0 + sq * 3.0).round()
+		pin_base.position = Vector2(0, -122.0 + sq * 2.0).round()
 		return true
 	if not w.anims.has("hug"):
 		return false

@@ -125,6 +125,8 @@ func _process(delta: float) -> void:
 	var dobe = shark.get("caught_dobe")
 	var lie := false
 	# 3対1：ワニとドーベルマンが抱き合い、その胸の間に主人公が挟まっている絵（横倒しで映す）
+	if dobe != null and is_instance_valid(dobe):
+		p.embrace_step()
 	var emb: bool = dobe != null and is_instance_valid(dobe) and p.embrace_tex != null
 	if emb:
 		if emb_mat == null:
@@ -134,10 +136,10 @@ func _process(delta: float) -> void:
 		emb_mat.set_shader_parameter("contamination", p.contamination())
 		content.texture = p.embrace_tex
 		content.material = emb_mat
-		content.region_rect = Rect2(88, 0, 196, 256)
+		content.region_rect = Rect2(28, 40, 200, 216)
 	content.flip_h = false
 	if emb:
-		# 2体の頭まで映すため、この絵だけ等倍（横倒しで 256x196 → 小窓 280x180）
+		# 2体の頭まで映すため、この絵だけ等倍（横倒しで 216x200 → 小窓 280x180）
 		content.scale = Vector2(1.0 - 0.04 * sq, 1.0 + 0.05 * sq)
 	content.position = Vector2(W * 0.5, H * 0.5 + sink * 50.0) + Vector2(sin(t * 37.0) * shake, cos(t * 29.0) * shake * 0.7).round()
 	# ドーベルマンも中にいる：横倒しで上からのしかかり、主人公をワニとサンドイッチにしてネバネバに抱きしめる（手前に描く）
