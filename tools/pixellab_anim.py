@@ -45,6 +45,55 @@ def decode(img) -> Image.Image:
     return Image.open(io.BytesIO(base64.b64decode(s))).convert("RGBA")
 
 
+def remove_bg(im: Image.Image) -> Image.Image:
+    """背景はこちらで抜く（サーバーの背景抜きは、キャラの内側の背景色まで全部消して穴だらけにするため）。
+    - 背景色 = 外枠の画素で一番多い色
+    - 外枠からつながっている背景色だけを消す
+    - 内側に閉じ込められた背景色は、大きいもの（糸のすき間など、48画素以上）だけ透明にし、小さいもの（目・口など）は残す
+    すでに透明な絵（入力をそのまま返したコマ）は触らない"""
+    from collections import Counter, deque
+    im = im.convert("RGBA")
+    w, h = im.size
+    px = im.load()
+    border = [px[x, y] for x in range(w) for y in (0, h - 1)] + [px[x, y] for y in range(h) for x in (0, w - 1)]
+    if sum(1 for c in border if c[3] == 0) > len(border) // 2:
+        return im
+    bg = Counter(c[:3] for c in border).most_common(1)[0][0]
+    def isbg(c):
+        return c[3] > 0 and abs(c[0] - bg[0]) + abs(c[1] - bg[1]) + abs(c[2] - bg[2]) <= 24
+    seen = [[False] * w for _ in range(h)]
+    def flood(sx, sy):
+        comp, q = [], deque([(sx, sy)])
+        seen[sy][sx] = True
+        while q:
+            x, y = q.popleft()
+            comp.append((x, y))
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < w and 0 <= ny < h and not seen[ny][nx] and isbg(px[nx, ny]):
+                    seen[ny][nx] = True
+                    q.append((nx, ny))
+        return comp
+    for x in range(w):
+        for y in (0, h - 1):
+            if not seen[y][x] and isbg(px[x, y]):
+                for cx, cy in flood(x, y):
+                    px[cx, cy] = (0, 0, 0, 0)
+    for y in range(h):
+        for x in (0, w - 1):
+            if not seen[y][x] and isbg(px[x, y]):
+                for cx, cy in flood(x, y):
+                    px[cx, cy] = (0, 0, 0, 0)
+    for y in range(h):
+        for x in range(w):
+            if not seen[y][x] and isbg(px[x, y]):
+                comp = flood(x, y)
+                if len(comp) >= 48:
+                    for cx, cy in comp:
+                        px[cx, cy] = (0, 0, 0, 0)
+    return im
+
+
 def run_job(j: dict) -> None:
     name = j["name"]
     stamp = datetime.now(timezone.utc).strftime("%m%d_%H%M%S")
@@ -58,7 +107,7 @@ def run_job(j: dict) -> None:
             im = Image.open(pth)
             return {"image": b64img(pth), "size": {"width": im.width, "height": im.height}, "usage_description": use}
         body = {"description": j["desc"], "image_size": {"width": int(j.get("w", 256)), "height": int(j.get("h", 256))},
-                "no_background": True, "reference_images": [ref(r[0], r[1]) for r in j.get("refs", [])]}
+                "no_background": False, "reference_images": [ref(r[0], r[1]) for r in j.get("refs", [])]}
         if j.get("style"):
             body["style_image"] = ref(j["style"], "pixel art style")
         if j.get("seed") is not None:
@@ -79,13 +128,13 @@ def run_job(j: dict) -> None:
                 "view": j.get("view", "side"), "first_frame": b64img(j["src"]),
                 "first_frame_keypoints": kpfix(json.loads(Path(j["first_kp"]).read_text())),
                 "keypoints": [kpfix(k) for k in json.loads(Path(j["kp"]).read_text())],
-                "template_id": j.get("template", "mannequin"), "no_background": True}
+                "template_id": j.get("template", "mannequin"), "no_background": False}
         if j.get("seed") is not None:
             body["seed"] = int(j["seed"])
     elif j.get("mode") == "rot":
         # 1枚から8方向（south, south-east, east, ... の順で返る）
         path = "/generate-8-rotations-v3"
-        body = {"first_frame": b64img(j["src"]), "no_background": True}
+        body = {"first_frame": b64img(j["src"]), "no_background": False}
         if j.get("desc"):
             body["description"] = j["desc"]
         if j.get("seed") is not None:
@@ -95,7 +144,7 @@ def run_job(j: dict) -> None:
         path = "/edit-images-v2"
         im = Image.open(j["src"])
         body = {"edit_images": [{"image": b64img(j["src"]), "width": im.width, "height": im.height}],
-                "image_size": {"width": im.width, "height": im.height}, "no_background": True,
+                "image_size": {"width": im.width, "height": im.height}, "no_background": False,
                 "method": "edit_with_reference" if j.get("ref") else "edit_with_text"}
         if j.get("ref"):
             r = Image.open(j["ref"])
@@ -104,13 +153,13 @@ def run_job(j: dict) -> None:
             body["description"] = j["desc"]
     elif j.get("mode", "anim") == "edit":
         path = "/edit-image-pixen"
-        body = {"image": b64img(j["src"]), "description": j["desc"], "no_background": True}
+        body = {"image": b64img(j["src"]), "description": j["desc"], "no_background": False}
         if j.get("w"):
             body["width"], body["height"] = int(j["w"]), int(j["h"])
     else:
         path = "/animate-pixminimax"
         body = {"first_frame": b64img(j["src"]), "description": j["desc"],
-                "frame_count": int(j.get("frames", 4)), "no_background": not j.get("keep_bg", False), "view": "side"}
+                "frame_count": int(j.get("frames", 4)), "no_background": False, "view": "side"}
         if j.get("last"):
             body["last_frame"] = b64img(j["last"])
         if j.get("direction"):
@@ -133,9 +182,11 @@ def run_job(j: dict) -> None:
             continue
         lr = st["last_response"] or {}
         imgs = lr.get("images") or ([lr["image"]] if lr.get("image") else [])
-        frames = [decode(i) for i in imgs]
+        raw = [decode(i) for i in imgs]
+        frames = [remove_bg(f.copy()) for f in raw]
         for i, f in enumerate(frames):
             f.save(out / f"v{v + 1}_{i:02d}.png")
+            raw[i].save(out / f"raw_v{v + 1}_{i:02d}.png")   # 背景つきの元（確認用）
         rows.append(frames)
         print(name, "variant", v + 1, "frames", len(frames))
 
