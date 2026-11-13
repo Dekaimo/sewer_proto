@@ -516,8 +516,6 @@ func _update_sandwich(delta: float, p) -> void:
 				_loop("rub", rub_t, 4.0)
 			_sw_place(r2 * 6.0)
 			if absf(r2) > 0.97 and fmod(rub_t, 1.0) < delta * 2.4:
-				if main.splash != null:
-					main.splash.burst(p.position + Vector2(facing * 10.0, -150.0), main.player.position.y + 4.0, 7, 1.0)
 				main.sfx.play_any(["grab_loop", "gurgle"], -3.0, 0.2)
 				for i in 2:
 					p.add_dirt(p.random_body_point(), 2)

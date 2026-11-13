@@ -4,8 +4,6 @@ extends Node2D
 const PlayerScript = preload("res://player.gd")
 const EnemyScript = preload("res://enemy.gd")
 const HudScript = preload("res://hud.gd")
-const SplashScript = preload("res://goo_splash.gd")
-var splash
 const SfxScript = preload("res://sfx.gd")
 const SharkScript = preload("res://shark.gd")
 const DobeScript = preload("res://doberman.gd")
@@ -95,10 +93,6 @@ func _ready() -> void:
 	player.main = self
 	player.position = Vector2(300, FLOOR_Y)
 	add_child(player)
-	splash = SplashScript.new()
-	splash.main = self
-	splash.z_index = 4000   # 粒はキャラより手前
-	add_child(splash)
 	for x in [760.0]:   # ペンキワニは1体（2体目は別の敵として後で追加）
 		var e = EnemyScript.new()
 		e.main = self
