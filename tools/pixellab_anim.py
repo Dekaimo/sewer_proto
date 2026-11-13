@@ -49,7 +49,7 @@ def remove_bg(im: Image.Image) -> Image.Image:
     """背景はこちらで抜く（サーバーの背景抜きは、キャラの内側の背景色まで全部消して穴だらけにするため）。
     - 背景色 = 外枠の画素で一番多い色
     - 外枠からつながっている背景色だけを消す
-    - 内側に閉じ込められた背景色は、大きいもの（糸のすき間など、48画素以上）だけ透明にし、小さいもの（目・口など）は残す
+    - 内側に閉じ込められた背景色は、10画素以上の塊を透明にする（糸のすき間）。ごく小さい点だけ残す
     すでに透明な絵（入力をそのまま返したコマ）は触らない"""
     from collections import Counter, deque
     im = im.convert("RGBA")
@@ -88,7 +88,7 @@ def remove_bg(im: Image.Image) -> Image.Image:
         for x in range(w):
             if not seen[y][x] and isbg(px[x, y]):
                 comp = flood(x, y)
-                if len(comp) >= 48:
+                if len(comp) >= 10:   # 糸のすき間はほぼ透明に。ごく小さい点（10画素未満）だけ残す
                     for cx, cy in comp:
                         px[cx, cy] = (0, 0, 0, 0)
     return im
