@@ -1,0 +1,13 @@
+{
+  "name": "anim_trio_press",
+  "mode": "anim",
+  "src": "assets_raw/trio_wrap_key.png",
+  "frames": 4,
+  "direction": "west",
+  "variants": 3,
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, its arm around the crocodile's neck, with a small black witch cat squashed between them",
+  "desc": "Small change only: the Doberman presses its whole heavy body further down onto the crocodile and squeezes it tighter with its arm, sinking lower so the two bodies are pressed completely together with no gap, the cat squashed flat between them and sinking into their goo. Everything else stays the same: both lying down in the same pose, the crocodile's head, face, spikes and colors unchanged, the Doberman's head unchanged, same colors and yellow marble streaks.",
+  "generations_before": 719.9000000000001,
+  "generations_after": 716.9000000000001,
+  "used": 3.0
+}
