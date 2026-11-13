@@ -1,0 +1,14 @@
+{
+  "name": "anim_e4_crushB",
+  "mode": "anim",
+  "src": "assets_raw/embrace_key4.png",
+  "last": "assets_raw/embrace_key4.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed and buried between their bodies",
+  "variants": 3,
+  "desc": "Loop: the Doberman on top puts its whole weight down and squashes the buried cat flat, grinding it in big heavy strokes left and right, its whole body sliding and dragging over it, while the crocodile underneath pushes back up and squeezes; both goo bodies squash, bulge and smear, thick goo strands stretching between them. Heavy, sticky, viscous.",
+  "generations_before": 753.9000000000001,
+  "generations_after": 749.9000000000001,
+  "used": 4.0
+}
