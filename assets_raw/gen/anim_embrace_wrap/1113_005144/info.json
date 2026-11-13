@@ -1,0 +1,13 @@
+{
+  "name": "anim_embrace_wrap",
+  "mode": "anim",
+  "src": "assets_raw/embrace_key2.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed between their chests",
+  "desc": "The two goo monsters wrap their thick arms around each other and hug each other tightly: the Doberman on top slides both arms down around the crocodile's back and shoulders, the crocodile underneath reaches both arms up around the Doberman's back, and they pull each other close in a tight mutual embrace, squeezing the cat between their chests. They stay pressed tight together. Slow, heavy, sticky.",
+  "variants": 1,
+  "generations_before": 785.9000000000001,
+  "generations_after": 784.9000000000001,
+  "used": 1.0
+}
