@@ -375,7 +375,7 @@ var embrace_masks: Array = []
 var embrace_tex: Texture2D = null    # 今のコマ（小窓が読む）
 var embrace_mask: Texture2D = null
 ## 締め上げのループ：寄せきった所で止めて、ゆっくり緩む
-const EMBRACE_W := [1.0, 0.8, 1.4, 2.2, 1.4, 1.0, 1.4]   # 元の1コマ目（背景抜きで糸のすき間が透けていた）は外した
+const EMBRACE_W := [1.6, 1.0, 0.8, 1.4, 2.2, 1.4, 1.0, 1.2]
 func embrace_step() -> void:
 	if embrace_frames.is_empty():
 		var i := 0
@@ -415,7 +415,7 @@ func _draw_sandwich() -> bool:
 		pin_base = Sprite2D.new()
 		pin_base.centered = true
 		pin_base.region_enabled = true
-		pin_base.rotation = -PI / 2.0   # 抱き合った絵を横倒し：左のワニが下、右のドーベルマンが上
+		pin_base.rotation = 0.0
 		add_child(pin_base)
 		pin_over = Sprite2D.new()
 		add_child(pin_over)
@@ -428,20 +428,23 @@ func _draw_sandwich() -> bool:
 	pin_base.visible = true
 	embrace_step()
 	if embrace_tex != null:
-		# ワニとドーベルマンが抱き合い、その胸の間に主人公が挟まってネバネバにくっついている
+		# 下のワニ（床のベトベトに半分沈む）と上からのしかかるドーベルマンが抱き合い、胸の間に主人公が挟まっている（等倍・寝かせた向きの絵）
+		pin_base.rotation = 0.0
 		pin_base.texture = embrace_tex
-		pin_base.region_rect = Rect2(0, 40, 256, 216)
+		pin_base.region_rect = Rect2(0, 0, 256, 256)
+		# 主人公の部分のマスクがあるときだけ汚れを乗せる（無ければそのまま）
 		pin_mat.set_shader_parameter("cat_mask", embrace_mask)
 		pin_mat.set_shader_parameter("contamination", contamination())
-		pin_base.material = pin_mat
+		pin_base.material = pin_mat if embrace_mask != null else null
 		# 上から押しつぶされるたびに、ぐにゅっと潰れる
-		pin_base.scale = Vector2(1.0 + 0.03 * sq, 1.0 - 0.02 * sq)
-		pin_base.position = Vector2(0, -122.0 + sq * 2.0).round()
+		pin_base.scale = Vector2.ONE
+		pin_base.position = Vector2(0, -104.0)   # 絵の下端（床の水たまり、236行目）を床に合わせる（少し沈める）
 		return true
 	if not w.anims.has("hug"):
 		return false
 	var f := int(tt * 8.0) % 16
 	var fi := f if f < 9 else 16 - f
+	pin_base.rotation = -PI / 2.0
 	pin_base.texture = w.anims["hug"][fi]
 	pin_base.region_rect = Rect2(24, 0, 150, 205)
 	w.hug_mat.set_shader_parameter("cat_mask", w.anim_masks["hug"][fi])
