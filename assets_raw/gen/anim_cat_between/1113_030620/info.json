@@ -1,0 +1,13 @@
+{
+  "name": "anim_cat_between",
+  "mode": "anim",
+  "src": "assets_raw/embrace_key2.png",
+  "frames": 4,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat between them",
+  "desc": "Small change only: the Doberman's heavy goo body slumps further forward and covers the cat from above, so the cat ends up buried and squashed between the two bodies, sandwiched; only the cat's head with its purple hat and its paws stick out from the gap between them on the left. The crocodile underneath does not change at all. Keep both heads, poses, sizes, colors and yellow marble streaks the same.",
+  "variants": 3,
+  "generations_before": 768.9000000000001,
+  "generations_after": 766.9000000000001,
+  "used": 2.0
+}
