@@ -1,0 +1,13 @@
+{
+  "name": "anim_wani_liedown",
+  "mode": "anim",
+  "src": "assets/wani_idle.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a muscular pink paint goo crocodile monster with yellow marble streaks, lower body melting into a puddle",
+  "desc": "It slowly leans back and lies down flat on its back on the floor, face up, its head on the left, its body melting and spreading into a wide sticky puddle under it, both arms raised up and open as if ready to hug someone lying on top of it. Ends lying flat on its back. Keep its exact head, spikes, eyes, teeth, colors and marble.",
+  "variants": 1,
+  "generations_before": 771.9000000000001,
+  "generations_after": 770.9000000000001,
+  "used": 1.0
+}

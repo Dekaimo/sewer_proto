@@ -1,0 +1,13 @@
+{
+  "name": "anim_dobe_liedown",
+  "mode": "anim",
+  "src": "assets/dobe_idle.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge muscular pink paint goo Doberman monster with yellow marble streaks, lower body melting into a puddle",
+  "desc": "It slowly leans forward and lies down flat on its front, face down, horizontal, its head on the left, hovering just above the floor as if lying on top of someone, both thick arms curling down and inward in a tight hug around something beneath its chest. Ends lying horizontally face down, hugging. Keep its exact head, ears, eyes, smirk, colors and marble.",
+  "variants": 1,
+  "generations_before": 770.9000000000001,
+  "generations_after": 769.9000000000001,
+  "used": 1.0
+}
