@@ -1,0 +1,14 @@
+{
+  "name": "diag_keepbg",
+  "mode": "anim",
+  "src": "assets_raw/embrace_base.png",
+  "frames": 4,
+  "direction": "west",
+  "keep_bg": true,
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster with a small black witch cat squashed between them",
+  "desc": "They slowly squeeze the cat between their chests. Subtle loop.",
+  "variants": 1,
+  "generations_before": 798.9000000000001,
+  "generations_after": 797.9000000000001,
+  "used": 1.0
+}
