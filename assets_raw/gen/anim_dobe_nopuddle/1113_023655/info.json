@@ -1,0 +1,13 @@
+{
+  "name": "anim_dobe_nopuddle",
+  "mode": "anim",
+  "src": "assets_raw/dobe_lie_src.png",
+  "frames": 4,
+  "direction": "west",
+  "subject": "a huge muscular pink paint goo Doberman monster with yellow marble streaks lying face down, hugging",
+  "desc": "The paint puddle underneath it is sucked up and absorbed into its body until there is no puddle and no floor under it at all; its heavy goo belly and chest sag downward with thick drips hanging below, as if it lies pressed on top of someone. Keep its head, ears, face, arms hugging inward, colors and marble exactly.",
+  "variants": 1,
+  "generations_before": 769.9000000000001,
+  "generations_after": 768.9000000000001,
+  "used": 1.0
+}
