@@ -361,7 +361,7 @@ func _update_lurk(delta: float, p) -> void:
 		target = Vector2(position.x, p.position.y)
 	elif relocate_t <= 0.0 and p.state == "normal":
 		# ふだん：主人公の進む先へこっそりワープして、そこで待つ
-		var ahead := p.facing if absf(p.vel.x) < 20.0 else (1 if p.vel.x > 0.0 else -1)
+		var ahead: int = p.facing if absf(p.vel.x) < 20.0 else (1 if p.vel.x > 0.0 else -1)
 		position = p.position + Vector2(ahead * randf_range(120.0, 220.0), randf_range(-20.0, 20.0))
 		position.x = clampf(position.x, main.ARENA_L, main.ARENA_R)
 		position.y = clampf(position.y, main.DEPTH_MIN, main.DEPTH_MAX)
@@ -397,7 +397,7 @@ func _update_lurk(delta: float, p) -> void:
 	# 真上を通った：追われていてもいなくても、背後で飛び出して羽交い締め（踏めば捕まる）
 	if arm_t <= 0.0 and p.can_be_grabbed() and p.z < 20.0:
 		if absf(position.x - p.position.x) < GRAB_RX and absf(position.y - p.position.y) < GRAB_RY:
-			var run := p.facing
+			var run: int = p.facing
 			if absf(p.vel.x) > 20.0:
 				run = 1 if p.vel.x > 0.0 else -1
 			state = "burst"
