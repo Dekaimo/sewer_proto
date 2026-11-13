@@ -1,0 +1,14 @@
+{
+  "name": "anim_trio_dragdown",
+  "mode": "anim",
+  "src": "assets_raw/trio_rise_mid.png",
+  "last": "assets_raw/trio_puddle_only.png",
+  "frames": 8,
+  "direction": "west",
+  "variants": 2,
+  "subject": "a heaving mass of pink paint goo with yellow marble streaks holding a small black witch cat, on a paint puddle",
+  "desc": "The goo mass wraps around the cat and slowly drags it down, sinking back into the flat floor puddle; the cat is pulled under, its paws and hat disappearing last, thick sticky strands stretching down, until only a flat bubbling puddle remains. Slow, heavy, viscous.",
+  "generations_before": 741.9000000000001,
+  "generations_after": 739.9000000000001,
+  "used": 2.0
+}
