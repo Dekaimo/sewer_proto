@@ -1,0 +1,13 @@
+{
+  "name": "anim_dobe_wrap_small",
+  "mode": "anim",
+  "src": "assets/embrace_0.png",
+  "frames": 4,
+  "direction": "west",
+  "variants": 3,
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed between them",
+  "desc": "Small change only: the Doberman on top reaches its thick near arm down over the crocodile's shoulder and around its neck and pulls it close, pressing down harder so the two bodies squash tightly together. Everything else stays exactly the same: both lying down in the same pose and position, the crocodile's head, face, spikes and colors unchanged, the Doberman's head unchanged, same colors and yellow marble streaks.",
+  "generations_before": 722.9000000000001,
+  "generations_after": 719.9000000000001,
+  "used": 3.0
+}
