@@ -1,0 +1,34 @@
+extends SceneTree
+## 画面なしでゲームを動かして、ドーベルマンが出てきて動いているかを記録する（CI用）。
+## 主人公は3秒ごとに左右へ歩かせる。2秒ごとに敵と主人公の状態を出力。
+
+var main
+var t := 0.0
+var next_log := 0.0
+var dir := 1
+const DURATION := 60.0
+
+func _initialize() -> void:
+	main = load("res://main.tscn").instantiate()
+	root.add_child(main)
+
+func _process(delta: float) -> bool:
+	t += delta
+	if int(t / 3.0) % 2 == 0:
+		Input.action_release("left"); Input.action_press("right")
+	else:
+		Input.action_release("right"); Input.action_press("left")
+	if t >= next_log:
+		next_log += 2.0
+		var p = main.player
+		var line := "t=%.0f player=%s hp=%.0f pos=(%.0f,%.0f)" % [t, p.state, p.hp, p.position.x, p.position.y]
+		var dl: Array = main.get("dobes") if main.get("dobes") != null else []
+		line += " dobes=%d" % dl.size()
+		for d in dl:
+			if is_instance_valid(d):
+				line += " [dobe %s vis=%s pos=(%.0f,%.0f)]" % [d.state, str(d.sprite.visible), d.position.x, d.position.y]
+		for e in main.enemies:
+			if is_instance_valid(e):
+				line += " [wani %s]" % e.state
+		print(line)
+	return t >= DURATION
