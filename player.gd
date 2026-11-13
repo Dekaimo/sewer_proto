@@ -405,6 +405,16 @@ var absorb_frames: Array = []
 var absorb_masks: Array = []
 var absorbed_frames: Array = []
 var absorbed_masks: Array = []
+var splash_last := -1
+## 挟み込みの胸の間（主人公のあたり）から粘液の粒を飛ばす
+func _goo_splash(power: float) -> void:
+	if main.splash == null or not (state == "pinned" or trio_finish):
+		return   # 腹の中の小窓で回しているときは飛ばさない
+	var at := position + Vector2(-8.0, -92.0)
+	main.splash.burst(at, position.y + 2.0, int(7 * power) + randi() % 4, power)
+	main.sfx.play_any(["gurgle", "grab_loop"], -6.0, 0.25)
+
+
 var crush_frames: Array = []
 var crush_masks: Array = []
 const EMBRACE_CYCLE := 1.5     # 1ループの秒数
@@ -445,6 +455,9 @@ func embrace_step() -> void:
 			var li := int((trio_t - TRIO_ABSORB_T) * 5.0) % absorbed_frames.size()
 			embrace_tex = absorbed_frames[li]
 			embrace_mask = null
+			if li != splash_last and (li == 2 or li == 6):
+				_goo_splash(1.2)
+			splash_last = li
 			return
 	var cyc_i := int(tt / EMBRACE_CYCLE)
 	var use_crush: bool = not crush_frames.is_empty() and EMBRACE_PATTERN[cyc_i % EMBRACE_PATTERN.size()] == 1
@@ -454,6 +467,11 @@ func embrace_step() -> void:
 	var idx := clampi(int(f * arr.size()), 0, arr.size() - 1)
 	embrace_tex = arr[idx]
 	embrace_mask = marr[idx]
+	# 擦りつけ・押しつぶしの山でグチュッと飛び散る（押しつぶしは1周に2回、締め上げは1回）
+	if idx != splash_last:
+		if (use_crush and (idx == 2 or idx == 6)) or (not use_crush and idx == 3):
+			_goo_splash(1.0 if use_crush else 0.8)
+	splash_last = idx
 func _draw_sandwich() -> bool:
 	var w = null
 	for e in main.enemies:
