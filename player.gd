@@ -390,6 +390,13 @@ func _load_seq(prefix: String, tex: Array, masks: Array) -> void:
 
 
 ## 3対1の挟み込み：基本は「締め上げ」、ときどき「押しつぶし（左右に擦りつぶす）」に切り替える
+var pin_intro := ""          # 3対1から抜けた直後の出現シーン："rise" / "drag" / ""
+var pin_intro_t := 0.0
+var pin_shark = null
+var rise_frames: Array = []
+var rise_masks: Array = []
+var drag_frames: Array = []
+var drag_masks: Array = []
 var trio_finish := false     # 挟まれたまま負けた（取り込み→抱き潰しが続く）
 var trio_t := 0.0
 const TRIO_ABSORB_T := 2.4
@@ -410,6 +417,26 @@ func embrace_step() -> void:
 	if embrace_frames[0] == null:
 		return
 	var tt := Time.get_ticks_msec() / 1000.0
+	if pin_intro != "" and not trio_finish:
+		if rise_frames.is_empty():
+			_load_seq("trio_rise", rise_frames, rise_masks)
+			_load_seq("trio_drag", drag_frames, drag_masks)
+		if not rise_frames.is_empty():
+			var arr: Array = rise_frames
+			var marr: Array = rise_masks
+			var f := pin_intro_t / PIN_RISE_T
+			if pin_intro == "drag":
+				if pin_intro_t < PIN_DRAG_RISE_T:
+					# 途中（6コマ目）まで盛り上がる
+					f = pin_intro_t / PIN_DRAG_RISE_T * 6.0 / float(rise_frames.size())
+				elif not drag_frames.is_empty():
+					arr = drag_frames
+					marr = drag_masks
+					f = (pin_intro_t - PIN_DRAG_RISE_T) / PIN_DRAG_T
+			var ii := clampi(int(f * arr.size()), 0, arr.size() - 1)
+			embrace_tex = arr[ii]
+			embrace_mask = marr[ii]
+			return
 	if trio_finish:
 		if absorb_frames.is_empty():
 			_load_seq("trio_absorb", absorb_frames, absorb_masks)
@@ -730,6 +757,10 @@ func _update_swallowed(delta: float) -> void:
 		var s3 = swallower
 		swallower = null
 		state = "pinned"
+		# すぐには挟まない：地面のネバネバが盛り上がって挟み込みに移る（rise）か、そのまま地中へ引きずり戻される（drag）
+		pin_shark = s3
+		pin_intro = "drag" if randf() < 0.35 else "rise"
+		pin_intro_t = 0.0
 		struggle = 0.15
 		last_dir = 0
 		vel = Vector2.ZERO
@@ -811,6 +842,56 @@ func _update_held(delta: float) -> void:
 
 # ---------- 地面で上下から挟まれる（3対1から抜けたあと） ----------
 func _update_pinned(delta: float) -> void:
+	if pin_intro != "":
+		_update_pin_intro(delta)
+		return
+	_update_pinned_main(delta)
+
+
+## 脱出直後の出現シーン
+const PIN_RISE_T := 2.6      # 水たまり → 2体が形成されて挟み込み
+const PIN_DRAG_RISE_T := 1.1 # 引きずり込み：途中まで盛り上がって…
+const PIN_DRAG_T := 1.8      # …主人公ごと床へ沈む
+func _update_pin_intro(delta: float) -> void:
+	pin_intro_t += delta
+	struggle = 0.15
+	if fmod(pin_intro_t, 0.35) < delta:
+		main.sfx.play_any(["gurgle", "grab_loop"], -3.0, 0.2)
+		main.add_goop(position + Vector2(randf_range(-60, 60), randf_range(-8, 8)), 60.0, 0.25)
+		add_dirt(random_body_point(), 2)
+	if pin_intro == "rise" and pin_intro_t >= PIN_RISE_T:
+		pin_intro = ""
+		main.sfx.play("grab", 0.0)
+		main.zoom_moment(position + Vector2(0, -40), 0.8)
+	elif pin_intro == "drag" and pin_intro_t >= PIN_DRAG_RISE_T + PIN_DRAG_T:
+		pin_intro = ""
+		_drag_back_under()
+
+
+## 地中へ引きずり戻される：サメの腹の中の3対1に戻る
+func _drag_back_under() -> void:
+	var sh = pin_shark
+	var w = null
+	for e in main.enemies:
+		if is_instance_valid(e) and e.state == "pinned":
+			w = e
+	var d = null
+	for x in main.dobes:
+		if is_instance_valid(x) and x.state == "pin":
+			d = x
+	if sh == null or not is_instance_valid(sh) or w == null or d == null:
+		return   # 戻れないときは、そのまま地面で挟み込み
+	sh.position = position
+	sh.caught_wani = w
+	w.get_swallowed(sh)
+	sh.caught_dobe = d
+	d.get_swallowed(sh)
+	sh.caught_player = get_swallowed(sh, true)
+	sh._sink_after_attack()
+	main.add_ring(position, 3.0)
+
+
+func _update_pinned_main(delta: float) -> void:
 	# 一度抜けたぶん少しだけ抜けやすい。そのかわり上からぐりぐり押しつけられて汚れる
 	struggle -= 0.12 * delta
 	var d := _mash_input()
