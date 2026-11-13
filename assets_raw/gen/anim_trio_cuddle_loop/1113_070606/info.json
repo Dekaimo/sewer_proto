@@ -1,0 +1,14 @@
+{
+  "name": "anim_trio_cuddle_loop",
+  "mode": "anim",
+  "src": "assets_raw/trio_cuddle_key.png",
+  "last": "assets_raw/trio_cuddle_key.png",
+  "frames": 8,
+  "direction": "west",
+  "variants": 2,
+  "subject": "a pink paint goo Doberman monster hugging a pink paint goo crocodile monster tightly, on a sticky paint puddle",
+  "desc": "Loop: the Doberman keeps hugging the crocodile tightly and squeezing it again and again, rubbing its cheek against it, the two cuddling closely like an affectionate couple; their goo bodies squish and bulge together with each squeeze, sticky goo strands stretching between them and dripping into the puddle. Eyes half-closed and content. They stay in place. Heavy, sticky, gooey.",
+  "generations_before": 724.9000000000001,
+  "generations_after": 723.9000000000001,
+  "used": 1.0
+}
