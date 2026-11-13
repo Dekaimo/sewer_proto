@@ -1,0 +1,14 @@
+{
+  "name": "anim_trio_sink",
+  "mode": "anim",
+  "src": "assets/embrace_0.png",
+  "last": "assets_raw/trio_puddle_only.png",
+  "frames": 12,
+  "direction": "west",
+  "variants": 2,
+  "subject": "a pile of pink paint goo monsters with yellow marble streaks hugging each other with a small black witch cat squashed between them, all lying on a goo puddle",
+  "desc": "The whole pile slowly melts and sinks into the floor puddle together, with the cat still squashed between the two monsters: their silhouettes sag, droop and lose their shape, heads, arms and bodies softening into dripping formless blobs, the cat sinking along with them inside the goo, everything slumping and spreading down until only a flat sticky puddle remains. Thick stretchy goo strands and drips throughout. Melting, formless, viscous; no clean edges, nothing cut off by the floor line.",
+  "generations_before": 739.9000000000001,
+  "generations_after": 733.9000000000001,
+  "used": 6.0
+}
