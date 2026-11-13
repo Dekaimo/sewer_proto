@@ -1,0 +1,13 @@
+{
+  "name": "anim_trio_sink2",
+  "mode": "anim",
+  "src": "assets/embrace_0.png",
+  "frames": 12,
+  "direction": "west",
+  "variants": 2,
+  "subject": "a pile of pink paint goo monsters with yellow marble streaks hugging each other with a small black witch cat squashed between them, lying on a goo puddle",
+  "desc": "Like melting wax or hot slime, the whole pile slowly loses its shape and oozes down into the floor puddle, cat and all: rounded blobs sag and droop downward, heads and ears go soft and slide down, the bodies slump and spread outward in lumpy wavy shapes with thick drips running down their sides and long stretchy strands, the outline always soft, round and irregular, getting lower and lower until it is a wide flat puddle. Never a straight or flat cut edge on top.",
+  "generations_before": 730.9000000000001,
+  "generations_after": 726.9000000000001,
+  "used": 4.0
+}
