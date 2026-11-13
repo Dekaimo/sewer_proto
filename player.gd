@@ -370,40 +370,42 @@ var pin_base: Sprite2D
 var pin_over: Sprite2D
 var pin_mat: ShaderMaterial
 ## ワニとドーベルマンが抱き合って主人公を挟んだ絵（3対1の小窓と、抜けた後の地面で使う）
-var embrace_frames: Array[Texture2D] = []
+var embrace_frames: Array = []
 var embrace_masks: Array = []
 var embrace_tex: Texture2D = null    # 今のコマ（小窓が読む）
 var embrace_mask: Texture2D = null
 ## 締め上げのループ：寄せきった所で止めて、ゆっくり緩む
-const EMBRACE_W := [1.6, 1.0, 0.8, 1.4, 2.2, 1.4, 1.0, 1.2]
+func _load_seq(prefix: String, tex: Array, masks: Array) -> void:
+	var i := 0
+	while ResourceLoader.exists("res://assets/%s_%d.png" % [prefix, i]):
+		tex.append(load("res://assets/%s_%d.png" % [prefix, i]))
+		var mp := "res://assets/masks/%s_%d_mask.png" % [prefix, i]
+		masks.append(load(mp) if ResourceLoader.exists(mp) else null)
+		i += 1
+
+
+## 3対1の挟み込み：基本は「締め上げ」、ときどき「押しつぶし（左右に擦りつぶす）」に切り替える
+var crush_frames: Array = []
+var crush_masks: Array = []
+const EMBRACE_CYCLE := 1.5     # 1ループの秒数
+const EMBRACE_PATTERN := [0, 0, 0, 1, 1]   # 0=締め上げ 1=押しつぶし を1ループずつ
 func embrace_step() -> void:
 	if embrace_frames.is_empty():
-		var i := 0
-		while ResourceLoader.exists("res://assets/embrace_%d.png" % i):
-			embrace_frames.append(load("res://assets/embrace_%d.png" % i))
-			var mp := "res://assets/masks/embrace_%d_mask.png" % i
-			embrace_masks.append(load(mp) if ResourceLoader.exists(mp) else null)
-			i += 1
+		_load_seq("embrace", embrace_frames, embrace_masks)
+		_load_seq("embrace_crush", crush_frames, crush_masks)
 		if embrace_frames.is_empty():
 			embrace_frames.append(null)
 	if embrace_frames[0] == null:
 		return
-	var n := embrace_frames.size()
-	var cyc := float(n) / 5.0
-	var f := fmod(Time.get_ticks_msec() / 1000.0, cyc) / cyc
-	var idx := clampi(int(f * n), 0, n - 1)
-	if EMBRACE_W.size() == n:
-		var tot := 0.0
-		for x in EMBRACE_W:
-			tot += x
-		var acc := 0.0
-		for k in n:
-			acc += EMBRACE_W[k]
-			if f * tot < acc:
-				idx = k
-				break
-	embrace_tex = embrace_frames[idx]
-	embrace_mask = embrace_masks[idx]
+	var tt := Time.get_ticks_msec() / 1000.0
+	var cyc_i := int(tt / EMBRACE_CYCLE)
+	var use_crush: bool = not crush_frames.is_empty() and EMBRACE_PATTERN[cyc_i % EMBRACE_PATTERN.size()] == 1
+	var arr: Array = crush_frames if use_crush else embrace_frames
+	var marr: Array = crush_masks if use_crush else embrace_masks
+	var f := fmod(tt, EMBRACE_CYCLE) / EMBRACE_CYCLE
+	var idx := clampi(int(f * arr.size()), 0, arr.size() - 1)
+	embrace_tex = arr[idx]
+	embrace_mask = marr[idx]
 func _draw_sandwich() -> bool:
 	var w = null
 	for e in main.enemies:
