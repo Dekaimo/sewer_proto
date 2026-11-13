@@ -1,0 +1,13 @@
+{
+  "name": "anim_dobe_hugs_wani",
+  "mode": "anim",
+  "src": "assets_raw/embrace_key2.png",
+  "frames": 4,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed between them",
+  "desc": "Only the Doberman on top moves: it wraps both of its thick arms around the crocodile's body and shoulders and hugs it tightly, pulling it close. The crocodile underneath does not move or change at all: same head, same face, same eyes, same pose, same colors. Keep the Doberman's head with tall ears on the upper left, the same colors and yellow marble streaks.",
+  "variants": 1,
+  "generations_before": 782.9000000000001,
+  "generations_after": 782.9000000000001,
+  "used": 0.0
+}
