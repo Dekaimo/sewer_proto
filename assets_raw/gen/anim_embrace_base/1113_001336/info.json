@@ -1,0 +1,13 @@
+{
+  "name": "anim_embrace_base",
+  "mode": "anim",
+  "src": "assets_raw/embrace_base.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed between their chests",
+  "desc": "The two monsters keep squeezing the cat between their chests and grind against it, while on the right their melting lower bodies sag, slump and pour down heavily in thick lumpy folds and drips until they merge solidly into the floor puddle, fully connected to the floor, very gooey and viscous. The cat wriggles.",
+  "variants": 1,
+  "generations_before": 799.9000000000001,
+  "generations_after": 798.9000000000001,
+  "used": 1.0
+}
