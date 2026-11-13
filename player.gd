@@ -393,13 +393,14 @@ func _load_seq(prefix: String, tex: Array, masks: Array) -> void:
 var pin_intro := ""          # 3対1から抜けた直後の出現シーン："rise" / "drag" / ""
 var pin_intro_t := 0.0
 var pin_shark = null
+var pin_sink_t := 8.0
 var rise_frames: Array = []
 var rise_masks: Array = []
 var drag_frames: Array = []
 var drag_masks: Array = []
 var trio_finish := false     # 挟まれたまま負けた（取り込み→抱き潰しが続く）
 var trio_t := 0.0
-const TRIO_ABSORB_T := 2.4
+const TRIO_ABSORB_T := 2.0
 var absorb_frames: Array = []
 var absorb_masks: Array = []
 var absorbed_frames: Array = []
@@ -421,18 +422,10 @@ func embrace_step() -> void:
 		if rise_frames.is_empty():
 			_load_seq("trio_rise", rise_frames, rise_masks)
 			_load_seq("trio_drag", drag_frames, drag_masks)
-		if not rise_frames.is_empty():
-			var arr: Array = rise_frames
-			var marr: Array = rise_masks
-			var f := pin_intro_t / PIN_RISE_T
-			if pin_intro == "drag":
-				if pin_intro_t < PIN_DRAG_RISE_T:
-					# 途中（6コマ目）まで盛り上がる
-					f = pin_intro_t / PIN_DRAG_RISE_T * 6.0 / float(rise_frames.size())
-				elif not drag_frames.is_empty():
-					arr = drag_frames
-					marr = drag_masks
-					f = (pin_intro_t - PIN_DRAG_RISE_T) / PIN_DRAG_T
+		var arr: Array = rise_frames if pin_intro == "rise" else drag_frames
+		var marr: Array = rise_masks if pin_intro == "rise" else drag_masks
+		if not arr.is_empty():
+			var f := pin_intro_t / (PIN_RISE_T if pin_intro == "rise" else PIN_SINK_T)
 			var ii := clampi(int(f * arr.size()), 0, arr.size() - 1)
 			embrace_tex = arr[ii]
 			embrace_mask = marr[ii]
@@ -759,8 +752,9 @@ func _update_swallowed(delta: float) -> void:
 		state = "pinned"
 		# すぐには挟まない：地面のネバネバが盛り上がって挟み込みに移る（rise）か、そのまま地中へ引きずり戻される（drag）
 		pin_shark = s3
-		pin_intro = "drag" if randf() < 0.35 else "rise"
+		pin_intro = "rise"        # 挟まれた姿のまま、地面から溶け出るように湧いてくる
 		pin_intro_t = 0.0
+		pin_sink_t = randf_range(6.0, 10.0)
 		struggle = 0.15
 		last_dir = 0
 		vel = Vector2.ZERO
@@ -848,10 +842,9 @@ func _update_pinned(delta: float) -> void:
 	_update_pinned_main(delta)
 
 
-## 脱出直後の出現シーン
-const PIN_RISE_T := 2.6      # 水たまり → 2体が形成されて挟み込み
-const PIN_DRAG_RISE_T := 1.1 # 引きずり込み：途中まで盛り上がって…
-const PIN_DRAG_T := 1.8      # …主人公ごと床へ沈む
+## 挟み込みの出入り：同じ「溶けて沈む」アニメを、出てくるときは逆再生、沈むときは順再生
+const PIN_RISE_T := 2.2      # 挟まれた姿のまま地面から湧き出る
+const PIN_SINK_T := 2.2      # 挟まれた姿のまま溶けて地面に沈む → 地中の3対1へ
 func _update_pin_intro(delta: float) -> void:
 	pin_intro_t += delta
 	struggle = 0.15
@@ -863,7 +856,7 @@ func _update_pin_intro(delta: float) -> void:
 		pin_intro = ""
 		main.sfx.play("grab", 0.0)
 		main.zoom_moment(position + Vector2(0, -40), 0.8)
-	elif pin_intro == "drag" and pin_intro_t >= PIN_DRAG_RISE_T + PIN_DRAG_T:
+	elif pin_intro == "sink" and pin_intro_t >= PIN_SINK_T:
 		pin_intro = ""
 		_drag_back_under()
 
@@ -892,6 +885,15 @@ func _drag_back_under() -> void:
 
 
 func _update_pinned_main(delta: float) -> void:
+	# ときどき、挟んだまま溶けて地面に沈み、地中へ引きずり戻す
+	pin_sink_t -= delta
+	if pin_sink_t <= 0.0:
+		pin_sink_t = randf_range(6.0, 10.0)
+		if randf() < 0.5 and pin_shark != null and is_instance_valid(pin_shark):
+			pin_intro = "sink"
+			pin_intro_t = 0.0
+			main.sfx.play("gurgle", 0.0)
+			return
 	# 一度抜けたぶん少しだけ抜けやすい。そのかわり上からぐりぐり押しつけられて汚れる
 	struggle -= 0.12 * delta
 	var d := _mash_input()
