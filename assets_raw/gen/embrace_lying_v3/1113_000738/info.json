@@ -1,0 +1,30 @@
+{
+  "name": "embrace_lying_v3",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "seed": 7801,
+  "style": "assets_raw/wani_style_patch.png",
+  "refs": [
+    [
+      "assets_raw/embrace_lying.png",
+      "the scene to redraw: follow this composition, poses, sizes and layout exactly (Doberman on top face down, crocodile underneath on its back, cat squashed between their chests, heads on the left)"
+    ],
+    [
+      "assets/wani_idle.png",
+      "the crocodile's exact design: head, spikes, eyes with pupils, teeth, colors, marble"
+    ],
+    [
+      "assets/dobe_idle.png",
+      "the Doberman's exact design: head, ears, stern yellow eyes, smirk, colors, marble"
+    ],
+    [
+      "assets/cat_0.png",
+      "the cat's exact design and colors: black-gray fur, purple witch hat with a star, purple cape, bell collar"
+    ]
+  ],
+  "desc": "Pixel art, side view, lying on the floor. The huge pink paint goo Doberman lies face down on top, embracing the pink goo crocodile chest to chest; the crocodile lies on its back underneath, half sunk in a wide glossy sticky pink paint puddle on the floor. The small black witch cat (true black-gray fur, purple hat and cape, clearly readable) is squashed and glued between their two chests, struggling, with thick stretchy goo strands over it. On the right, both monsters' lower bodies collapse into one heavy, sagging, lumpy mass of melting paint that slumps and oozes down in thick folds and drips and merges into the floor puddle, clearly connected to the floor, very gooey and viscous. Crisp dark outline, glossy wet highlights, yellow marble streaks. Transparent background above the puddle.",
+  "generations_before": 809.9000000000001,
+  "generations_after": 799.9000000000001,
+  "used": 10.0
+}
