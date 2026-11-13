@@ -348,11 +348,17 @@ func _update_lurk(delta: float, p) -> void:
 		# 磔：真下へ向かう（ここだけは少し急ぐ）
 		target = p.position + Vector2(34.0 * (1 if position.x > p.position.x else -1), 6.0)
 	elif th != null:
-		# 追われている：逃げる先の少し先に、ときどき狙いを決め直してゆっくり向かう
-		if relocate_t <= 0.0:
-			var esc := 1 if p.position.x >= th.position.x else -1
-			target = p.position + Vector2(esc * randf_range(130.0, 180.0), randf_range(-14.0, 14.0))
-			relocate_t = 1.6
+		# 追われている：逃げる先で待つ。前方にいない（追い越された・遠すぎる）ときだけ、いつの間にか先へワープ
+		var esc := 1 if p.position.x >= th.position.x else -1
+		var ahead: float = (position.x - p.position.x) * esc
+		if (ahead < 40.0 or ahead > 320.0) and relocate_t <= 0.0:
+			position = p.position + Vector2(esc * randf_range(140.0, 200.0), randf_range(-10.0, 10.0))
+			position.x = clampf(position.x, main.ARENA_L, main.ARENA_R)
+			position.y = clampf(position.y, main.DEPTH_MIN, main.DEPTH_MAX)
+			relocate_t = 1.2
+			arm_t = maxf(arm_t, 0.3)
+		# 待っている間は動かず、通り道の高さにだけゆっくり寄せる
+		target = Vector2(position.x, p.position.y)
 	elif relocate_t <= 0.0 and p.state == "normal":
 		# ふだん：主人公の進む先へこっそりワープして、そこで待つ
 		var ahead := p.facing if absf(p.vel.x) < 20.0 else (1 if p.vel.x > 0.0 else -1)
@@ -366,7 +372,7 @@ func _update_lurk(delta: float, p) -> void:
 	target.y = clampf(target.y, main.DEPTH_MIN, main.DEPTH_MAX)
 	var to_t: Vector2 = target - position
 	var before := position
-	var sp := 140.0 if crucify_target else LURK_SPEED
+	var sp := 140.0 if crucify_target else (40.0 if th != null else LURK_SPEED)
 	if to_t.length() > 3.0:
 		position += to_t.normalized() * Vector2(1.0, 0.7) * minf(sp * delta, to_t.length())
 	# 動いているときだけ床がかすかに盛り上がる（止まるとほぼ見えない）
@@ -402,8 +408,8 @@ func _update_lurk(delta: float, p) -> void:
 			main.sfx.play("grab", -2.0)
 			main.add_goop(position, 90.0, 0.3)
 			return
-	# ときどき顔を見せる（追われていないとき、その場で）
-	if th == null and lurk_t > peek_t and p.state == "normal":
+	# ときどき顔を見せる（その場で。主人公のすぐそばでは出ない）
+	if lurk_t > peek_t and p.state == "normal" and position.distance_to(p.position) > 110.0:
 		state = "enter"
 		t = 0.0
 		quick_enter = true
