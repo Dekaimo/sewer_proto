@@ -1,0 +1,14 @@
+{
+  "name": "anim_embrace4_squeeze2",
+  "mode": "anim",
+  "src": "assets_raw/embrace_key4.png",
+  "last": "assets_raw/embrace_key4.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed and buried between their bodies",
+  "variants": 2,
+  "desc": "Subtle loop, everyone stays lying in place: the Doberman stays pressed flat on top the whole time and never lifts or sits up; it squeezes down tighter in slow pulses while the crocodile underneath squeezes up, their goo bodies squishing and bulging around the buried cat, thick goo strands stretching and dripping into the floor puddle. The crocodile's head and face do not change. The floor puddle stays still, no bubbles. Heavy, sticky, viscous.",
+  "generations_before": 763.9000000000001,
+  "generations_after": 761.9000000000001,
+  "used": 2.0
+}
