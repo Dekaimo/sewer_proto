@@ -1,0 +1,14 @@
+{
+  "name": "anim_trio_rise",
+  "mode": "anim",
+  "src": "assets_raw/trio_rise_start.png",
+  "last": "assets/embrace_0.png",
+  "frames": 12,
+  "direction": "west",
+  "variants": 2,
+  "subject": "a pink paint goo puddle with yellow marble streaks that forms into a pink goo crocodile monster and a pink goo Doberman monster, and a small black witch cat",
+  "desc": "The small black witch cat falls onto a flat sticky paint puddle; the puddle heaves and bulges under it, thick sticky goo rises around the cat and clings to it, the goo underneath swells into the crocodile lying on its back holding the cat from below, and a big mass of goo rises up over the cat and slumps down on top as the Doberman, pressing the cat between them. Slow, heavy, stringy, sticky goo strands everywhere.",
+  "generations_before": 745.9000000000001,
+  "generations_after": 741.9000000000001,
+  "used": 4.0
+}
