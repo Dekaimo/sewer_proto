@@ -1,0 +1,13 @@
+{
+  "name": "anim_trio_dopun",
+  "mode": "anim",
+  "src": "assets_raw/trio_press_3.png",
+  "frames": 4,
+  "direction": "west",
+  "variants": 3,
+  "subject": "a pink goo Doberman monster pressed down on top of a pink goo crocodile monster on a sticky paint puddle, hugging it, with a small black witch cat squashed between them",
+  "desc": "Small change only: with a wet plop the small black cat sinks completely into the pink goo between the two monsters and disappears entirely, swallowed by their bodies; no black, no hat, no cat visible at all anymore, only a small ripple and bulge of pink goo where it sank. Everything else stays the same: the Doberman pressed down hugging the crocodile, same lying pose, both heads and faces unchanged, same colors and yellow marble streaks.",
+  "generations_before": 716.9000000000001,
+  "generations_after": 713.9000000000001,
+  "used": 3.0
+}
