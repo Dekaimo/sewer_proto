@@ -1,0 +1,14 @@
+{
+  "name": "anim_trio_absorbed_loop",
+  "mode": "anim",
+  "src": "assets_raw/trio_absorbed_key.png",
+  "last": "assets_raw/trio_absorbed_key.png",
+  "frames": 8,
+  "direction": "west",
+  "variants": 2,
+  "subject": "a pink paint goo Doberman monster and a pink paint goo crocodile monster lying on a paint puddle, hugging each other",
+  "desc": "Loop: the two goo monsters keep hugging each other tightly and squeeze again and again; their merged goo bodies squish, bulge and ripple with each squeeze, a dark shape moving inside the goo, sticky goo strands stretching and dripping between them. Both keep their eyes half-closed with a smug, content smile. They stay lying in place. Heavy, sticky, gooey.",
+  "generations_before": 747.9000000000001,
+  "generations_after": 745.9000000000001,
+  "used": 2.0
+}
