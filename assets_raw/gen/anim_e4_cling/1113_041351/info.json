@@ -1,0 +1,14 @@
+{
+  "name": "anim_e4_cling",
+  "mode": "anim",
+  "src": "assets_raw/embrace_key4.png",
+  "last": "assets_raw/embrace_key4.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed and buried between their bodies",
+  "variants": 2,
+  "desc": "Loop with small movements, both monsters stay lying exactly where they are and keep their heads low: their arms and chests slowly tighten around the buried cat and then slightly loosen, again and again; each time they loosen, many thick stretchy sticky goo strands pull out between their two bodies in the narrow gap, and each time they tighten the bodies squish back together wetly, bulging. The Doberman's head stays at the same height on the left. The crocodile's head and face do not change. Heavy, sticky, viscous.",
+  "generations_before": 757.9000000000001,
+  "generations_after": 755.9000000000001,
+  "used": 2.0
+}
