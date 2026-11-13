@@ -1,0 +1,14 @@
+{
+  "name": "anim_embrace_hug",
+  "mode": "anim",
+  "src": "assets_raw/embrace_key3.png",
+  "last": "assets_raw/embrace_key3.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, hugging each other with a small black witch cat squashed between their chests",
+  "desc": "Loop: the Doberman on top presses down and grinds its broad chest against the cat while the crocodile underneath squeezes up from below, both keep hugging each other tightly with their arms wrapped around each other's backs, their bodies squishing and bulging; the trapped cat wriggles; thick goo strands stretch and drip down into the sticky floor puddle. The floor puddle itself stays still, no bubbles. Heavy, sticky, viscous.",
+  "variants": 1,
+  "generations_before": 783.9000000000001,
+  "generations_after": 782.9000000000001,
+  "used": 1.0
+}
