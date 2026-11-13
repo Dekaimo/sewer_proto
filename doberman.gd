@@ -43,7 +43,9 @@ var thrown := false
 var throw_wani = null
 var quick_enter := false
 var burst_grabbed := false
-var heave_k := 0.0          # 潜伏中の床の盛り上がり（0〜1、なめらかに）
+var heave_k := 0.0
+var arm_t := 0.0             # 潜ってすぐは飛び出さない（放した直後に捕まえ直さない）
+var relocate_t := 0.0          # 潜伏中の床の盛り上がり（0〜1、なめらかに）
 var last_struggle := 0.0
 var wobble := 0.0
 var fake_left := 0          # あと何回「押されたフリ」をするか
@@ -311,6 +313,9 @@ func _update_sink(_delta: float) -> void:
 		state = "lurk"
 		t = 0.0
 		lurk_t = 0.0
+		arm_t = 2.5
+		relocate_t = randf_range(1.5, 3.0)
+		target = position
 		peek_t = randf_range(6.0, 11.0)
 		sprite.visible = false
 		main.add_goop(position, 60.0, 0.15)
@@ -327,38 +332,49 @@ func _threat(p):
 	return null
 
 
+## 待ち伏せ：床の下の一点にじっと潜んで（ほぼ見えない）、主人公が真上を通ったら飛び出して羽交い締め。
+## 直接は追いかけない。追われている主人公の逃げる先へゆっくり先回りするか、ふだんは進路の先へこっそりワープして待つ。
+const LURK_SPEED := 70.0        # 先回りするときの速さ（主人公より遅い）
+const GRAB_RX := 30.0           # 真上とみなす範囲
+const GRAB_RY := 22.0
 func _update_lurk(delta: float, p) -> void:
 	lurk_t += delta
+	arm_t -= delta
+	relocate_t -= delta
 	sprite.visible = false
 	var th = _threat(p)
-	var esc := 0
-	# 行き先：磔なら真下、2対1ならその場、追われていれば逃げ道の先、ふだんは背中側
-	if p.state == "crucified" and p.crucifier != null and is_instance_valid(p.crucifier) and p.crucifier.state == "crucify":
+	var crucify_target: bool = p.state == "crucified" and p.crucifier != null and is_instance_valid(p.crucifier) and p.crucifier.state == "crucify"
+	if crucify_target:
+		# 磔：真下へ向かう（ここだけは少し急ぐ）
 		target = p.position + Vector2(34.0 * (1 if position.x > p.position.x else -1), 6.0)
 	elif th != null:
-		esc = 1 if p.position.x >= th.position.x else -1
-		target = p.position + Vector2(esc * 70.0, 0.0)
-	else:
-		target = p.position + Vector2(-p.facing * 80.0, 0.0)
+		# 追われている：逃げる先の少し先に、ときどき狙いを決め直してゆっくり向かう
+		if relocate_t <= 0.0:
+			var esc := 1 if p.position.x >= th.position.x else -1
+			target = p.position + Vector2(esc * randf_range(130.0, 180.0), randf_range(-14.0, 14.0))
+			relocate_t = 1.6
+	elif relocate_t <= 0.0 and p.state == "normal":
+		# ふだん：主人公の進む先へこっそりワープして、そこで待つ
+		var ahead := p.facing if absf(p.vel.x) < 20.0 else (1 if p.vel.x > 0.0 else -1)
+		position = p.position + Vector2(ahead * randf_range(120.0, 220.0), randf_range(-20.0, 20.0))
+		position.x = clampf(position.x, main.ARENA_L, main.ARENA_R)
+		position.y = clampf(position.y, main.DEPTH_MIN, main.DEPTH_MAX)
+		target = position
+		relocate_t = randf_range(6.0, 10.0)
+		arm_t = maxf(arm_t, 0.5)
 	target.x = clampf(target.x, main.ARENA_L, main.ARENA_R)
 	target.y = clampf(target.y, main.DEPTH_MIN, main.DEPTH_MAX)
 	var to_t: Vector2 = target - position
-	# 遠すぎる（反対側にいる）→ いつの間にかワープ（追われていないときだけ）
-	if to_t.length() > 300.0 and lurk_t > 1.0 and th == null:
-		position = target
-		lurk_t = 0.0
-		return
 	var before := position
-	# 追われている主人公の逃げ道へは、床の下を一気に先回りする
-	var sp := 330.0 if th != null else 170.0
+	var sp := 140.0 if crucify_target else LURK_SPEED
 	if to_t.length() > 3.0:
 		position += to_t.normalized() * Vector2(1.0, 0.7) * minf(sp * delta, to_t.length())
-	# 動いているときだけ床がかすかに盛り上がる（止まるとほぼ見えない）。点滅しないように、なめらかに出し入れする
+	# 動いているときだけ床がかすかに盛り上がる（止まるとほぼ見えない）
 	heave_k = move_toward(heave_k, 1.0 if before.distance_to(position) > 0.3 else 0.0, delta * 3.0)
 	if heave_k > 0.05:
 		main.add_heave(position, 30.0, 5.0 * heave_k)
 	# 磔：真下に着いたら挟みに出る
-	if p.state == "crucified" and to_t.length() < 8.0:
+	if crucify_target and to_t.length() < 8.0:
 		facing = 1 if p.position.x > position.x else -1
 		_start_sandwich(p)
 		return
@@ -372,11 +388,10 @@ func _update_lurk(delta: float, p) -> void:
 			sprite.visible = true
 			main.sfx.play("assist", -2.0)
 			return
-	# 他の敵から逃げている主人公のすぐ下まで来た → 背後で飛び出して羽交い締め
-	if th != null and p.can_be_grabbed() and p.z < 20.0:
-		var dx: float = position.x - p.position.x
-		if absf(dx) < 46.0 and absf(position.y - p.position.y) < 26.0:
-			var run := esc
+	# 真上を通った：追われていてもいなくても、背後で飛び出して羽交い締め（踏めば捕まる）
+	if arm_t <= 0.0 and p.can_be_grabbed() and p.z < 20.0:
+		if absf(position.x - p.position.x) < GRAB_RX and absf(position.y - p.position.y) < GRAB_RY:
+			var run := p.facing
 			if absf(p.vel.x) > 20.0:
 				run = 1 if p.vel.x > 0.0 else -1
 			state = "burst"
@@ -387,11 +402,11 @@ func _update_lurk(delta: float, p) -> void:
 			main.sfx.play("grab", -2.0)
 			main.add_goop(position, 90.0, 0.3)
 			return
-	# ときどき顔を見せる（追われていないとき）
+	# ときどき顔を見せる（追われていないとき、その場で）
 	if th == null and lurk_t > peek_t and p.state == "normal":
 		state = "enter"
 		t = 0.0
-		quick_enter = true   # 顔見せは少し速く
+		quick_enter = true
 		facing = 1 if p.position.x > position.x else -1
 
 
