@@ -1,0 +1,13 @@
+{
+  "name": "anim_embrace_wrap2",
+  "mode": "anim",
+  "src": "assets_raw/embrace_key2.png",
+  "frames": 4,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed between their chests",
+  "desc": "Small change only: both monsters wrap their arms around each other's backs in a tight mutual hug. The Doberman's arms reach down around the crocodile's shoulders, the crocodile's arms reach up around the Doberman's back. Keep both heads clearly visible and unchanged: the Doberman's head with tall ears on the upper left, the crocodile's head on the lower left. Keep the same pose, positions, sizes and the exact same colors and yellow marble streaks.",
+  "variants": 1,
+  "generations_before": 784.9000000000001,
+  "generations_after": 783.9000000000001,
+  "used": 1.0
+}
