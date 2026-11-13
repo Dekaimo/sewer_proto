@@ -374,8 +374,6 @@ var embrace_frames: Array[Texture2D] = []
 var embrace_masks: Array = []
 var embrace_tex: Texture2D = null    # 今のコマ（小窓が読む）
 var embrace_mask: Texture2D = null
-## 締め上げのループ：寄せきった所で止めて、ゆっくり緩む
-const EMBRACE_W := [1.6, 1.0, 0.8, 1.4, 2.2, 1.4, 1.0, 1.2]
 func embrace_step() -> void:
 	if embrace_frames.is_empty():
 		var i := 0
@@ -388,20 +386,16 @@ func embrace_step() -> void:
 			embrace_frames.append(null)
 	if embrace_frames[0] == null:
 		return
+	# 床まで崩れ落ちたコマを往復させる（0→末尾→0）。端（寄せきり・緩みきり）で少し止まる
 	var n := embrace_frames.size()
-	var cyc := float(n) / 5.0
-	var f := fmod(Time.get_ticks_msec() / 1000.0, cyc) / cyc
-	var idx := clampi(int(f * n), 0, n - 1)
-	if EMBRACE_W.size() == n:
-		var tot := 0.0
-		for x in EMBRACE_W:
-			tot += x
-		var acc := 0.0
-		for k in n:
-			acc += EMBRACE_W[k]
-			if f * tot < acc:
-				idx = k
-				break
+	var seq: Array[int] = []
+	for k in n:
+		seq.append(k)
+		if k == 0 or k == n - 1:
+			seq.append(k)
+	for k in range(n - 2, 0, -1):
+		seq.append(k)
+	var idx: int = seq[int(Time.get_ticks_msec() / 160) % seq.size()]
 	embrace_tex = embrace_frames[idx]
 	embrace_mask = embrace_masks[idx]
 func _draw_sandwich() -> bool:
