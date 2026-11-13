@@ -1,0 +1,13 @@
+{
+  "name": "anim_trio_absorb",
+  "mode": "anim",
+  "src": "assets/embrace_0.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed between them",
+  "desc": "Finishing move: the two goo monsters hug each other even tighter and their bodies merge around the cat, slowly swallowing it inside; the cat sinks completely into their pink goo bodies and disappears from view, only a faint dark shape inside, its hat sinking last. Both monsters narrow their eyes into satisfied, lewd half-closed slits and smirk. They stay lying in place, heavy, sticky, viscous, goo strands stretching between them.",
+  "variants": 2,
+  "generations_before": 749.9000000000001,
+  "generations_after": 747.9000000000001,
+  "used": 2.0
+}
