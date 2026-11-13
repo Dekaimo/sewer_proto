@@ -1,0 +1,13 @@
+{
+  "name": "anim_embrace_settle",
+  "mode": "anim",
+  "src": "assets_raw/embrace_base.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed between their chests",
+  "desc": "Gravity takes over: the heavy goo Doberman on top slowly slumps and sags down onto the crocodile under its own weight until it lies pressed flat and tight against it, no gap left between their bodies, the cat squashed firmly between their chests; its gooey bulk drapes and spreads over the crocodile. At the same time the crocodile's legs and feet at the bottom melt away completely into the sticky floor puddle. Slow, heavy, viscous.",
+  "variants": 1,
+  "generations_before": 787.9000000000001,
+  "generations_after": 787.9000000000001,
+  "used": 0.0
+}
