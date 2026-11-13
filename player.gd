@@ -195,10 +195,15 @@ func _flow_dirt() -> void:
 
 
 # 汚れているほど被ダメージが増える（最大1.5倍）
+## ダメージの調整（長く弄ばれるように）：捕まっている間の削れはかなり控えめに、殴られる・抱きつかれる瞬間はやや控えめに
+const RESTRAINED_DMG := 0.3   # 捕まっている間（抱きつき・磔・挟み込み・羽交い締め・腹の中）
+const HIT_DMG := 0.6          # それ以外（殴られる・抱きつかれた瞬間など）
+const DIRT_DMG := 0.25        # 汚れによる上乗せ（汚れきって 1.25 倍）
 func damage(amount: float) -> void:
 	if state == "defeated":
 		return
-	hp -= amount * (1.0 + 0.5 * contamination())
+	var restrained: bool = state in ["grabbed", "held", "crucified", "pinned", "swallowed"]
+	hp -= amount * (RESTRAINED_DMG if restrained else HIT_DMG) * (1.0 + DIRT_DMG * contamination())
 	if hp <= 0.0:
 		hp = 0.0
 		_defeat()
@@ -741,7 +746,7 @@ func _update_swallowed(delta: float) -> void:
 	if drip_timer > (0.1 if trio else (0.14 if swallow_combo else 0.24)):
 		drip_timer = 0.0
 		add_dirt(random_body_point(), 3 if trio else 2)
-		damage(2.6 if trio else (2.0 if swallow_combo else 1.2))
+		damage(0.9 if trio else (1.0 if swallow_combo else 1.2))
 		if state == "swallowed":
 			main.sfx.play("grab_loop", -4.0, 0.3)
 	struggle = clampf(struggle, 0.0, 1.0)
