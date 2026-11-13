@@ -1,0 +1,13 @@
+{
+  "name": "anim_trio_cuddle",
+  "mode": "anim",
+  "src": "assets/embrace_0.png",
+  "frames": 8,
+  "direction": "west",
+  "variants": 3,
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed between them",
+  "desc": "The Doberman on top wraps both thick arms around the crocodile and hugs it hard, pressing its whole body down onto it and squeezing, and the crocodile hugs it back; their bodies press together closer and closer like an affectionate couple cuddling, nuzzling, chest to chest, until there is no gap left between them and the cat squashed between them sinks into their merged goo and disappears from view. Both narrow their eyes contentedly. They stay lying in place. The crocodile keeps its head and face. Heavy, sticky, goo strands stretching between them.",
+  "generations_before": 733.9000000000001,
+  "generations_after": 730.9000000000001,
+  "used": 3.0
+}
