@@ -1,0 +1,14 @@
+{
+  "name": "anim_embrace4_rub",
+  "mode": "anim",
+  "src": "assets_raw/embrace_key4.png",
+  "last": "assets_raw/embrace_key4.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed and buried between their bodies",
+  "variants": 1,
+  "desc": "Loop: the Doberman on top rubs its broad muscular chest over the buried cat, grinding it slowly back and forth and up and down, pressing and smearing, its shoulders rolling with each stroke, sticky goo squelching and stretching between them; the cat wriggles. The crocodile underneath holds still, its head and face do not change. The floor puddle stays still, no bubbles. Heavy, sticky, viscous.",
+  "generations_before": 764.9000000000001,
+  "generations_after": 764.9000000000001,
+  "used": 0.0
+}
