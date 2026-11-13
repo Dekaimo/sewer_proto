@@ -1,0 +1,14 @@
+{
+  "name": "anim_e4_hug",
+  "mode": "anim",
+  "src": "assets_raw/embrace_key4.png",
+  "last": "assets_raw/embrace_key4.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed and buried between their bodies",
+  "variants": 2,
+  "desc": "Loop: the two goo monsters hug each other tighter and tighter, pulling each other in from above and below and squeezing their broad chests together around the buried cat, slowly and stickily; as their bodies shift, thick stretchy goo strands pull and stretch between them and then they squish back together with a wet squelch; their bodies squish and bulge; the trapped cat wriggles between them. They stay lying in place, the Doberman never lifts or bounces up. The crocodile's head and face do not change. Heavy, sticky, viscous.",
+  "generations_before": 761.9000000000001,
+  "generations_after": 759.9000000000001,
+  "used": 2.0
+}

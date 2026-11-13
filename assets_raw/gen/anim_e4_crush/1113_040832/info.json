@@ -1,0 +1,14 @@
+{
+  "name": "anim_e4_crush",
+  "mode": "anim",
+  "src": "assets_raw/embrace_key4.png",
+  "last": "assets_raw/embrace_key4.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a pink goo Doberman monster lying on top of a pink goo crocodile monster on a sticky paint puddle, with a small black witch cat squashed and buried between their bodies",
+  "variants": 2,
+  "desc": "Loop: the Doberman on top presses down hard and slides its broad chest sideways, left and right, crushing and grinding the buried cat against the crocodile beneath with each slide; its body squashes and spreads under its own weight, sticky goo squelching and smearing between them. It stays lying flat, never lifts or bounces. The crocodile's head and face do not change. Heavy, sticky, viscous.",
+  "generations_before": 759.9000000000001,
+  "generations_after": 757.9000000000001,
+  "used": 2.0
+}
