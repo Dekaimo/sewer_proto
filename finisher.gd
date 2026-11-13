@@ -102,8 +102,7 @@ func _ready() -> void:
 	hat.visible = false
 	hat.z_index = 2
 	add_child(hat)
-	strands = Node2D.new()
-	strands.draw.connect(_draw_strands)
+	strands = Node2D.new()   # （床から体への糸はコードで描かない方針になったので、何も描かない）
 	add_child(strands)
 	z_index = 3000
 
