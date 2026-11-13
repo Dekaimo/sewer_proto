@@ -2,6 +2,10 @@ name: Smoke test
 
 on:
   workflow_dispatch:
+    inputs:
+      solo:
+        description: "1 = Doberman only"
+        default: "0"
 
 env:
   GODOT_VERSION: "4.3"
@@ -20,6 +24,6 @@ jobs:
       - name: Run 60 s headless
         run: |
           ./godot --headless --import || true
-          ./godot --headless -s res://tools/smoke_test.gd 2>&1 | tee smoke.log
+          SMOKE_SOLO="${{ inputs.solo }}" ./godot --headless -s res://tools/smoke_test.gd 2>&1 | tee smoke.log
           echo "---- errors ----"
           grep -E "SCRIPT ERROR|ERROR|Parse Error" smoke.log | sort | uniq -c | head -40 || true

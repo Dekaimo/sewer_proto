@@ -12,8 +12,21 @@ func _initialize() -> void:
 	main = load("res://main.tscn").instantiate()
 	root.add_child(main)
 
+var solo := false
+
 func _process(delta: float) -> bool:
 	t += delta
+	# SMOKE_SOLO=1：ワニとサメを出さず、ドーベルマンだけで待ち伏せを確かめる
+	if OS.get_environment("SMOKE_SOLO") == "1":
+		for e in main.enemies.duplicate():
+			if is_instance_valid(e):
+				main.enemies.erase(e)
+				e.queue_free()
+		if main.get("shark_spawn_t") != null:
+			main.shark_spawn_t = 9999.0
+		for c in main.get_children():
+			if c.has_method("can_maw"):
+				c.queue_free()
 	if int(t / 3.0) % 2 == 0:
 		Input.action_release("left"); Input.action_press("right")
 	else:
