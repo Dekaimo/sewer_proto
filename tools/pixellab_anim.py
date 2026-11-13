@@ -110,7 +110,7 @@ def run_job(j: dict) -> None:
     else:
         path = "/animate-pixminimax"
         body = {"first_frame": b64img(j["src"]), "description": j["desc"],
-                "frame_count": int(j.get("frames", 4)), "no_background": True, "view": "side"}
+                "frame_count": int(j.get("frames", 4)), "no_background": not j.get("keep_bg", False), "view": "side"}
         if j.get("last"):
             body["last_frame"] = b64img(j["last"])
         if j.get("direction"):
