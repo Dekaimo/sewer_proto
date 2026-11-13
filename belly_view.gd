@@ -135,7 +135,7 @@ func _process(delta: float) -> void:
 		emb_mat.set_shader_parameter("cat_mask", p.embrace_mask)
 		emb_mat.set_shader_parameter("contamination", p.contamination())
 		content.texture = p.embrace_tex
-		content.material = emb_mat
+		content.material = emb_mat if p.embrace_mask != null else null
 		content.region_rect = Rect2(0, 20, 256, 200)
 	content.flip_h = false
 	if emb:

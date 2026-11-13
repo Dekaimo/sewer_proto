@@ -432,9 +432,10 @@ func _draw_sandwich() -> bool:
 		pin_base.rotation = 0.0
 		pin_base.texture = embrace_tex
 		pin_base.region_rect = Rect2(0, 0, 256, 256)
+		# 主人公の部分のマスクがあるときだけ汚れを乗せる（無ければそのまま）
 		pin_mat.set_shader_parameter("cat_mask", embrace_mask)
 		pin_mat.set_shader_parameter("contamination", contamination())
-		pin_base.material = pin_mat
+		pin_base.material = pin_mat if embrace_mask != null else null
 		# 上から押しつぶされるたびに、ぐにゅっと潰れる
 		pin_base.scale = Vector2.ONE
 		pin_base.position = Vector2(0, -104.0)   # 絵の下端（床の水たまり、236行目）を床に合わせる（少し沈める）
