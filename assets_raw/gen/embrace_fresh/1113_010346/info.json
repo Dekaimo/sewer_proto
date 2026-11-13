@@ -1,0 +1,26 @@
+{
+  "name": "embrace_fresh",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "seed": 7901,
+  "style": "assets_raw/wani_style_patch.png",
+  "refs": [
+    [
+      "assets/wani_idle.png",
+      "the crocodile: copy this exact design (head, spikes, eyes, teeth, colors, yellow marble) without changes"
+    ],
+    [
+      "assets/dobe_idle.png",
+      "the Doberman: copy this exact design (head, tall ears, stern yellow eyes, smirk, colors, yellow marble)"
+    ],
+    [
+      "assets/cat_0.png",
+      "the cat: black-gray fur, purple witch hat with a star, purple cape, bell collar"
+    ]
+  ],
+  "desc": "Pixel art, side view, a low wide pile lying on the floor. The pink goo crocodile lies on its back at the bottom, its head on the lower left facing left, half sunk into a wide glossy sticky pink paint puddle; no legs, its lower body melts into the puddle. The huge pink goo Doberman lies face down on top of it, pressed flat and tight against it with no gap, its head on the upper left with tall pointed ears, and it wraps both thick arms around the crocodile's body and shoulders, hugging it tightly. The small black witch cat is squashed between their chests, its hat and face peeking out, struggling. Both bodies melt together on the right and slump into the floor puddle. Thick sticky goo strands. Crisp dark outline, glossy highlights. Background: plain flat gray.",
+  "generations_before": 781.9000000000001,
+  "generations_after": 771.9000000000001,
+  "used": 10.0
+}
