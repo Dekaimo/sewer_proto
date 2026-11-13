@@ -249,6 +249,10 @@ func on_player_defeated(grabber) -> void:
 		fin.setup("crucify", player.crucifier.position)
 		finisher = fin
 		return
+	if player.trio_finish:
+		# 挟まれたまま負けた：その場で2体が主人公を取り込み、抱き潰し続ける（player.gd が描く）。画面はそのまま
+		finisher = null
+		return
 	if player.state == "pinned" or player.state == "held":
 		# ドーベルマン絡みの負け。専用のとどめは素材ができてから（いまは地上の負けを流用）
 		for d in dobes:
@@ -302,6 +306,8 @@ func _start_finisher(kind: String, at: Vector2, trio_dobe = null) -> void:
 
 
 func finisher_done() -> bool:
+	if player.trio_finish:
+		return player.trio_t > player.TRIO_ABSORB_T + 2.0   # 取り込みきってから少し見せてゲームオーバー（攻撃は続く）
 	return finisher == null or finisher.done
 
 

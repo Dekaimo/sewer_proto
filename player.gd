@@ -285,6 +285,10 @@ func _escape() -> void:
 
 func _defeat() -> void:
 	var was_crucified := state == "crucified"
+	# 地面でワニとドーベルマンに挟まれたまま力尽きた：2体がさらに抱き合って主人公を体内に取り込み、そのまま抱き潰し続ける
+	if state == "pinned" and ResourceLoader.exists("res://assets/trio_absorb_0.png"):
+		trio_finish = true
+		trio_t = 0.0
 	state = "defeated"
 	if was_crucified:
 		hidden_in_hug = true
@@ -356,10 +360,11 @@ func _process(delta: float) -> void:
 	if state == "crucified":
 		hidden_in_hug = true
 	sprite.visible = state != "defeated" and state != "swallowed" and not hidden_in_hug and not (invuln > 0.0 and state == "normal" and int(invuln * 20) % 2 == 0)
-	if state != "pinned" and pin_base != null:
+	var sandwiching: bool = state == "pinned" or trio_finish
+	if not sandwiching and pin_base != null:
 		pin_base.visible = false
 		pin_over.visible = false
-	elif state == "pinned" and pin_base != null and pin_base.visible:
+	elif sandwiching and pin_base != null and pin_base.visible:
 		sprite.visible = false   # サンドイッチの絵の中に描かれている
 	queue_redraw()
 
@@ -385,6 +390,13 @@ func _load_seq(prefix: String, tex: Array, masks: Array) -> void:
 
 
 ## 3対1の挟み込み：基本は「締め上げ」、ときどき「押しつぶし（左右に擦りつぶす）」に切り替える
+var trio_finish := false     # 挟まれたまま負けた（取り込み→抱き潰しが続く）
+var trio_t := 0.0
+const TRIO_ABSORB_T := 2.4
+var absorb_frames: Array = []
+var absorb_masks: Array = []
+var absorbed_frames: Array = []
+var absorbed_masks: Array = []
 var crush_frames: Array = []
 var crush_masks: Array = []
 const EMBRACE_CYCLE := 1.5     # 1ループの秒数
@@ -398,6 +410,22 @@ func embrace_step() -> void:
 	if embrace_frames[0] == null:
 		return
 	var tt := Time.get_ticks_msec() / 1000.0
+	if trio_finish:
+		if absorb_frames.is_empty():
+			_load_seq("trio_absorb", absorb_frames, absorb_masks)
+			_load_seq("trio_absorbed", absorbed_frames, absorbed_masks)
+		if trio_t < TRIO_ABSORB_T and not absorb_frames.is_empty():
+			# さらに抱き合って、主人公がゆっくり2体の体の中に沈んでいく
+			var ai := clampi(int(trio_t / TRIO_ABSORB_T * absorb_frames.size()), 0, absorb_frames.size() - 1)
+			embrace_tex = absorb_frames[ai]
+			embrace_mask = absorb_masks[ai]
+			return
+		if not absorbed_frames.is_empty():
+			# 取り込んだまま、目を細めて抱き潰し続ける（終わらない）
+			var li := int((trio_t - TRIO_ABSORB_T) * 5.0) % absorbed_frames.size()
+			embrace_tex = absorbed_frames[li]
+			embrace_mask = null
+			return
 	var cyc_i := int(tt / EMBRACE_CYCLE)
 	var use_crush: bool = not crush_frames.is_empty() and EMBRACE_PATTERN[cyc_i % EMBRACE_PATTERN.size()] == 1
 	var arr: Array = crush_frames if use_crush else embrace_frames
@@ -456,6 +484,17 @@ func _draw_sandwich() -> bool:
 	return true
 
 
+## 取り込んだあとも攻撃が続く：ネチャネチャという音と、床・壁へのペンキ
+func _trio_finish_step(delta: float) -> void:
+	trio_t += delta
+	var before := int((trio_t - delta) / 0.45)
+	if int(trio_t / 0.45) != before:
+		main.sfx.play_any(["gurgle", "grab_loop"], -4.0 if trio_t > TRIO_ABSORB_T else -1.0, 0.2)
+		main.add_goop(position + Vector2(randf_range(-80, 80), randf_range(-10, 10)), 60.0, 0.25)
+		if trio_t > TRIO_ABSORB_T and randf() < 0.4:
+			main.splat_wall(Vector2(position.x + randf_range(-160, 160), main.FLOOR_TOP - randf_range(20, 160)), randf_range(25, 50))
+
+
 func _update_frame(delta: float) -> void:
 	var f := 0
 	if attack_timer > 0.0:
@@ -498,7 +537,9 @@ func _update_frame(delta: float) -> void:
 			var br := sin(Time.get_ticks_msec() / 1000.0 * (6.0 if ft == 1 else 8.5))
 			sprite.scale = Vector2(1.0 - 0.015 * br * ft, 1.0 + 0.025 * br * ft)
 			sprite.rotation = facing * (0.05 if ft == 1 else 0.09)
-	elif state == "pinned":
+	elif state == "pinned" or trio_finish:
+		if trio_finish:
+			_trio_finish_step(delta)
 		if _draw_sandwich():
 			pass
 		elif pin_frames.size() > 0:
