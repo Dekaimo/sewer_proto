@@ -1,0 +1,14 @@
+{
+  "name": "anim_trio_crushloop",
+  "mode": "anim",
+  "src": "assets_raw/trio_dopun_key.png",
+  "last": "assets_raw/trio_dopun_key.png",
+  "frames": 8,
+  "direction": "west",
+  "variants": 2,
+  "subject": "a pink goo Doberman monster pressed down on top of a pink goo crocodile monster on a sticky paint puddle, hugging it tightly",
+  "desc": "Loop: staying in the same lying pose, the Doberman keeps squeezing the crocodile in its arm and pressing its heavy body down onto it again and again, grinding and squishing; their merged goo bodies bulge and ripple with each squeeze, something moving inside the goo between them, sticky goo strands stretching and dripping into the puddle. The Doberman never sits up. Both heads and faces keep their design. Heavy, sticky, gooey.",
+  "generations_before": 713.9000000000001,
+  "generations_after": 711.9000000000001,
+  "used": 2.0
+}
