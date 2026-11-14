@@ -1,0 +1,12 @@
+{
+  "name": "dobe_hd_stance2",
+  "mode": "anim",
+  "src": "assets_raw/dobe_hd_air_key.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "in mid-air his upper body stays upright and vertical, he bends his knees forward into a sitting position as if sitting on an invisible chair, his big round buttocks become the lowest point of his body, ready to slam down butt first. Small change only, same upright torso, same face with closed mouth and slight smirk, same colors and marbled design",
+  "subject": "muscular pink and yellow marbled goo doberman man",
+  "generations_before": 694.9000000000001,
+  "generations_after": 692.9000000000001,
+  "used": 2.0
+}
