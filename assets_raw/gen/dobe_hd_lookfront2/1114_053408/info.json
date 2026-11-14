@@ -1,0 +1,13 @@
+{
+  "name": "dobe_hd_lookfront2",
+  "mode": "anim",
+  "src": "assets_raw/dobe_lookback_end.png",
+  "last": "assets_raw/dobe_squat_goo.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "staying in the deep squat, he turns his head away from the viewer to face forward again, thick sticky goo keeps dripping downward from his arms and buttocks, nothing moves upward",
+  "subject": "muscular pink and yellow marbled goo doberman man, no tail",
+  "generations_before": 570.9000000000001,
+  "generations_after": 568.9000000000001,
+  "used": 2.0
+}

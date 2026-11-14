@@ -1,0 +1,13 @@
+{
+  "name": "dobe_hd_lookback4",
+  "mode": "anim",
+  "src": "assets_raw/dobe_squat_goo.png",
+  "last": "assets_raw/dobe_lookback_key.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "staying in the deep squat with his back to the viewer, he slowly turns his head to look back over his shoulder with a smug smirk, goo keeps dripping down to the floor",
+  "subject": "muscular pink and yellow marbled goo doberman man, no tail",
+  "generations_before": 572.9000000000001,
+  "generations_after": 570.9000000000001,
+  "used": 2.0
+}
