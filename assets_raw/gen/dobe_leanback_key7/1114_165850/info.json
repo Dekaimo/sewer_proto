@@ -1,0 +1,10 @@
+{
+  "name": "dobe_leanback_key7",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_leanback_draft7.png",
+  "ref": "assets_raw/dobe_idle_r.png",
+  "desc": "keep everything exactly the same: pose, arch, head angle, size, position, colors, stripes, ears, snout. Only change the face expression: eyes squeezed shut in a gleeful sneering laugh, upward-curved closed eye lines with crinkles, enjoying it; mouth very slightly open with the corner raised in a smug grin; thin strands of pink goo dripping down from the chin and jaw like the reference doberman. Same face design and rendering as the reference, not cartoon. Ear tips pointed.",
+  "generations_before": 105.79999999999995,
+  "generations_after": 95.79999999999995,
+  "used": 10.0
+}
