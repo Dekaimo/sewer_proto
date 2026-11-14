@@ -1,0 +1,13 @@
+{
+  "name": "dobe_hd_to_drop",
+  "mode": "anim",
+  "src": "assets_raw/dobe_hd_air_key.png",
+  "last": "assets_raw/dobe_hd_drop_key.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "in mid-air he turns to face the viewer while swinging both arms up overhead and spreading his legs wide into a butt slam pose. Same face, same colors and marbled design",
+  "subject": "muscular pink and yellow marbled goo doberman man",
+  "generations_before": 680.9000000000001,
+  "generations_after": 678.9000000000001,
+  "used": 2.0
+}

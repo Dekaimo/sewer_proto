@@ -1,0 +1,12 @@
+{
+  "name": "dobe_hd_drop",
+  "mode": "anim",
+  "src": "assets_raw/dobe_hd_drop_key.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "front view, keeping exactly this pose with arms raised overhead and legs spread wide, he plummets straight down fast butt first: gooey drips stretch upward from his raised arms, elbows and shoulders from the speed. Small change only, same face with closed mouth and slight smirk, same colors and marbled design",
+  "subject": "muscular pink and yellow marbled goo doberman man",
+  "generations_before": 678.9000000000001,
+  "generations_after": 676.9000000000001,
+  "used": 2.0
+}
