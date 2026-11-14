@@ -1,0 +1,26 @@
+{
+  "name": "dobe_join_leanback_key2",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "style": "assets_raw/dobe_join_key3_wide.png",
+  "refs": [
+    [
+      "assets_raw/dobe_leanback_pose_skel.png",
+      "pose, body and position to follow: seen diagonally from behind, upper body leaning back to the left, arm stretched to the right holding on, lower body melting into long dripping goo; keep this size and position"
+    ],
+    [
+      "assets/dobe_idle.png",
+      "head and face design: long pink doberman snout of the same pink goo with yellow streaks, no black nose, stern half-lidded yellow eye, closed mouth with the corner slightly lifted and a small cheek crease, pointed ears"
+    ],
+    [
+      "assets_raw/dobe_lookback_key.png",
+      "how his head looks when turned back over the shoulder toward the viewer while his body is seen from behind"
+    ]
+  ],
+  "desc": "pixel art, muscular pink and yellow marbled goo doberman seen diagonally from behind, back facing the viewer, his arm stretched to the right still holding on to someone, his upper body arched far back to the upper left, and only his head turned back over his left shoulder toward the viewer so his face is visible with a smug restrained smirk; his lower body melts into long dripping goo with no legs, glossy gooey body with thick yellow streaks, plain background",
+  "generations_before": 159.79999999999995,
+  "generations_after": 149.79999999999995,
+  "used": 10.0
+}
