@@ -1,0 +1,12 @@
+{
+  "name": "dobe_legs_mid",
+  "mode": "anim",
+  "src": "assets_raw/dobe_hd_air_key.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "he comes down and stands upright on the floor on both feet, legs straight, arms relaxed at his sides with goo dripping from his hands, three-quarter side view. Keep exactly the same leg thickness, body size, face with closed mouth and slight smirk, colors and marbled design. No tail",
+  "subject": "muscular pink and yellow marbled goo doberman man, no tail",
+  "generations_before": 646.9000000000001,
+  "generations_after": 644.9000000000001,
+  "used": 2.0
+}
