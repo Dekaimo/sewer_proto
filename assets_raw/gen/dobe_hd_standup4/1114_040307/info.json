@@ -1,0 +1,13 @@
+{
+  "name": "dobe_hd_standup4",
+  "mode": "anim",
+  "src": "assets_raw/dobe_hd_land_key.png",
+  "last": "assets_raw/dobe_legs_key.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "he lowers his arms, pushes himself up out of the sticky puddle and stands up on his legs, turning from facing the viewer to a three-quarter side view, goo dripping off him back into the puddle. No tail",
+  "subject": "muscular pink and yellow marbled goo doberman man, no tail",
+  "generations_before": 644.9000000000001,
+  "generations_after": 642.9000000000001,
+  "used": 2.0
+}
