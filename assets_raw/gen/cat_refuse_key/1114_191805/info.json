@@ -1,0 +1,10 @@
+{
+  "name": "cat_refuse_key",
+  "mode": "editv2",
+  "src": "assets_raw/cat_cru_key4.png",
+  "ref": "assets_raw/cat_face_ref_closed.png",
+  "desc": "keep the pose, hat, cape, limbs, goo and size exactly the same. Only the face changes subtly: eyes closed tight as thin curved lines like the reference, mouth very slightly open, one small tear at the corner of one eye, head turned a little away to the right as if refusing. Cute and subtle, not exaggerated, no blush increase, no sweat.",
+  "generations_before": 7228.8,
+  "generations_after": 7218.8,
+  "used": 10.0
+}
