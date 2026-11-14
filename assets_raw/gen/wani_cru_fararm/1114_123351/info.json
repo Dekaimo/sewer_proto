@@ -1,0 +1,10 @@
+{
+  "name": "wani_cru_fararm",
+  "mode": "editv2",
+  "src": "assets_raw/wani_cru_key2.png",
+  "variants": 1,
+  "desc": "Three-quarter view perspective fix: the far arm (the arm on the right side of the image) points slightly away from the viewer, so it looks foreshortened and shorter, its fist ending about 30 pixels closer to the body than now. It stays straight and level like a cross, elbow locked, same thickness near the shoulder and naturally a little smaller toward the fist. Change only the far arm. Keep the near arm, head, face, chest, body, goo column, puddle, colors, marble streaks, outline and pixel style exactly the same.",
+  "generations_before": 421.9000000000001,
+  "generations_after": 406.9000000000001,
+  "used": 15.0
+}
