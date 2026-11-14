@@ -1,0 +1,12 @@
+{
+  "name": "dobe_lean_idle",
+  "mode": "anim",
+  "src": "assets_raw/dobe_idle_r.png",
+  "frames": 8,
+  "variants": 1,
+  "subject": "huge muscular doberman made of glossy pink paint goo with yellow streaks, three-quarter view facing right, lower body melts into a puddle",
+  "desc": "as if shoved, the upper body sways far back toward the upper left in a big exaggerated way and both arms fling up and out, the head tilting back a little while the face stays clearly visible and exactly the same: same long muzzle, same narrow half-lidded yellow eye, same closed mouth with a slight sly smirk. The puddle at the bottom stays still. Same colors, same size",
+  "generations_before": 173.9000000000001,
+  "generations_after": 172.9000000000001,
+  "used": 1.0
+}
