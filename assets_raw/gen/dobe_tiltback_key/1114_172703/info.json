@@ -1,0 +1,10 @@
+{
+  "name": "dobe_tiltback_key",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_tiltback_draft22.png",
+  "ref": "assets_raw/dobe_leanback_key10.png",
+  "desc": "clean up into one seamless character: keep the head, face, expression, ears and goo strand from the chin exactly as they are, keep the body, arm, hand, drips, size and position unchanged. Smooth the neck and the top of the shoulders so the head joins the body naturally, the shoulders bending back slightly together with the tilted head. Same pixel art rendering and thin line weight as the reference. Remove stray pixels.",
+  "generations_before": 63.799999999999955,
+  "generations_after": 53.799999999999955,
+  "used": 10.0
+}
