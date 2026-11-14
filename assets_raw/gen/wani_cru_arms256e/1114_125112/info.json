@@ -1,0 +1,10 @@
+{
+  "name": "wani_cru_arms256e",
+  "mode": "editv2",
+  "src": "assets_raw/wani_cru_new_key.png",
+  "variants": 1,
+  "desc": "Fix both arms so they look fully stretched out sideways like a cross: shoulder, elbow, wrist and fist in one straight horizontal line, elbows locked, forearms not bent down. The fists continue the line of the arm and point outward, not bent at the wrist and not facing the viewer. The arms may be a little shorter so the fists stay inside the frame. Change only the arms. Keep the head, face, chest, body, goo column, puddle, colors, marble streaks, outline and pixel style exactly the same.",
+  "generations_before": 403.9000000000001,
+  "generations_after": 393.9000000000001,
+  "used": 10.0
+}
