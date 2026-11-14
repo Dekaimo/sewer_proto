@@ -1,2 +1,3 @@
 v2: scene ox=170 oy=10; edit crop=(80, 0, 440, 330); layer extracted in crop coords -> scene x+=80
 layer2 256x256 at (20,60) relative to wani_cru_tall top-left
+dobe_join_key 256x256 at (20,60) relative to wani_cru_tall top-left
