@@ -1,0 +1,12 @@
+{
+  "name": "dobe_hd_leave",
+  "mode": "anim",
+  "src": "assets_raw/dobe_eject_done.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "he steps back off the coiled goo mound, keeping his back to the viewer with the same calm half-lidded smirk, then his whole body softens and melts down into the floor in a thick sticky puddle and sinks out of sight; the coiled goo mound stays on the floor untouched. No tail",
+  "subject": "muscular pink and yellow marbled goo doberman man, no tail",
+  "generations_before": 518.9000000000001,
+  "generations_after": 516.9000000000001,
+  "used": 2.0
+}

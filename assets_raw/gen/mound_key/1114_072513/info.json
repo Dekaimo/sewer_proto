@@ -1,0 +1,16 @@
+{
+  "name": "mound_key",
+  "mode": "gen",
+  "variants": 2,
+  "refs": [
+    [
+      "assets_raw/dobe_eject_done.png",
+      "the big coiled pink and yellow marbled goo mound on the floor: its look, colors, glossy shading and size"
+    ]
+  ],
+  "style": "assets/dobe_idle.png",
+  "desc": "pixel art, a single large coiled mound of glossy sticky pink and yellow marbled goo sitting on the floor, side view, about 170 pixels wide and 120 pixels tall, thick heavy coils, wet shine, small sticky drips at the base, nothing else in the picture, plain background",
+  "generations_before": 538.9000000000001,
+  "generations_after": 518.9000000000001,
+  "used": 20.0
+}
