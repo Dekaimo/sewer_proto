@@ -1,0 +1,12 @@
+{
+  "name": "dobe_hd_air_in",
+  "mode": "anim",
+  "src": "assets_raw/dobe_hd_jump_last.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "he keeps rising into the air; the goo splash and the floor puddle below drop away and disappear, the last loose drips fall off his arms; he settles into a steady airborne pose with knees bent and arms out. Only the character remains, floating in the air. Keep the same face, colors and marbled design",
+  "subject": "muscular pink and yellow marbled goo doberman man",
+  "generations_before": 702.9000000000001,
+  "generations_after": 701.9000000000001,
+  "used": 1.0
+}
