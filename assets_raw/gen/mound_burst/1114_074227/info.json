@@ -1,0 +1,12 @@
+{
+  "name": "mound_burst",
+  "mode": "anim",
+  "src": "assets_raw/mound_key.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "the big coiled goo mound bulges hard from inside and bursts open from the top and front, thick sticky goo splatters outward, then the broken coils sag and collapse down into a wide flat sticky puddle on the floor",
+  "subject": "big coiled mound of glossy sticky pink and yellow marbled goo",
+  "generations_before": 492.9000000000001,
+  "generations_after": 490.9000000000001,
+  "used": 2.0
+}
