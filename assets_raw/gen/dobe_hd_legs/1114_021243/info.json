@@ -1,0 +1,12 @@
+{
+  "name": "dobe_hd_legs",
+  "mode": "anim",
+  "src": "assets/dobe_idle.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "the gooey paint puddle under his waist pulls up and shapes into two thick muscular dripping legs with feet standing on the floor, upper body and face unchanged",
+  "subject": "muscular pink and yellow marbled goo doberman man",
+  "generations_before": 708.9000000000001,
+  "generations_after": 707.9000000000001,
+  "used": 1.0
+}
