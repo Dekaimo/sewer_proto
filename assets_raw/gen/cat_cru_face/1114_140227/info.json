@@ -1,0 +1,12 @@
+{
+  "name": "cat_cru_face",
+  "mode": "anim",
+  "src": "assets_raw/cat_cru_key2.png",
+  "frames": 4,
+  "variants": 1,
+  "subject": "small black cat in a purple witch hat with a star and bell, purple cape, purple eyes, tiny dark nose, pinned flat with arms spread",
+  "desc": "only the face changes: the cat makes a distressed, desperate expression, brows knitted, purple eyes wincing and teary, mouth open crying out. Nothing else moves: same pose, same hat, same body, same size",
+  "generations_before": 310.9000000000001,
+  "generations_after": 309.9000000000001,
+  "used": 1.0
+}
