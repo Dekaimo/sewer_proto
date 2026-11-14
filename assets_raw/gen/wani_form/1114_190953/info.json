@@ -1,0 +1,11 @@
+{
+  "name": "wani_form",
+  "mode": "anim",
+  "src": "assets_raw/wani_form_A.png",
+  "last": "assets_raw/wani_cru_window.png",
+  "frames": 8,
+  "desc": "the rounded top of a pink and yellow marbled goo pillar bubbles, swells and rises up, forming a muscular crocodile upper body out of the goo: the chest bulges out, the arms stretch out straight to both sides, the spiky head emerges with a toothy grin, goo dripping everywhere, the lower pillar stays the same, quick smooth motion",
+  "generations_before": 7240.8,
+  "generations_after": 7239.8,
+  "used": 1.0
+}
