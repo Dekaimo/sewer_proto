@@ -1,0 +1,10 @@
+{
+  "name": "wani_cru_face",
+  "mode": "editv2",
+  "src": "assets_raw/gen/wani_cru_arms/1114_121950/v1_00.png",
+  "variants": 1,
+  "desc": "Change only the face. The black pupils look downward, toward the bottom of the eyes, gazing down at something below its chin. The lips pull back into a wide sly grin that shows its teeth, jaws still closed. Do not change anything else at all: same head shape, spikes, arms, chest, body, goo column, puddle, colors, marble streaks, outline and pixel style.",
+  "generations_before": 436.9000000000001,
+  "generations_after": 421.9000000000001,
+  "used": 15.0
+}
