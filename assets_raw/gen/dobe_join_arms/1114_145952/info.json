@@ -1,0 +1,12 @@
+{
+  "name": "dobe_join_arms",
+  "mode": "anim",
+  "src": "assets_raw/dobe_back_src_r.png",
+  "frames": 4,
+  "variants": 1,
+  "subject": "huge muscular doberman made of glossy pink paint goo with yellow streaks, seen from behind at an angle, facing away to the right",
+  "desc": "raises both arms forward, reaching out in front of it as if about to hug someone, elbows a little bent, hands open. Nothing else changes: same head, same body, same view from behind, same size",
+  "generations_before": 274.9000000000001,
+  "generations_after": 274.9000000000001,
+  "used": 0.0
+}
