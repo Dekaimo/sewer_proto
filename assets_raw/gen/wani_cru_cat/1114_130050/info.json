@@ -1,0 +1,21 @@
+{
+  "name": "wani_cru_cat",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "style": "assets_raw/wani_cru_key5.png",
+  "refs": [
+    [
+      "assets_raw/wani_cru_key5.png",
+      "the monster: keep this exact monster, pose, size, position, face, arms, colors, marble streaks and outline unchanged"
+    ],
+    [
+      "assets/cat_0.png",
+      "the small black cat in a purple witch hat and cape with purple eyes: keep its design and its size exactly"
+    ]
+  ],
+  "desc": "Pixel art. The huge pink paint goo crocodile monster stands exactly as in the reference, arms stretched out like a cross, grinning with teeth, looking down. The small black witch cat is stuck flat on the monster's broad chest, its back pressed against the pecs, high off the ground. The top of the cat's hat is below the monster's chin so the monster's grinning face stays fully visible. The cat's arms are spread wide to the sides and its wrists are glued to the chest by thick sticky pink goo, its legs dangle and its ankles are stuck in goo on the belly. Thick glossy pink goo is smeared over the cat's body and drips down from it, with sticky strands. The cat struggles, eyes squeezed shut, mouth open, distressed. Transparent background.",
+  "generations_before": 393.9000000000001,
+  "generations_after": 383.9000000000001,
+  "used": 10.0
+}
