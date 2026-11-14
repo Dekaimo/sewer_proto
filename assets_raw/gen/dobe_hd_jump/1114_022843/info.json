@@ -1,0 +1,12 @@
+{
+  "name": "dobe_hd_jump",
+  "mode": "anim",
+  "src": "assets/dobe_idle.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "he sinks down and compresses his whole gooey body into the paint puddle to charge up, then springs up powerfully and leaps high out of the puddle; once airborne his full humanoid lower body with thick muscular legs is visible, the puddle stays on the floor below. Keep the same face, colors and marbled design",
+  "subject": "muscular pink and yellow marbled goo doberman man",
+  "generations_before": 704.9000000000001,
+  "generations_after": 702.9000000000001,
+  "used": 2.0
+}
