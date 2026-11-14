@@ -1,0 +1,12 @@
+{
+  "name": "dobe_join_smirk",
+  "mode": "anim",
+  "src": "assets_raw/dobe_join_key.png",
+  "frames": 4,
+  "variants": 1,
+  "subject": "huge muscular doberman made of glossy pink paint goo with yellow streaks, seen from behind at an angle, head in profile facing right, arm reaching forward, lower body melting into goo",
+  "desc": "only the mouth changes: the corner of its closed mouth lifts into a clear sly smirk. The eye stays hidden. Nothing else moves: same head, ears, body, arm, goo, size and position",
+  "generations_before": 197.9000000000001,
+  "generations_after": 196.9000000000001,
+  "used": 1.0
+}
