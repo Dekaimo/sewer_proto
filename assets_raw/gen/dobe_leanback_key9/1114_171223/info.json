@@ -1,0 +1,10 @@
+{
+  "name": "dobe_leanback_key9",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_leanback_draft7.png",
+  "ref": "assets_raw/dobe_idle_mouth_ref.png",
+  "desc": "keep everything identical: pose, head angle, size, position, colors, stripes, ears, snout, body, arm, drips, rendering and line weight. Only adjust the face naturally, not as a symbol: the eye is closed because the cheek is raised; the closed eye is a thin slanted line following the eyelid shape, lower eyelid pushed up by a slightly fuller cheek with a soft highlight on the cheek. Lips very slightly parted, a thin dark gap at the front of the mouth, no teeth. The mouth line lifts slightly at its end with a short separate cheek fold a little apart from it, like the reference. A thin strand of pink goo hangs from the chin. Quiet amused look.",
+  "generations_before": 85.79999999999995,
+  "generations_after": 75.79999999999995,
+  "used": 10.0
+}
