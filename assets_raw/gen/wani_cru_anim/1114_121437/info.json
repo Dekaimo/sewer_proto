@@ -1,0 +1,12 @@
+{
+  "name": "wani_cru_anim",
+  "mode": "anim",
+  "src": "assets/wani_idle.png",
+  "frames": 8,
+  "variants": 1,
+  "subject": "huge muscular crocodile monster made of glossy melting pink paint with yellow marble streaks, lower body melts into a puddle",
+  "desc": "slowly raises both arms straight out to the left and right into a wide cross pose, puffing out its broad soft chest, keeping its mouth closed in a smug grin showing teeth, goo dripping from the arms",
+  "generations_before": 452.9000000000001,
+  "generations_after": 451.9000000000001,
+  "used": 1.0
+}
