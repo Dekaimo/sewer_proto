@@ -1,0 +1,20 @@
+{
+  "name": "dobe_done_stand",
+  "mode": "gen",
+  "variants": 2,
+  "refs": [
+    [
+      "assets_raw/dobe_eject_done.png",
+      "exact body pose, angle and size: standing with legs apart seen from behind, looking back over the shoulder with calm half-lidded eyes and closed smirk"
+    ],
+    [
+      "assets/dobe_idle.png",
+      "head and body design"
+    ]
+  ],
+  "style": "assets/dobe_idle.png",
+  "desc": "pixel art, muscular pink and yellow marbled goo doberman man standing with legs apart seen from behind, looking back over his shoulder with calm half-lidded eyes and a closed slight smirk, glossy dripping goo body, empty floor between his feet, no tail, plain background",
+  "generations_before": 470.9000000000001,
+  "generations_after": 460.9000000000001,
+  "used": 10.0
+}

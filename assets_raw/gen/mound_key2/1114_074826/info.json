@@ -1,0 +1,16 @@
+{
+  "name": "mound_key2",
+  "mode": "gen",
+  "variants": 2,
+  "refs": [
+    [
+      "assets_raw/ref_mound_inframe.png",
+      "exactly this goo mound: a low wide flat pile of three stacked thick glossy pink coils with yellow marbling, a small sticky point on top, same proportions (about three times wider than tall)"
+    ]
+  ],
+  "style": "assets/dobe_idle.png",
+  "desc": "pixel art, side view, a low wide flat pile of three stacked thick glossy pink and yellow marbled goo coils sitting on the floor, about three times wider than it is tall, small sticky tip on top, nothing else in the picture, plain background",
+  "generations_before": 490.9000000000001,
+  "generations_after": 470.9000000000001,
+  "used": 20.0
+}
