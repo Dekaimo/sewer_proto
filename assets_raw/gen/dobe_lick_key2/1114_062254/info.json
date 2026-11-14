@@ -1,0 +1,28 @@
+{
+  "name": "dobe_lick_key2",
+  "mode": "gen",
+  "variants": 2,
+  "refs": [
+    [
+      "assets_raw/dobe_lookback_end.png",
+      "exact body pose, angle and size: crouching low with knees apart, seen from behind, head turned back over the shoulder"
+    ],
+    [
+      "assets_raw/dobe_mound_ref.png",
+      "a big coiled pink and yellow marbled goo mound sitting on the floor between his feet"
+    ],
+    [
+      "assets_raw/ref_dobe_lick_face.png",
+      "face: sharp stern half-lidded yellow eyes with a strong confident gaze, tongue sliding over the upper lip in a slow satisfied lick"
+    ],
+    [
+      "assets/dobe_idle.png",
+      "head design: long pink snout of the same pink goo with yellow streaks, no black nose, pointed ears"
+    ]
+  ],
+  "style": "assets/dobe_idle.png",
+  "desc": "pixel art, muscular pink and yellow marbled goo doberman man crouching low with knees apart seen from behind, glancing back over his shoulder with sharp stern eyes and a satisfied smug look, slowly licking his upper lip, a big coiled pink and yellow goo mound on the floor between his feet, glossy dripping goo body, no tail, plain background",
+  "generations_before": 558.9000000000001,
+  "generations_after": 548.9000000000001,
+  "used": 10.0
+}
