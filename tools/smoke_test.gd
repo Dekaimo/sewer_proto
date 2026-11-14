@@ -56,7 +56,7 @@ func _process(delta: float) -> bool:
 		for d in main.dobes:
 			if is_instance_valid(d) and d.state != "hipdrop":
 				d.hd_cd = 0.0
-				d.peek_t = minf(d.peek_t, 1.0)
+				d.peek_t = minf(d.peek_t, 4.0)
 		Input.action_release("left"); Input.action_release("right")
 		if main.player.state == "engulfed" and t > 34.0 and mode == "hd":
 			main.player.touch_mash += 1
