@@ -268,7 +268,7 @@ func _swim(delta: float, p) -> void:
 	if main.game_over:
 		return
 	# とぐろの中でもがいている獲物：とぐろごと丸呑みにしに来る（連携）
-	var mound_prey: bool = p.state == "engulfed" and p.engulfer != null and is_instance_valid(p.engulfer) and p.engulfer.has_method("on_engulf_escape")
+	var mound_prey: bool = p.state == "engulfed" and p.engulfer != null and is_instance_valid(p.engulfer) and p.engulfer.has_method("on_engulf_escape") and p.engulfer.t > 3.0
 	if p.state != "grabbed" and not mound_prey:
 		_skirmish(delta, p)
 		return
