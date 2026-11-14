@@ -11,6 +11,7 @@ import sys
 
 MIN_LATIN = int(os.environ.get("JAPANESE_REPLY_MIN_LATIN", "80"))
 MAX_JA_RATIO = float(os.environ.get("JAPANESE_REPLY_MAX_JA_RATIO", "0.25"))
+BANNED = re.compile(r"(その|おっしゃる|仰る|御指摘の|ご指摘の)通り")
 JA = re.compile(r"[぀-ヿ㐀-鿿ｦ-ﾟ]")
 LATIN = re.compile(r"[A-Za-z]")
 
@@ -72,12 +73,19 @@ def main() -> None:
         return
     ev = data.get("hook_event_name", "")
     if ev == "UserPromptSubmit":
-        print("【必須】返答はすべて日本語で書く。英語の文章で返答しない（コード・ファイル名・固有名詞を除く）。送る前に日本語になっているか確認する。")
+        print("【必須】返答はすべて日本語で書く。英語の文章で返答しない（コード・ファイル名・固有名詞を除く）。「その通りです」「おっしゃる通りです」などの同意の決まり文句は使わない。送る前に確認する。")
         return
     if ev == "Stop":
         if data.get("stop_hook_active"):
             return
-        if is_english(last_assistant_text(data)):
+        text = last_assistant_text(data)
+        if BANNED.search(clean(text or "")):
+            print(json.dumps({
+                "decision": "block",
+                "reason": "直前の返答に「その通り」「おっしゃる通り」などの決まり文句が入っています。ユーザーはこれを強く嫌がっています。この言い回しを使わずに書き直して、改めて返答してください。",
+            }, ensure_ascii=False))
+            return
+        if is_english(text):
             print(json.dumps({
                 "decision": "block",
                 "reason": "直前の返答が英語になっています。ユーザーは英語の返答を強く嫌がっています。同じ内容を日本語で書き直して、改めて返答してください。",
