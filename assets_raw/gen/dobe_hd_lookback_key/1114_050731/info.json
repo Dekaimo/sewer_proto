@@ -1,0 +1,24 @@
+{
+  "name": "dobe_hd_lookback_key",
+  "mode": "gen",
+  "variants": 2,
+  "refs": [
+    [
+      "assets_raw/dobe_squat_key.png",
+      "body, pose and back view: deep sumo squat seen from behind, hands on knees, same body size and leg thickness"
+    ],
+    [
+      "assets/dobe_idle.png",
+      "head and face design: long pink doberman snout of the same pink goo with yellow streaks, no black nose, stern half-lidded yellow eyes, closed mouth with a slight smirk, pointed ears"
+    ],
+    [
+      "assets_raw/dobe_legs_back34.png",
+      "how his head looks when turned over the shoulder from behind"
+    ]
+  ],
+  "style": "assets/dobe_idle.png",
+  "desc": "pixel art, muscular pink and yellow marbled goo doberman man in a deep sumo squat seen from behind, back and round buttocks facing the viewer, hands on his knees, turning his head to look back over his right shoulder at the viewer with a smug smirk, glossy gooey body with thick yellow streaks, no tail, plain background",
+  "generations_before": 620.9000000000001,
+  "generations_after": 600.9000000000001,
+  "used": 20.0
+}
