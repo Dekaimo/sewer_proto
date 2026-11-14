@@ -1,0 +1,10 @@
+{
+  "name": "dobe_join_stem",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_join_comp_blue.png",
+  "variants": 1,
+  "desc": "Edit only the pink doberman on the left. Its body below the waist becomes a thick glossy PINK paint goo stem with yellow streaks (pink, not blue) that curves down and to the right and merges smoothly into the side of the blue goo pillar a little below the small cat's feet, so the doberman looks like it is growing out of the pillar, its upper body leaning back to the left and its arm reaching to the cat. Redraw the doberman cleanly in the same crisp pixel art style with a dark outline. Its closed mouth corner is lifted very slightly in a sly smirk. Do not change the cat or the blue monster at all.",
+  "generations_before": 272.9000000000001,
+  "generations_after": 247.9000000000001,
+  "used": 25.0
+}
