@@ -1,0 +1,11 @@
+{
+  "name": "dobe_push2_hug",
+  "mode": "anim",
+  "src": "assets_raw/dobe_lean_key_goo.png",
+  "last": "assets_raw/dobe_hug_key2_pl.png",
+  "frames": 8,
+  "desc": "pink goo doberman leaning far back toward the viewer gradually swings its whole upper body forward again and hugs someone tightly, the sticky goo strings sagging and sticking back onto the body, head goes forward beside the person face with the eyes hidden, lower body stays merged in the dripping goo, smooth gradual motion",
+  "generations_before": 7275.8,
+  "generations_after": 7273.8,
+  "used": 2.0
+}
