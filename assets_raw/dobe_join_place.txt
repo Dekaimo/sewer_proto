@@ -1,1 +1,1 @@
-scene ox=170 oy=10 dobe px=35 py=33 crop=(20, 0, 420, 330)
+dobe layer 256x256 placed at (-88, 66) relative to wani_cru_tall top-left; cat at (56,52)
