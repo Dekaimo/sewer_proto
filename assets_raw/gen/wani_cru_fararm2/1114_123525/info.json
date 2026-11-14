@@ -1,0 +1,12 @@
+{
+  "name": "wani_cru_fararm2",
+  "mode": "anim",
+  "src": "assets_raw/wani_cru_key2_256.png",
+  "frames": 4,
+  "variants": 1,
+  "subject": "huge muscular crocodile monster made of glossy melting pink paint with yellow marble streaks, arms stretched straight out like a cross, lower body is a goo column melting into a puddle",
+  "desc": "the far arm on the right side turns slightly away from the viewer so it is seen in perspective: it looks shorter and ends in a clenched fist fully inside the frame. The arm stays straight and level. Nothing else moves: same head, same grinning face, same near arm, same body, same goo column",
+  "generations_before": 406.9000000000001,
+  "generations_after": 405.9000000000001,
+  "used": 1.0
+}
