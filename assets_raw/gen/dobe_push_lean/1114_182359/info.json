@@ -1,0 +1,11 @@
+{
+  "name": "dobe_push_lean",
+  "mode": "anim",
+  "src": "assets_raw/dobe_hug_key2.png",
+  "last": "assets_raw/dobe_lean_key.png",
+  "frames": 8,
+  "desc": "pink goo doberman seen from behind at an angle, hugging someone tightly, is pushed away and leans its whole upper body far backward toward the viewer while still holding on with its arm, head drops back and turns to show a calm closed-eye faint smirk, lower body stays merged in the dripping goo, smooth motion, same face design",
+  "generations_before": 7297.8,
+  "generations_after": 7297.8,
+  "used": 0.0
+}
