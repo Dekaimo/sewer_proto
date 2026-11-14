@@ -1,0 +1,11 @@
+{
+  "name": "cat_refuse",
+  "mode": "anim",
+  "src": "assets_raw/cat_cru_refuse_key.png",
+  "last": "assets_raw/cat_cru_refuse_key.png",
+  "frames": 8,
+  "desc": "crucified little black witch cat with eyes shut and a small tear struggles in refusal: shakes its head side to side and pushes hard toward the left with its paws while its wrists stay stuck in the pink goo, small kicks of its legs, the face stays the same, looping motion",
+  "generations_before": 7218.8,
+  "generations_after": 7218.8,
+  "used": 0.0
+}
