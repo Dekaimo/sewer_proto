@@ -1,0 +1,12 @@
+{
+  "name": "dobe_done_melt",
+  "mode": "anim",
+  "src": "assets_raw/dobe_done_stand.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "seen from behind with legs apart, his whole body softens and melts down into a thick sticky pink goo puddle on the floor and sinks out of sight, ears last",
+  "subject": "muscular pink and yellow marbled goo doberman man, no tail",
+  "generations_before": 456.9000000000001,
+  "generations_after": 454.9000000000001,
+  "used": 2.0
+}

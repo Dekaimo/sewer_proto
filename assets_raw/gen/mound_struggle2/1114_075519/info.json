@@ -1,0 +1,13 @@
+{
+  "name": "mound_struggle2",
+  "mode": "anim",
+  "src": "assets_raw/mound_key.png",
+  "last": "assets_raw/mound_key.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "something trapped inside the goo coil pile struggles: the sticky coils bulge outward from inside in different spots, squirm and wobble, short sticky strands stretch between the coils and snap back, then it settles. The pile stays the same size and in place on the floor",
+  "subject": "low wide pile of glossy sticky pink and yellow marbled goo coils",
+  "generations_before": 460.9000000000001,
+  "generations_after": 459.9000000000001,
+  "used": 1.0
+}
