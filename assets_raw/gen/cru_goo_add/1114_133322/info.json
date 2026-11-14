@@ -1,0 +1,10 @@
+{
+  "name": "cru_goo_add",
+  "mode": "editv2",
+  "src": "assets_raw/wani_cru_cat_comp2.png",
+  "variants": 1,
+  "desc": "Add only thick glossy pink paint goo with yellow marble streaks, the same colors as the monster. Thick sticky goo bands grow out of the monster's chest and wrap around the small cat's wrists and ankles, gluing the cat flat onto the chest. Some goo is smeared over the cat's cape and belly and drips down. Do not change the cat itself (same face, hat, cape, pose, size, position) and do not change the monster at all.",
+  "generations_before": 352.9000000000001,
+  "generations_after": 342.9000000000001,
+  "used": 10.0
+}
