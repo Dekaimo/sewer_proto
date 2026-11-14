@@ -1,0 +1,12 @@
+{
+  "name": "dobe_join_lean",
+  "mode": "anim",
+  "src": "assets_raw/dobe_join_key1.png",
+  "frames": 4,
+  "variants": 1,
+  "subject": "huge muscular doberman made of glossy pink paint goo with yellow streaks, seen from behind at an angle, facing away to the right, arm reaching forward",
+  "desc": "the whole upper body tilts back toward the left by about 15 degrees, as if rising up out of something on the right, while the arm keeps reaching forward to the right and the head stays turned to the right; the corner of its closed mouth lifts very slightly into a sly smirk. Same body, same view from behind, same size",
+  "generations_before": 273.9000000000001,
+  "generations_after": 272.9000000000001,
+  "used": 1.0
+}
