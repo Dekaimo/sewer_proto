@@ -1,0 +1,10 @@
+{
+  "name": "dobe_leanback_key10",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_leanback_draft7.png",
+  "ref": "assets_raw/ref_mouth_smirk.png",
+  "desc": "keep everything identical: pose, head angle, size, position, pink and yellow colors, stripes, ears, snout, body, arm, drips, pixel art rendering and thin line weight. Only change the mouth and the eye. Mouth drawn like the reference image: a long thin mouth line that rises toward the back of the cheek and ends with a small hook, a short separate cheek fold a little above that end, lips very slightly parted at the front with a thin dark gap, no teeth. Eye closed as a thin slanted line along the eyelid, not an arc. A thin strand of pink goo hangs from the chin.",
+  "generations_before": 75.79999999999995,
+  "generations_after": 65.79999999999995,
+  "used": 10.0
+}
