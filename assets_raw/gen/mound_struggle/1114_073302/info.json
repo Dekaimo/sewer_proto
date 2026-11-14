@@ -1,0 +1,13 @@
+{
+  "name": "mound_struggle",
+  "mode": "anim",
+  "src": "assets_raw/mound_key.png",
+  "last": "assets_raw/mound_key.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "something trapped inside the big coiled goo mound struggles to get out: the sticky coils bulge outward from inside in different spots, squirm, stretch and wobble, thick sticky strands stretch between the coils and snap back, then it settles back. The mound stays on the floor in place",
+  "subject": "big coiled mound of glossy sticky pink and yellow marbled goo",
+  "generations_before": 516.9000000000001,
+  "generations_after": 514.9000000000001,
+  "used": 2.0
+}

@@ -1,0 +1,20 @@
+{
+  "name": "mound_escape_key",
+  "mode": "gen",
+  "variants": 2,
+  "refs": [
+    [
+      "assets/cat_0.png",
+      "the main character: a small black witch cat, same design, same proportions"
+    ],
+    [
+      "assets_raw/mound_key.png",
+      "the big coiled pink and yellow marbled goo mound, its colors and glossy look"
+    ]
+  ],
+  "style": "assets/dobe_idle.png",
+  "desc": "pixel art, side view, the small black witch cat has just burst out of a broken coiled pink and yellow marbled goo mound and sits slumped on the floor, exhausted, covered in sticky pink goo, the broken remains of the mound collapsed around and behind it into a messy sticky puddle, plain background",
+  "generations_before": 513.9000000000001,
+  "generations_after": 492.9000000000001,
+  "used": 21.0
+}
