@@ -1,0 +1,12 @@
+{
+  "name": "dobe_hd_lookback",
+  "mode": "anim",
+  "src": "assets_raw/dobe_squat_key.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "staying in this deep squat with his back to the viewer, he turns only his head to look back over his shoulder at the viewer with a smug look: stern half-lidded eyes, closed mouth with a slight smirk. Body and squat unchanged, same colors and marbled design, no tail",
+  "subject": "muscular pink and yellow marbled goo doberman man, no tail",
+  "generations_before": 628.9000000000001,
+  "generations_after": 626.9000000000001,
+  "used": 2.0
+}
