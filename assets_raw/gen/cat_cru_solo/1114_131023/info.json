@@ -1,0 +1,17 @@
+{
+  "name": "cat_cru_solo",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "style": "assets_raw/wani_cru_key5.png",
+  "refs": [
+    [
+      "assets/cat_0.png",
+      "the small black cat in a purple witch hat and cape with purple eyes: keep its design, colors and size exactly (about 110 pixels tall including the hat)"
+    ]
+  ],
+  "desc": "Pixel art, only the small black witch cat on a transparent background, no other character. Three-quarter view, body turned to face left. The cat is stuck flat against an invisible wall behind it, as if pinned to a big chest, its back pressed against it, crucified pose: both arms spread wide out to the sides, a little raised, wrists stuck in thick blobs of glossy pink goo, legs dangling with the ankles stuck in pink goo. Thick glossy pink paint goo is smeared all over the cat's cape and body, dripping down with sticky strands. The cat struggles, eyes squeezed shut, mouth open, distressed. The goo is the same hot pink with yellow marble streaks, dark outline. Centered in the frame, about 110 pixels tall. Transparent background.",
+  "generations_before": 383.9000000000001,
+  "generations_after": 373.9000000000001,
+  "used": 10.0
+}
