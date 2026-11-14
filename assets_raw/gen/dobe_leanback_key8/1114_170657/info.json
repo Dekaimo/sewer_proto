@@ -1,0 +1,10 @@
+{
+  "name": "dobe_leanback_key8",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_leanback_draft7.png",
+  "ref": "assets_raw/dobe_idle_mouth_ref.png",
+  "desc": "keep everything identical: pose, head angle, size, position, colors, stripes, ears, snout, rendering. Keep the face lines the same thin weight and the same number of lines, do not add extra lines or darker shading on the face. Eyes stay closed, but the closed eye line now curves upward like gently smiling eyes. Mouth stays closed: the thin mouth line lifts slightly at its end, and a short separate cheek fold sits a little apart from the mouth end, drawn like the reference mouth. A thin strand of pink goo hangs down from the chin. Calm, amused look.",
+  "generations_before": 95.79999999999995,
+  "generations_after": 85.79999999999995,
+  "used": 10.0
+}
