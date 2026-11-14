@@ -1,0 +1,12 @@
+{
+  "name": "dobe_hd_front_pose",
+  "mode": "anim",
+  "src": "assets_raw/dobe_hd_front_key.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "front view, in mid-air: he raises both arms straight up high above his head and spreads his legs dynamically wide apart, knees pointing out to the sides, deep wide sitting pose with his butt as the lowest point. Torso stays upright facing the viewer, same face with closed mouth and slight smirk, same colors and marbled design",
+  "subject": "muscular pink and yellow marbled goo doberman man",
+  "generations_before": 682.9000000000001,
+  "generations_after": 681.9000000000001,
+  "used": 1.0
+}
