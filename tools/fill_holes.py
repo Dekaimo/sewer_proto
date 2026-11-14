@@ -24,7 +24,7 @@ ext, _ = exterior(t)
 bgs = [np.array(c) for c, _ in Counter(map(tuple, raw[ext])).most_common(6)]
 def is_bg(px):
     d = np.min([np.abs(px - c).sum(-1) for c in bgs], axis=0)
-    return d <= 30
+    return d <= 8
 
 # 1) 灰色のふちを外側から削る
 r, g, b = [a[:, :, i].astype(int) for i in range(3)]
