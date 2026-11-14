@@ -1,0 +1,10 @@
+{
+  "name": "dobe_leanback_key5",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_leanback_draft5.png",
+  "ref": "assets/dobe_idle.png",
+  "desc": "clean up this pixel art into one seamless character: keep the exact pose, arch, size and position unchanged, upper body leaning far back to the left, arm stretched right. Smooth the neck so the head joins the shoulders naturally. Head and face exactly like the reference doberman: long narrow pink snout, same ears, same eye shape; eyes gently closed, mouth closed with one corner slightly raised, relaxed and smug. Not cartoon, same rendering as the body. Remove stray pixels.",
+  "generations_before": 125.79999999999995,
+  "generations_after": 115.79999999999995,
+  "used": 10.0
+}
