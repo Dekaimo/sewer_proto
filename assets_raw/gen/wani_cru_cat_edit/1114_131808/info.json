@@ -1,0 +1,10 @@
+{
+  "name": "wani_cru_cat_edit",
+  "mode": "editv2",
+  "src": "assets_raw/wani_cru_cat_comp.png",
+  "variants": 1,
+  "desc": "Edit only the small black witch cat and the goo holding it. 1) Turn the cat to a three-quarter view facing left, the same direction as the monster, its back pressed flat against the monster's chest. 2) The cat's nose is a tiny dark gray nose that is barely visible, not pink; keep its gray face, ears, whiskers, purple hat and cape. 3) The goo blobs on the cat's wrists and ankles are the same bright pink as the monster's chest and flow out of the monster's chest and arms, wrapping the wrists and ankles with thick sticky bands connected to the monster's body. Keep the monster itself exactly the same: head, face, arms, chest, body, goo column, puddle, colors, outline and pixel style.",
+  "generations_before": 363.9000000000001,
+  "generations_after": 353.9000000000001,
+  "used": 10.0
+}
