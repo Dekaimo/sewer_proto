@@ -1,0 +1,10 @@
+{
+  "name": "wani_cru_pose",
+  "mode": "edit",
+  "src": "assets/wani_idle.png",
+  "variants": 1,
+  "desc": "Same monster, same size, same head size and same body proportions, still facing left in three-quarter view. Now standing upright and tall in a crucifixion pose: both thick muscular arms stretched straight out horizontally to the left and right like a cross, open palms. Broad chest pushed forward and fully visible. Mouth closed in a smug grin showing its teeth, jaws not open. Lower body is a tall thick column of goo with no legs, melting into a puddle at the bottom.",
+  "generations_before": 454.9000000000001,
+  "generations_after": 453.9000000000001,
+  "used": 1.0
+}
