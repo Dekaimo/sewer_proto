@@ -1,0 +1,10 @@
+{
+  "name": "cat_startle_key",
+  "mode": "editv2",
+  "src": "assets_raw/cat_cru_key4.png",
+  "ref": "assets/cat_0.png",
+  "desc": "keep the pose, hat, cape, limbs, goo and size exactly the same. Only the face changes slightly: the cat opens its eyes, same purple eyes as the reference cat, glancing down to the lower left with a slightly worried look, ears pulled back a little, mouth small and closed. Subtle, not exaggerated, no tears, no sweat drops.",
+  "generations_before": 7239.8,
+  "generations_after": 7229.8,
+  "used": 10.0
+}
