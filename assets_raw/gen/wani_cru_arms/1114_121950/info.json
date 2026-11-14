@@ -1,0 +1,10 @@
+{
+  "name": "wani_cru_arms",
+  "mode": "editv2",
+  "src": "assets_raw/wani_cru_key_pad.png",
+  "variants": 1,
+  "desc": "Straighten both arms fully: stretch them straight out horizontally to the left and right like a cross, elbows locked, arms level with the shoulders, fists at the ends. Change only the arms. Keep the head, face, chest, body, goo column, puddle, colors, marble streaks, outline and pixel style exactly the same.",
+  "generations_before": 451.9000000000001,
+  "generations_after": 436.9000000000001,
+  "used": 15.0
+}
