@@ -1,1 +1,1 @@
-dobe layer 256x256 placed at (-88, 66) relative to wani_cru_tall top-left; cat at (56,52)
+v2: scene ox=170 oy=10; edit crop=(80, 0, 440, 330); layer extracted in crop coords -> scene x+=80
