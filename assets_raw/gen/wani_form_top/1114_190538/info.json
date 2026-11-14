@@ -1,0 +1,10 @@
+{
+  "name": "wani_form_top",
+  "mode": "editv2",
+  "src": "assets_raw/wani_form_draft.png",
+  "ref": "assets_raw/wani_cru_window.png",
+  "desc": "the top end of a thick pink and yellow marbled goo pillar: make the flat top into a rounded, slightly swollen, bubbling dome of goo with drips running down its sides, nothing above it. Keep the pillar width, colors, stripes and the lower part exactly the same. Same pixel art rendering as the reference.",
+  "generations_before": 7260.8,
+  "generations_after": 7250.8,
+  "used": 10.0
+}
