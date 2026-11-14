@@ -1,0 +1,12 @@
+{
+  "name": "dobe_leanback_turn",
+  "mode": "anim",
+  "src": "assets_raw/dobe_leanback_pose_skel2.png",
+  "frames": 4,
+  "variants": 1,
+  "subject": "huge muscular doberman made of glossy pink paint goo with yellow streaks, seen diagonally from behind, upper body arched back to the left, arm stretched to the right, long pink snout without a black nose, pointed ears",
+  "desc": "the body keeps exactly this arched-back pose; only the head turns back over the shoulder toward the viewer, showing a relaxed playful smug face: eyes gently closed as calm lines, closed mouth with the corner slightly lifted and a small cheek crease. Realistic doberman head proportions with the same long snout, not cartoonish",
+  "generations_before": 136.79999999999995,
+  "generations_after": 135.79999999999995,
+  "used": 1.0
+}
