@@ -1,0 +1,11 @@
+{
+  "name": "go_wani_churn",
+  "mode": "anim",
+  "src": "assets_raw/go_wani_end.png",
+  "last": "assets_raw/go_wani_end.png",
+  "frames": 8,
+  "desc": "inside the bulging goo chest of the crocodile the swallowed cat is churned around: the lumps squirm and roll, the goo belly wobbles and sloshes, the hat tip wiggles, goo drips, the crocodile keeps its pose and grin, looping",
+  "generations_before": 7205.8,
+  "generations_after": 7204.8,
+  "used": 1.0
+}

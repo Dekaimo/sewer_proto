@@ -1,0 +1,11 @@
+{
+  "name": "go_wani_absorb",
+  "mode": "anim",
+  "src": "assets_raw/go_wani_s0.png",
+  "last": "assets_raw/go_wani_end.png",
+  "frames": 8,
+  "desc": "the goo crocodile pulls the little crucified cat into its own chest: the goo swells over the cat and swallows it slowly, the cat sinks inside until only its witch hat tip sticks out, the chest bulges with the cat inside, the crocodile keeps its arms spread and grins, goo dripping",
+  "generations_before": 7206.8,
+  "generations_after": 7205.8,
+  "used": 1.0
+}
