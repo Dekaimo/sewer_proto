@@ -1,0 +1,12 @@
+{
+  "name": "cat_cru_struggle3",
+  "mode": "anim",
+  "src": "assets_raw/cat_cru_key3.png",
+  "frames": 8,
+  "variants": 1,
+  "subject": "small black cat in a purple witch hat with a star and bell, purple cape, purple eyes, tiny dark nose, pink goo smeared on its belly, pinned flat with arms spread, distressed crying face",
+  "desc": "struggles desperately while stuck in place, keeping the distressed crying face: only the torso and head move, twisting and squirming left and right and the head shaking, the tail swishing. Both hands, both arms and both legs and feet do not move at all. Same three-quarter view facing left, same face design, same size, loops back to the first pose",
+  "generations_before": 309.9000000000001,
+  "generations_after": 309.9000000000001,
+  "used": 0.0
+}
