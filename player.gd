@@ -826,7 +826,7 @@ func _update_engulfed(delta: float) -> void:
 	struggle -= (0.12 if in_mound else 0.2) * delta
 	var d := _mash_input()
 	if d != 0 and d != last_dir:
-		struggle += (0.06 if in_mound else 0.04) if can_escape else 0.0
+		struggle += (0.06 if in_mound else 0.07) if can_escape else 0.0
 		last_dir = d
 		if in_mound:
 			engulfer.on_struggle()
