@@ -1,0 +1,13 @@
+{
+  "name": "dobe_hd_air_loop",
+  "mode": "anim",
+  "src": "assets_raw/dobe_hd_air_key.png",
+  "last": "assets_raw/dobe_hd_air_key.png",
+  "frames": 4,
+  "variants": 2,
+  "desc": "looping idle while hanging in mid-air: his gooey body gently wobbles and jiggles, chest and arms sway slightly, legs bob a little, a few small drips stretch from his fingers; returns to the same pose. Keep the same face, colors and marbled design",
+  "subject": "muscular pink and yellow marbled goo doberman man",
+  "generations_before": 700.9000000000001,
+  "generations_after": 699.9000000000001,
+  "used": 1.0
+}
