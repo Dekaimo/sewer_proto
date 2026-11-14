@@ -249,6 +249,10 @@ func on_player_defeated(grabber) -> void:
 		fin.setup("crucify", player.crucifier.position)
 		finisher = fin
 		return
+	if player.engulfer != null and is_instance_valid(player.engulfer):
+		# ヒップドロップで取り込まれたまま力尽きた：とどめ演出は使わず、そのまま最後までひり出されて、とぐろの中で弄ばれ続ける
+		finisher = null
+		return
 	if player.trio_finish:
 		# 挟まれたまま負けた：その場で2体が主人公を取り込み、抱き潰し続ける（player.gd が描く）。画面はそのまま
 		finisher = null

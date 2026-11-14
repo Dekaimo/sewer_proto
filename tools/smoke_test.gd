@@ -40,7 +40,27 @@ func _process(delta: float) -> bool:
 		for c in main.get_children():
 			if c.has_method("can_maw"):
 				c.queue_free()
-	if int(t / 3.0) % 2 == 0:
+	var mode := OS.get_environment("SMOKE_SOLO")
+	if mode == "hd" or mode == "hds":
+		# ヒップドロップ確認：ワニを消し、ドーベルマンはすぐ跳ぶ。主人公は立ち止まる
+		for e in main.enemies.duplicate():
+			if is_instance_valid(e):
+				main.enemies.erase(e)
+				e.queue_free()
+		if mode == "hd":
+			if main.shark_spawn_t > 0.0:
+				main.shark_spawn_t = 9999.0
+			for c in main.get_children():
+				if c.has_method("can_maw"):
+					c.queue_free()
+		for d in main.dobes:
+			if is_instance_valid(d) and d.state != "hipdrop":
+				d.hd_cd = 0.0
+				d.peek_t = minf(d.peek_t, 1.0)
+		Input.action_release("left"); Input.action_release("right")
+		if main.player.state == "engulfed" and t > 34.0 and mode == "hd":
+			main.player.touch_mash += 1
+	elif int(t / 3.0) % 2 == 0:
 		Input.action_release("left"); Input.action_press("right")
 	else:
 		Input.action_release("right"); Input.action_press("left")
@@ -52,10 +72,13 @@ func _process(delta: float) -> bool:
 		line += " dobes=%d" % dl.size()
 		for d in dl:
 			if is_instance_valid(d):
-				line += " [dobe %s vis=%s pos=(%.0f,%.0f)]" % [d.state, str(d.sprite.visible), d.position.x, d.position.y]
+				line += " [dobe %s/%s vis=%s pos=(%.0f,%.0f)]" % [d.state, d.hd_phase, str(d.sprite.visible), d.position.x, d.position.y]
 		for c in main.get_children():
 			if c.has_method("can_maw"):
 				line += " [same %s/%s d=%.0f]" % [c.state, c.prowl, c.position.distance_to(p.position)]
+		for c in main.get_children():
+			if c.has_method("on_engulf_escape"):
+				line += " [mound %s]" % c.state
 		for e in main.enemies:
 			if is_instance_valid(e):
 				line += " [wani %s]" % e.state

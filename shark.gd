@@ -267,7 +267,9 @@ const ORBIT_R := 230.0
 func _swim(delta: float, p) -> void:
 	if main.game_over:
 		return
-	if p.state != "grabbed":
+	# とぐろの中でもがいている獲物：とぐろごと丸呑みにしに来る（連携）
+	var mound_prey: bool = p.state == "engulfed" and p.engulfer != null and is_instance_valid(p.engulfer) and p.engulfer.has_method("on_engulf_escape")
+	if p.state != "grabbed" and not mound_prey:
 		_skirmish(delta, p)
 		return
 	prowl = "circle"
@@ -278,16 +280,16 @@ func _swim(delta: float, p) -> void:
 	var mx: float = B2_MOUTH if anims.has("breach2") else (0.0 if anims.has("breach") else MOUTH_X)
 	# 狙いは少し遅れて付いてくる（序盤ほど更新が遅い）。ワニに捕まっている獲物は動かないので正確
 	aim_t -= delta
-	if aim_t <= 0.0 or aim == Vector2.ZERO or p.state == "grabbed":
+	if aim_t <= 0.0 or aim == Vector2.ZERO or p.state == "grabbed" or p.state == "engulfed":
 		aim = p.position
 		aim_t = lerpf(1.0, 0.4, main.ramp())
 	var target: Vector2 = aim - Vector2(facing * mx, 0.0)
 	var to_p: Vector2 = target - position
 	# ドロドロの中は速い。乾いた床も潜って進む（通った跡がドロドロになる）。序盤は遅め
 	var sp: float = (120.0 if main.goop_at(position) > 0.12 else 65.0) * lerpf(0.55, 1.0, main.ramp())
-	if p.state == "grabbed":
-		sp *= 1.3   # ワニに捕まっている獲物には一直線
-	var can_hunt: bool = p.state in ["normal", "slipped", "grabbed"] and cd <= 0.0
+	if p.state == "grabbed" or p.state == "engulfed":
+		sp *= 1.3   # ワニに捕まっている獲物・とぐろの中の獲物には一直線
+	var can_hunt: bool = p.state in ["normal", "slipped", "grabbed", "engulfed"] and cd <= 0.0
 	# 遠くにいれば大ジャンプ
 	if can_hunt and to_p.length() > 320.0 and p.state != "grabbed":
 		_start_leap(p)
@@ -510,6 +512,10 @@ func _try_swallow(p, r: float, mouth_off: float) -> void:
 		caught_wani = p.grabbed_by
 		caught_wani.get_swallowed(self)
 		caught_player = p.get_swallowed(self, true)
+	elif p.state == "engulfed":
+		# 粘液のとぐろごと呑み込む（とぐろは中身がいなくなると消える）
+		p.engulfer = null
+		caught_player = p.get_swallowed(self, false)
 	elif p.state in ["normal", "slipped"] and p.invuln <= 0.0:
 		caught_player = p.get_swallowed(self, false)
 

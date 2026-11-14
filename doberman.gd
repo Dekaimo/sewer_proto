@@ -20,6 +20,7 @@ extends Node2D
 
 const DEBUG_SHOW := false
 const HUG_SHADER = preload("res://hug_dirt.gdshader")
+const CoilMound = preload("res://coil_mound.gd")
 const FEET_Y := 240
 
 var main
@@ -54,6 +55,11 @@ var push_off := 0.0         # 押し返されて離れている距離（見た�
 var tex_masks := {}         # コマのテクスチャ → 主人公部分のマスク
 var hug_mat: ShaderMaterial
 var frames := {}            # "idle" / "walk" / "rub" / "reel" … 素材があれば
+var hd_cd := 12.0           # 次のヒップドロップまで
+var hd_phase := ""
+var hd_t := 0.0
+var hd_z := 0.0             # 空中の高さ（絵だけ持ち上げる）
+var hd_caught := false
 
 
 static func has_art() -> bool:
@@ -65,7 +71,7 @@ func _ready() -> void:
 	sprite.centered = false
 	sprite.offset = Vector2(-128, -FEET_Y)
 	add_child(sprite)
-	for k in ["idle", "walk", "rub", "reel", "emerge", "rise", "rise_back", "turn", "form", "settle", "hold", "burst", "relax", "throw", "dive", "belly", "sw_form", "sw_tease", "sw_reel", "sw_rub", "lie"]:
+	for k in ["idle", "walk", "rub", "reel", "emerge", "rise", "rise_back", "turn", "form", "settle", "hold", "burst", "relax", "throw", "dive", "belly", "sw_form", "sw_tease", "sw_reel", "sw_rub", "lie", "hd_jump", "hd_airin", "hd_air", "hd_todrop", "hd_fall", "hd_land", "hd_stand", "hd_turn", "hd_squat", "hd_look", "hd_strain", "hd_eject", "hd_done", "hd_melt"]:
 		var arr: Array[Texture2D] = []
 		var i := 0
 		while ResourceLoader.exists("res://assets/dobe_%s_%d.png" % [k, i]):
@@ -117,10 +123,13 @@ func _process(delta: float) -> void:
 	z_index = int(position.y)
 	sprite.flip_h = facing > 0
 	var p = main.player
-	if main.game_over and state != "sandwich":
+	if main.game_over and state != "sandwich" and state != "hipdrop":
 		return
 	stun -= delta
+	hd_cd -= delta
 	match state:
+		"hipdrop":
+			_update_hipdrop(delta, p)
 		"enter":
 			_update_enter(delta)
 		"show":
@@ -295,6 +304,9 @@ func _loop(k: String, time: float, fps: float) -> void:
 func _update_show(_delta: float, p) -> void:
 	facing = 1 if p.position.x > position.x else -1
 	_show_idle()
+	if _can_hipdrop(p):
+		_start_hipdrop(p)
+		return
 	# 他の敵が動き出した・時間が来た → 潜る
 	if t > show_dur or _threat(p) != null or p.state == "crucified" or p.state == "swallowed":
 		_start_sink()
@@ -777,4 +789,196 @@ func on_hit(dir: int) -> void:
 
 
 func on_escaped() -> void:
+	sprite.position = Vector2.ZERO
+	hd_z = 0.0
+	hd_phase = ""
 	_leave(true)
+
+
+# ---------- ヒップドロップ ----------
+## 立ち絵からググッと溜めて大ジャンプ → 空中で主人公の真上へ → 正面を向いて腕を上げ足を広げ、尻から急降下
+## → ベチャァッと着地。主人公を尻で捉えていれば取り込み、立ち上がって背中を見せ、蹲踞 → 振り向いて → ふんばって
+## → 粘液のとぐろに包んでひり出し → 出し切って立ち上がり、溶けて地中へ（とぐろの中で主人公がもがく）
+const HD_PHASES := {
+	"jump": 1.25, "airin": 0.45, "air": 0.6, "todrop": 0.45, "fall": 0.26, "land": 0.6,
+	"stand": 1.3, "turn": 0.7, "squat": 0.7, "look": 0.75, "strain": 2.4, "eject": 2.2, "done": 2.0, "melt": 1.4,
+}
+const HD_AIR_Z := 230.0
+
+
+func _can_hipdrop(p) -> bool:
+	if hd_cd > 0.0 or not frames.has("hd_jump") or not frames.has("hd_melt"):
+		return false
+	if not p.can_be_grabbed() or p.state != "normal":
+		return false
+	var d: float = position.distance_to(p.position)
+	return d > 110.0 and d < 420.0
+
+
+func _start_hipdrop(p) -> void:
+	state = "hipdrop"
+	hd_phase = "jump"
+	hd_t = 0.0
+	hd_z = 0.0
+	hd_caught = false
+	facing = 1 if p.position.x > position.x else -1
+	main.sfx.play("gurgle", -4.0, 0.2)
+
+
+func engulf_can_escape() -> bool:
+	# 尻にはまった直後（立ち上がって振り向くまで）だけ、抜け出すチャンスがある
+	return state == "hipdrop" and hd_phase in ["land", "stand", "turn"]
+
+
+func _hd_next(ph: String) -> void:
+	hd_phase = ph
+	hd_t = 0.0
+
+
+func _update_hipdrop(delta: float, p) -> void:
+	hd_t += delta
+	var dur: float = HD_PHASES.get(hd_phase, 1.0)
+	var f := clampf(hd_t / dur, 0.0, 1.0)
+	sprite.position = Vector2(0.0, -hd_z).round()
+	match hd_phase:
+		"jump":
+			_play_once("hd_jump", f)
+			# 粘液だまりから体が抜ける最後の方で浮き始める
+			hd_z = maxf(0.0, (f - 0.7) / 0.3) * 90.0
+			if f >= 1.0:
+				main.add_goop(position, 90.0, 0.3)
+				main.sfx.play("step_paint", -2.0)
+				_hd_next("airin")
+		"airin":
+			_play_once("hd_airin", f)
+			hd_z = lerpf(90.0, HD_AIR_Z, f)
+			_hd_home(delta, p, 160.0)
+			if f >= 1.0:
+				_hd_next("air")
+		"air":
+			_loop("hd_air", hd_t, 7.0)
+			hd_z = HD_AIR_Z + sin(hd_t * 6.0) * 4.0
+			_hd_home(delta, p, 320.0)
+			if f >= 1.0:
+				_hd_next("todrop")
+		"todrop":
+			_play_once("hd_todrop", f)
+			hd_z = HD_AIR_Z + f * 12.0
+			_hd_home(delta, p, 90.0)
+			if f >= 1.0:
+				main.sfx.play("grab", -2.0)
+				_hd_next("fall")
+		"fall":
+			var fa: Array = frames["hd_fall"]
+			if fa.size() >= 4:
+				sprite.texture = fa[0 if f < 0.15 else (1 if f < 0.3 else 2 + int(hd_t * 20.0) % 2)]
+			hd_z = (HD_AIR_Z + 12.0) * (1.0 - f * f)
+			if f >= 1.0:
+				hd_z = 0.0
+				_hd_land(p)
+		"land":
+			_play_once("hd_land", f)
+			if f >= 1.0:
+				_hd_next("stand")
+		"stand":
+			_play_once("hd_stand", f)
+			if f >= 1.0:
+				if hd_caught and p.engulfer == self:
+					_hd_next("turn")
+				else:
+					hd_cd = randf_range(10.0, 16.0)
+					_start_sink()
+		"turn":
+			_play_once("hd_turn", f)
+			if f >= 1.0:
+				_hd_next("squat")
+		"squat":
+			_play_once("hd_squat", f)
+			if f >= 1.0:
+				_hd_next("look")
+		"look":
+			_play_once("hd_look", f)
+			if f >= 1.0:
+				_hd_next("strain")
+		"strain":
+			var sa: Array = frames["hd_strain"]
+			# 息を吸って → 肩・背中がどんどん盛り上がり（ゆっくり）→ 一番力んだ所で震えながら止める → 少し緩める
+			var k: int
+			if f < 0.45:
+				k = 1 + int(f / 0.45 * 4.0)
+			elif f < 0.85:
+				k = 5 + (int(hd_t * 16.0) % 2)
+				sprite.position.x += (1.0 if int(hd_t * 30.0) % 2 == 0 else -1.0)
+				if int(hd_t * 6.0) != int((hd_t - delta) * 6.0):
+					main.sfx.play("grab_loop", -8.0, 0.2)
+			else:
+				k = 7
+			sprite.texture = sa[clampi(k, 0, sa.size() - 1)]
+			if f >= 1.0:
+				_hd_next("eject")
+		"eject":
+			# ミチミチと少しずつ押し出す（等速にせず、出てくる所でじわっと粘る）
+			_play_once("hd_eject", ease(f, 1.6))
+			if int(hd_t * 3.0) != int((hd_t - delta) * 3.0):
+				main.sfx.play("gurgle", -6.0, 0.2)
+			if f >= 1.0:
+				_hd_next("done")
+		"done":
+			_play_once("hd_done", f)
+			if f >= 1.0:
+				_hd_separate(p)
+		"melt":
+			_play_once("hd_melt", f)
+			if f >= 1.0:
+				sprite.position = Vector2.ZERO
+				hd_z = 0.0
+				hd_phase = ""
+				hd_cd = randf_range(14.0, 22.0)
+				state = "lurk"
+				t = 0.0
+				lurk_t = 0.0
+				arm_t = 3.0
+				relocate_t = randf_range(2.0, 3.5)
+				target = position
+				peek_t = randf_range(6.0, 11.0)
+				sprite.visible = false
+				rise = 0.0
+
+
+## 空中で主人公の真上へ寄っていく（地上の奥行きも合わせる）
+func _hd_home(delta: float, p, speed: float) -> void:
+	var dx: float = p.position.x - position.x
+	position.x += clampf(dx, -speed * delta, speed * delta)
+	position.y = move_toward(position.y, p.position.y, speed * 0.4 * delta)
+	if absf(dx) > 12.0 and hd_phase != "todrop":
+		facing = 1 if dx > 0.0 else -1
+
+
+func _hd_land(p) -> void:
+	main.add_goop(position, 200.0, 0.7)
+	for i in 4:
+		main.splat_wall(Vector2(position.x + randf_range(-200.0, 200.0), main.FLOOR_TOP - randf_range(10.0, 180.0)), randf_range(35.0, 65.0))
+	main.sfx.play("assist", 0.0)
+	var dx: float = absf(p.position.x - position.x)
+	var dy: float = absf(p.position.y - position.y)
+	if dx < 46.0 and dy < 28.0 and p.z < 30.0 and p.can_be_grabbed():
+		hd_caught = true
+		p.get_engulfed(self)
+		main.zoom_moment(position + Vector2(0, -110), 1.2)
+	elif dx < 120.0 and dy < 40.0 and p.state == "normal":
+		# 外れても、すぐそばなら衝撃で汚れる
+		p.take_hit(position.x, 2, 3)
+	_hd_next("land")
+
+
+## 出し切った：とぐろ（中に主人公）を床に残し、本体は溶けて地中へ
+func _hd_separate(p) -> void:
+	if p.engulfer == self:
+		var m = CoilMound.new()
+		m.main = main
+		m.position = position
+		main.add_child(m)
+		p.pass_engulf(m)
+		main.add_goop(position, 120.0, 0.4)
+	_hd_next("melt")
+	main.sfx.play("gurgle", -6.0, 0.2)

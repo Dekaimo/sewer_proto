@@ -40,6 +40,7 @@ var crucifier = null     # 磔にしているワニ
 var sandwicher = null    # 磔の正面から抱きついているドーベルマン
 var push := 0.0          # ドーベルマンを押し返すゲージ
 var held_by = null       # 羽交い締めにしているドーベルマン
+var engulfer = null      # ヒップドロップで取り込んでいる相手（ドーベルマン → ひり出された粘液のとぐろ）
 var pin_frames: Array[Texture2D] = []   # 地面で上下から挟まれている合成絵（cat_pinned_0..）
 var swallow_combo := false   # ワニごと呑まれた（地中で2対1）
 var slip_t := 0.0
@@ -202,7 +203,7 @@ const DIRT_DMG := 0.25        # 汚れによる上乗せ（汚れきって 1.25 
 func damage(amount: float) -> void:
 	if state == "defeated":
 		return
-	var restrained: bool = state in ["grabbed", "held", "crucified", "pinned", "swallowed"]
+	var restrained: bool = state in ["grabbed", "held", "crucified", "pinned", "swallowed", "engulfed"]
 	hp -= amount * (RESTRAINED_DMG if restrained else HIT_DMG) * (1.0 + DIRT_DMG * contamination())
 	if hp <= 0.0:
 		hp = 0.0
@@ -357,6 +358,8 @@ func _process(delta: float) -> void:
 			_update_held(delta)
 		"pinned":
 			_update_pinned(delta)
+		"engulfed":
+			_update_engulfed(delta)
 	_update_frame(delta)
 	z_index = int(position.y)   # 手前にいるほど前に描く
 	sprite.flip_h = facing < 0
@@ -364,7 +367,7 @@ func _process(delta: float) -> void:
 		hidden_in_hug = false
 	if state == "crucified":
 		hidden_in_hug = true
-	sprite.visible = state != "defeated" and state != "swallowed" and not hidden_in_hug and not (invuln > 0.0 and state == "normal" and int(invuln * 20) % 2 == 0)
+	sprite.visible = state != "defeated" and state != "swallowed" and state != "engulfed" and not hidden_in_hug and not (invuln > 0.0 and state == "normal" and int(invuln * 20) % 2 == 0)
 	var sandwiching: bool = state == "pinned" or trio_finish
 	if not sandwiching and pin_base != null:
 		pin_base.visible = false
@@ -782,6 +785,79 @@ func _update_swallowed(delta: float) -> void:
 		main.add_goop(position, 120.0, 0.4)
 		main.sfx.play("escape")
 		s.on_escaped()
+
+
+# ---------- ヒップドロップで尻から取り込まれる（ドーベルマン）→ 粘液のとぐろに包まれてひり出される ----------
+func get_engulfed(holder) -> void:
+	if state == "grabbed" and is_instance_valid(grabbed_by):
+		grabbed_by = null
+	state = "engulfed"
+	engulfer = holder
+	struggle = 0.15
+	last_dir = 0
+	vel = Vector2.ZERO
+	z = 0.0
+	vz = 0.0
+	on_floor = true
+	sprite.rotation = 0.0
+	for i in 6:
+		add_dirt(random_body_point(), 3)
+	damage(5.0)
+	main.sfx.play("defeat", -4.0)
+
+
+## とぐろに入れ替わる（中身ごと受け渡す）
+func pass_engulf(holder) -> void:
+	engulfer = holder
+	if state == "defeated":
+		return
+	struggle = 0.1
+	last_dir = 0
+
+
+func _update_engulfed(delta: float) -> void:
+	if engulfer == null or not is_instance_valid(engulfer):
+		state = "normal"
+		return
+	position = engulfer.position
+	var in_mound: bool = engulfer.has_method("on_engulf_escape")
+	# ドーベルマンの中ではほとんど抗えない（もがけるのは、とぐろになってから）
+	var can_escape: bool = in_mound or (engulfer.has_method("engulf_can_escape") and engulfer.engulf_can_escape())
+	struggle -= (0.12 if in_mound else 0.2) * delta
+	var d := _mash_input()
+	if d != 0 and d != last_dir:
+		struggle += (0.06 if in_mound else 0.04) if can_escape else 0.0
+		last_dir = d
+		if in_mound:
+			engulfer.on_struggle()
+	drip_timer += delta
+	if drip_timer > 0.28:
+		drip_timer = 0.0
+		add_dirt(random_body_point(), 2)
+		damage(0.9)
+	struggle = clampf(struggle, 0.0, 1.0)
+	if struggle >= 1.0 and state == "engulfed":
+		var e = engulfer
+		engulfer = null
+		position = e.position
+		for i in 6:
+			add_dirt(random_body_point(), 3)
+		if in_mound:
+			# とぐろが破裂して、ドロドロのまま転がり出る
+			e.on_engulf_escape()
+			state = "normal"
+			_slip()
+			invuln = 1.6
+		else:
+			# 呑み込まれきる前に尻から抜け出す
+			state = "normal"
+			invuln = 1.4
+			on_floor = false
+			vz = 260.0
+			vel = Vector2(-e.facing * 200.0, 0.0)
+			main.add_goop(position, 100.0, 0.4)
+			main.sfx.play("escape")
+			e.on_escaped()
 
 
 # ---------- 羽交い締め（ドーベルマン）→ 正面でサメがゆっくり口を開ける ----------
