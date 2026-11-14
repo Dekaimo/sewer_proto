@@ -32,7 +32,7 @@ func _process(delta: float) -> bool:
 	else:
 		Input.action_release("right"); Input.action_press("left")
 	if t >= next_log:
-		next_log += 2.0
+		next_log += 1.0
 		var p = main.player
 		var line := "t=%.0f player=%s hp=%.0f pos=(%.0f,%.0f)" % [t, p.state, p.hp, p.position.x, p.position.y]
 		var dl: Array = main.get("dobes") if main.get("dobes") != null else []
@@ -40,6 +40,9 @@ func _process(delta: float) -> bool:
 		for d in dl:
 			if is_instance_valid(d):
 				line += " [dobe %s vis=%s pos=(%.0f,%.0f)]" % [d.state, str(d.sprite.visible), d.position.x, d.position.y]
+		for c in main.get_children():
+			if c.has_method("can_maw"):
+				line += " [same %s/%s d=%.0f]" % [c.state, c.prowl, c.position.distance_to(p.position)]
 		for e in main.enemies:
 			if is_instance_valid(e):
 				line += " [wani %s]" % e.state

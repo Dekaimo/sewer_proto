@@ -5,8 +5,12 @@ extends Node2D
 ## 主人公の汚れは、本体と同じマテリアル（汚れマスク）を使うので、そのまま反映される。
 
 const BELLY_SHADER = preload("res://belly.gdshader")
-const W := 280.0
-const H := 180.0
+const W0 := 280.0
+const H0 := 180.0
+const W_BIG := 400.0   # ドーベルマンも中にいる（サンドイッチ）ときだけ広げて2倍で見せる
+const H_BIG := 240.0
+var W := W0
+var H := H0
 const BELLY_TEX := "res://assets/same_belly.png"   # 生成した背景があれば使う
 
 var main
@@ -66,6 +70,18 @@ func _process(delta: float) -> void:
 	queue_redraw()
 	if not visible:
 		return
+	# ドーベルマンも中にいるときは小窓を広げる（サンドイッチを2倍で映すため）
+	var dob = shark.get("caught_dobe")
+	var big: bool = dob != null and is_instance_valid(dob) and p.embrace_tex != null
+	var nw := W_BIG if big else W0
+	var nh := H_BIG if big else H0
+	if nw != W:
+		W = nw
+		H = nh
+		if bg is Control:
+			bg.size = Vector2(W, H)
+		if bg_mat:
+			bg_mat.set_shader_parameter("size", Vector2(W, H))
 	# 小窓はサメの真上あたりに出す（画面の外に出ないように）
 	position = Vector2(clampf(shark.position.x - W * 0.5, 10.0, 960.0 - W - 10.0), 104.0)
 	# 胃袋がギュッと締まる（2対1のときは間隔が短く強い）
@@ -136,12 +152,13 @@ func _process(delta: float) -> void:
 		emb_mat.set_shader_parameter("contamination", p.contamination())
 		content.texture = p.embrace_tex
 		content.material = emb_mat if p.embrace_mask != null else null
-		content.region_rect = Rect2(0, 20, 256, 200)
+		# 2倍で、ドーベルマンの顔・主人公・ワニの顔が入るところを切り出す（400x240の小窓にぴったり）
+		content.region_rect = Rect2(12, 82, 200, 120)
 	content.flip_h = false
 	if emb:
-		# 寝かせた向きの絵なので回さない。2体の頭まで映すため等倍
+		# 寝かせた向きの絵なので回さない。ワニ単体のときと同じ2倍
 		content.rotation = 0.0
-		content.scale = Vector2(1.0 - 0.03 * sq, 1.0 + 0.04 * sq)
+		content.scale = Vector2(2.0 * (1.0 - 0.03 * sq), 2.0 * (1.0 + 0.04 * sq))
 	content.position = Vector2(W * 0.5, H * 0.5 + sink * 50.0) + Vector2(sin(t * 37.0) * shake, cos(t * 29.0) * shake * 0.7).round()
 	# ドーベルマンも中にいる：横倒しで上からのしかかり、主人公をワニとサンドイッチにしてネバネバに抱きしめる（手前に描く）
 	dobe_layer.visible = lie

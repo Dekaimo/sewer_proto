@@ -412,7 +412,7 @@ var absorbed_frames: Array = []
 var absorbed_masks: Array = []
 var crush_frames: Array = []
 var crush_masks: Array = []
-const EMBRACE_CYCLE := 1.5     # 1ループの秒数
+const EMBRACE_CYCLE := 1.25    # 1ループの秒数（少し速め）
 const EMBRACE_PATTERN := [0, 0, 0, 1, 1]   # 0=締め上げ 1=押しつぶし を1ループずつ
 func embrace_step() -> void:
 	if embrace_frames.is_empty():

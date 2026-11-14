@@ -254,9 +254,23 @@ func _process(delta: float) -> void:
 
 
 # ---------- 泳ぐ（ヒレだけ見えている） ----------
+# 遊撃型：ふだんは主人公の周りを距離をとって回り込み、隙を見て一気に突っ込んで（すれ違いざまに）丸呑みを狙い、
+# 外れたらそのまま走り抜けて離れ、また回り込む。遠くからの大ジャンプも混ぜる。
+# ほかの敵が主人公を捕まえたら、連携で決めに来る（ワニの抱きつきへは一直線＝従来どおり）。
+var prowl := "circle"     # circle（回り込み）/ windup（突っ込む前の溜め）/ dash（突っ込み）/ retreat（離れる）
+var prowl_t := 0.0
+var harass_t := 3.0
+var orbit_side := 1
+var dash_to := Vector2.ZERO
+const ORBIT_R := 230.0
+
 func _swim(delta: float, p) -> void:
 	if main.game_over:
 		return
+	if p.state != "grabbed":
+		_skirmish(delta, p)
+		return
+	prowl = "circle"
 	var raw: Vector2 = p.position - position
 	if absf(raw.x) > MOUTH_X + 10.0:
 		facing = 1 if raw.x > 0 else -1
@@ -290,6 +304,90 @@ func _swim(delta: float, p) -> void:
 		main.sfx.play("grab", -4.0)
 		# 飛び出す瞬間から寄って、呑まれるところを見せる
 		main.zoom_moment(Vector2(position.x + facing * mx, position.y - 100.0), 1.5)
+
+
+func _mouth_x() -> float:
+	return B2_MOUTH if anims.has("breach2") else (0.0 if anims.has("breach") else MOUTH_X)
+
+
+func _skirmish(delta: float, p) -> void:
+	prowl_t += delta
+	harass_t -= delta
+	var r: float = main.ramp()
+	var goo: bool = main.goop_at(position) > 0.12
+	var free: bool = p.state in ["normal", "slipped"]
+	var mx := _mouth_x()
+	match prowl:
+		"circle":
+			# 主人公の左右どちらかに距離をとって並走し、ときどき反対側へ回り込む
+			if randf() < delta * 0.15:
+				orbit_side = -orbit_side
+			var bob := sin(t * 1.3) * 40.0
+			var tgt := Vector2(p.position.x + orbit_side * ORBIT_R, p.position.y + bob)
+			tgt.x = clampf(tgt.x, main.ARENA_L + 20.0, main.ARENA_R - 20.0)
+			if absf(tgt.x - p.position.x) < 120.0:
+				orbit_side = -orbit_side   # 壁際で回り込めないときは反対側へ
+			var to := tgt - position
+			var sp: float = (150.0 if goo else 95.0) * lerpf(0.65, 1.0, r)
+			if to.length() > 6.0:
+				position += to.normalized() * Vector2(1.0, 0.7) * sp * delta
+				if absf(to.x) > 20.0:
+					facing = 1 if to.x > 0.0 else -1
+			if free and cd <= 0.0 and harass_t <= 0.0:
+				var dist := position.distance_to(p.position)
+				if dist > 330.0 or (dist > 200.0 and randf() < 0.3):
+					_start_leap(p)
+					harass_t = lerpf(5.0, 2.5, r) + randf_range(0.0, 1.5)
+					return
+				prowl = "windup"
+				prowl_t = 0.0
+				facing = 1 if p.position.x > position.x else -1
+		"windup":
+			# 一瞬止まって狙いを定める（ヒレだけ小刻みに震える）
+			facing = 1 if p.position.x > position.x else -1
+			if prowl_t > lerpf(0.55, 0.3, r):
+				# 少し先読みした位置を通り抜けるように突っ込む
+				var aimp: Vector2 = p.position + p.vel * 0.3
+				var dir := 1 if aimp.x > position.x else -1
+				facing = dir
+				dash_to = Vector2(aimp.x - dir * mx + dir * 170.0, aimp.y)
+				dash_to.x = clampf(dash_to.x, main.ARENA_L, main.ARENA_R)
+				prowl = "dash"
+				prowl_t = 0.0
+				main.sfx.play("step_paint", -2.0)
+		"dash":
+			var to := dash_to - position
+			var sp: float = lerpf(210.0, 330.0, r) * (1.15 if goo else 1.0)
+			position += to.normalized() * Vector2(1.0, 0.6) * sp * delta if to.length() > 6.0 else Vector2.ZERO
+			main.add_goop(position, 60.0, 0.6 * delta * 10.0)
+			var real: Vector2 = p.position - Vector2(facing * mx, 0.0) - position
+			if free and p.invuln <= 0.0 and absf(real.x) < 22.0 and absf(real.y) < 18.0:
+				prowl = "circle"
+				harass_t = lerpf(5.0, 2.5, r)
+				state = "gulp"
+				t = 0.0
+				gulp_fast = true   # すれ違いざまなので素早く呑む
+				main.sfx.play("grab", -4.0)
+				main.zoom_moment(Vector2(position.x + facing * mx, position.y - 100.0), 1.5)
+				return
+			if to.length() <= 8.0 or prowl_t > 2.5:
+				prowl = "retreat"
+				prowl_t = 0.0
+		"retreat":
+			# 外れたら走り抜けたまま離れて、また回り込みに戻る
+			var away := 1 if position.x > p.position.x else -1
+			orbit_side = away
+			var tgt := Vector2(p.position.x + away * ORBIT_R, position.y)
+			tgt.x = clampf(tgt.x, main.ARENA_L + 20.0, main.ARENA_R - 20.0)
+			var to := tgt - position
+			if to.length() > 6.0:
+				position += to.normalized() * Vector2(1.0, 0.6) * 160.0 * delta
+			if prowl_t > 0.8:
+				prowl = "circle"
+				prowl_t = 0.0
+				harass_t = lerpf(4.0, 2.0, r) + randf_range(0.0, 1.5)
+	_clamp()
+	main.add_goop(position, 70.0, 0.5 * delta * 10.0)
 
 
 # ---------- 真下から丸呑み ----------
