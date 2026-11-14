@@ -812,7 +812,7 @@ func _can_hipdrop(p) -> bool:
 	if not p.can_be_grabbed() or p.state != "normal":
 		return false
 	var d: float = position.distance_to(p.position)
-	return d > 110.0 and d < 420.0
+	return d > 110.0 and d < 560.0
 
 
 func _start_hipdrop(p) -> void:
@@ -858,8 +858,9 @@ func _update_hipdrop(delta: float, p) -> void:
 		"air":
 			_loop("hd_air", hd_t, 7.0)
 			hd_z = HD_AIR_Z + sin(hd_t * 6.0) * 4.0
-			_hd_home(delta, p, 320.0)
-			if f >= 1.0:
+			_hd_home(delta, p, 340.0)
+			# 真上に着くまで（長くても1.4秒）空中で寄っていく
+			if (hd_t >= 0.4 and absf(p.position.x - position.x) < 10.0) or hd_t >= 1.4:
 				_hd_next("todrop")
 		"todrop":
 			_play_once("hd_todrop", f)
