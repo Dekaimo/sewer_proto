@@ -1,0 +1,1 @@
+scene ox=170 oy=10 dobe px=35 py=33 crop=(20, 0, 420, 330)
