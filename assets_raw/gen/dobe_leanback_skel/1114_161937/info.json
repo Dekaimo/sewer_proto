@@ -1,0 +1,15 @@
+{
+  "name": "dobe_leanback_skel",
+  "mode": "skel",
+  "src": "assets_raw/dobe_join_key3_wide.png",
+  "first_kp": "assets_raw/skel/dobe_join_kp.json",
+  "kp": "assets_raw/skel/dobe_leanback_kp.json",
+  "desc": "huge muscular Doberman made of glossy pink paint goo with yellow marble streaks, seen diagonally from behind, lower body melting into dripping goo, no legs",
+  "action": "pushed away, he arches his upper body back to the left while his hand stays holding on, and his head tilts back and turns to look over his shoulder with a smug smirk",
+  "direction": "north-east",
+  "view": "side",
+  "template": "mannequin",
+  "generations_before": 162.79999999999995,
+  "generations_after": 159.79999999999995,
+  "used": 3.0
+}
