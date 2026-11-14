@@ -1,0 +1,28 @@
+{
+  "name": "dobe_lick_key",
+  "mode": "gen",
+  "variants": 2,
+  "refs": [
+    [
+      "assets_raw/dobe_lookback_end.png",
+      "exact body pose, angle and size: deep sumo squat seen from behind, head turned back over his shoulder"
+    ],
+    [
+      "assets_raw/dobe_eject_half_ref.png",
+      "a thick pink and yellow marbled goo lump halfway squeezed out from under his buttocks down to the floor"
+    ],
+    [
+      "assets_raw/ref_dobe_lick_face.png",
+      "face: sharp stern half-lidded yellow eyes with a strong gaze, licking his lips: the tongue sweeps across the upper lip toward the nose, a slow deliberate lick, not hanging out"
+    ],
+    [
+      "assets/dobe_idle.png",
+      "head design: long pink snout of the same pink goo with yellow streaks, no black nose, pointed ears"
+    ]
+  ],
+  "style": "assets/dobe_idle.png",
+  "desc": "pixel art, muscular pink and yellow marbled goo doberman man in a deep sumo squat seen from behind, looking back over his shoulder with sharp stern eyes and a smug look while slowly licking his lips, tongue sweeping over his upper lip, a thick pink and yellow marbled goo lump halfway squeezed out from under his buttocks to the floor, glossy dripping goo body, no tail, plain background",
+  "generations_before": 558.9000000000001,
+  "generations_after": 558.9000000000001,
+  "used": 0.0
+}
