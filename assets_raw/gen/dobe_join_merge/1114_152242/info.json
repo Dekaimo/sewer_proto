@@ -1,0 +1,10 @@
+{
+  "name": "dobe_join_merge",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_join_comp_blue2.png",
+  "variants": 1,
+  "desc": "Edit only the pink doberman. Its torso, which is cut off flat at the bottom, continues down and melts smoothly into the blue goo pillar as a thick PINK paint goo body with yellow streaks (pink, not blue), so the doberman grows straight out of the pillar right in front of it, pressed tightly against the small cat: its cheek right next to the cat's face and its arm wrapped around the cat. No flat cut edge. Redraw the doberman cleanly in the same crisp pixel art style with a dark outline. Its closed mouth corner lifted very slightly. Do not change the cat or the blue monster at all.",
+  "generations_before": 247.9000000000001,
+  "generations_after": 222.9000000000001,
+  "used": 25.0
+}
