@@ -1,0 +1,12 @@
+{
+  "name": "dobe_hd_lick",
+  "mode": "anim",
+  "src": "assets_raw/dobe_lick_key.png",
+  "frames": 8,
+  "variants": 2,
+  "desc": "holding still in this crouch looking back with sharp calm half-lidded eyes, he slowly licks his lips: the tongue slides from the corner of his mouth along his upper lip toward the tip of his snout, then slowly draws back in and his mouth closes into a smug smirk. Only the tongue and mouth move, body unchanged. No tail",
+  "subject": "muscular pink and yellow marbled goo doberman man, no tail",
+  "generations_before": 546.9000000000001,
+  "generations_after": 544.9000000000001,
+  "used": 2.0
+}
