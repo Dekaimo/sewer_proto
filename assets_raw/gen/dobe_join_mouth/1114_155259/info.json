@@ -1,0 +1,11 @@
+{
+  "name": "dobe_join_mouth",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_join_key.png",
+  "ref": "assets/dobe_idle.png",
+  "variants": 1,
+  "desc": "Edit only the mouth area of the doberman head. Draw the closed mouth corner the same way as the reference doberman: the end of the mouth line lifts up slightly, and a little apart from it a short cheek crease (wrinkle) is pushed up, showing a restrained sly smirk. No cartoon arrow or < mark. Keep the eye hidden. Keep everything else exactly the same: head shape, ears, body, arm, goo, colors, outline, size and position.",
+  "generations_before": 194.9000000000001,
+  "generations_after": 184.9000000000001,
+  "used": 10.0
+}
