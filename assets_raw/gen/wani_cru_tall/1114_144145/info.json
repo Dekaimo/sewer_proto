@@ -1,0 +1,11 @@
+{
+  "name": "wani_cru_tall",
+  "mode": "editv2",
+  "src": "assets_raw/wani_cru_tall_src.png",
+  "ref": "assets_raw/wani_cru_key5.png",
+  "variants": 1,
+  "desc": "Keep the top part exactly as it is. Below it, continue the same glossy pink paint goo column with yellow marble streaks straight down, the same width as where it is cut, with long drips running down its surface, all the way to the bottom of the image, where it spreads out into a wide melted puddle on the floor exactly like the puddle in the reference image. Same colors, outline and pixel style.",
+  "generations_before": 304.9000000000001,
+  "generations_after": 289.9000000000001,
+  "used": 15.0
+}
