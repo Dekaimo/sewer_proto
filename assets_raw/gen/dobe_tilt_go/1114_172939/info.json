@@ -1,0 +1,11 @@
+{
+  "name": "dobe_tilt_go",
+  "mode": "anim",
+  "src": "assets_raw/dobe_join_key3_wide_d3.png",
+  "last": "assets_raw/dobe_tiltback_key.png",
+  "frames": 8,
+  "desc": "pink goo doberman hugging someone is pushed in the face and smoothly tilts its head and shoulders back while still hugging, body length unchanged, arm and hand stay in place, lower body stays merged in the dripping goo, calm closed eyes and faint smirk, even smooth motion",
+  "generations_before": 2653.8,
+  "generations_after": 2652.8,
+  "used": 1.0
+}
