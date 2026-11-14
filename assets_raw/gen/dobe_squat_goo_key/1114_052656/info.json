@@ -1,0 +1,20 @@
+{
+  "name": "dobe_squat_goo_key",
+  "mode": "gen",
+  "variants": 2,
+  "refs": [
+    [
+      "assets_raw/dobe_squat_key.png",
+      "exact pose, angle and body size: deep sumo squat seen straight from behind, head facing away, hands on knees"
+    ],
+    [
+      "assets_raw/dobe_lookback_key.png",
+      "gooey look: glossy pink goo body with thick yellow streaks, sticky goo drips hanging from arms, back and buttocks"
+    ]
+  ],
+  "style": "assets/dobe_idle.png",
+  "desc": "pixel art, muscular pink and yellow marbled goo doberman man in a deep sumo squat seen straight from behind, head facing away from the viewer so only the back of the head and ears show, hands on his knees, glossy sticky goo body with thick yellow streaks, many thick goo drips hanging from his arms, elbows, back and buttocks, no tail, no floor shadow, plain background",
+  "generations_before": 593.9000000000001,
+  "generations_after": 573.9000000000001,
+  "used": 20.0
+}
