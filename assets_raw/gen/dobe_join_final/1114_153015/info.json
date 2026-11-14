@@ -1,0 +1,11 @@
+{
+  "name": "dobe_join_final",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_join_comp_blue3.png",
+  "ref": "assets_raw/dobe_back_src_r.png",
+  "variants": 1,
+  "desc": "Redraw only the pink doberman cleanly in exactly the same pixel art style, shading, outline, marble streaks and head design as the reference doberman. Keep its pose, position, size, the arm around the small cat, and how its lower body melts into the blue pillar exactly as it is now. Its head is seen from behind in profile like the reference, so its eye is hidden and not visible; its mouth is closed with the corner lifted very slightly. Smooth clean pixels, no noise. Do not change the cat or the blue monster at all.",
+  "generations_before": 222.9000000000001,
+  "generations_after": 197.9000000000001,
+  "used": 25.0
+}
