@@ -1,0 +1,11 @@
+{
+  "name": "cat_startle",
+  "mode": "anim",
+  "src": "assets_raw/cat_cru_key4.png",
+  "last": "assets_raw/cat_cru_startle_key.png",
+  "frames": 8,
+  "desc": "crucified little black witch cat with its arms held out by goo notices something below to its left, opens its eyes, flinches slightly and shivers a little, ears pull back, arms and legs stay in place, subtle movement",
+  "generations_before": 7229.8,
+  "generations_after": 7228.8,
+  "used": 1.0
+}
