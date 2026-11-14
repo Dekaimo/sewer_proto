@@ -1,0 +1,12 @@
+{
+  "name": "cat_cru_struggle5",
+  "mode": "anim",
+  "src": "assets_raw/cat_cru_key4.png",
+  "frames": 8,
+  "variants": 1,
+  "subject": "small black cat in a purple witch hat with a star and bell, purple cape, tiny dark nose, eyes closed as thin curved lines, small closed mouth, arms spread with pink goo stuck on the wrists, belly and sides, pinned flat",
+  "desc": "struggles hard in refusal while stuck in place, keeping exactly the same closed-eye face: shakes its head strongly from side to side, twists and squirms its body left and right, arms tug at the goo on the wrists, tail lashing. The legs and feet do not move. The goo on the wrists moves together with the arms. Same three-quarter view facing left, same face, same size, loops back to the first pose",
+  "generations_before": 305.9000000000001,
+  "generations_after": 304.9000000000001,
+  "used": 1.0
+}
