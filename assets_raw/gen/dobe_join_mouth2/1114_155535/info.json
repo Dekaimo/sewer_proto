@@ -1,0 +1,11 @@
+{
+  "name": "dobe_join_mouth2",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_join_key.png",
+  "ref": "assets_raw/dobe_idle_mouth_ref.png",
+  "variants": 1,
+  "desc": "Edit only the mouth line on the doberman snout, matching how the reference draws its mouth: one dark mouth line runs from the front of the snout back along the jaw, and only its back end tilts slightly upward; a little apart from that end, a short separate cheek crease line shows the cheek being pushed up. Mouth stays closed. No teeth, no fangs, no eye, no curved U smile, no arrow mark. Everything else stays exactly the same: head shape, ears, body, arm, goo, colors, size and position.",
+  "generations_before": 184.9000000000001,
+  "generations_after": 174.9000000000001,
+  "used": 10.0
+}
