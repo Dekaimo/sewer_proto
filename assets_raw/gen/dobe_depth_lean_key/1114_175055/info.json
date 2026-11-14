@@ -1,0 +1,10 @@
+{
+  "name": "dobe_depth_lean_key",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_depth_lean_draft.png",
+  "ref": "assets_raw/dobe_tiltback_key.png",
+  "desc": "clean up into one seamless character: keep the head, face, closed eyes, faint smirk, ears and goo strand from the chin exactly as they are, keep the leaning body, chest, shoulders, arm, hand, drips, size and position unchanged. Smooth the neck so the head joins the shoulders naturally. Same pixel art rendering and thin line weight as the reference. Remove stray pixels.",
+  "generations_before": 7317.8,
+  "generations_after": 7307.8,
+  "used": 10.0
+}
