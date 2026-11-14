@@ -1,0 +1,10 @@
+{
+  "name": "dobe_leanback_key6",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_leanback_draft6.png",
+  "ref": "assets_raw/dobe_idle_r.png",
+  "desc": "keep everything exactly the same: pose, arch, head angle, size, position, colors, stripes. Only change: eyes gently closed as calm curved lines, mouth closed (no teeth, no tongue, no drool) with the mouth corner slightly raised in a relaxed smug look, same face design and rendering as the reference doberman, not cartoon. Smooth the seam where the neck meets the shoulders. Remove stray pixels.",
+  "generations_before": 115.79999999999995,
+  "generations_after": 105.79999999999995,
+  "used": 10.0
+}
