@@ -214,8 +214,8 @@ func _process(delta: float) -> void:
 	sprite.rotation = 0.0
 	if lower_sp:
 		lower_sp.visible = false
-	if cru2_root:
-		cru2_root.visible = false
+	if cru2_view:
+		cru2_view.visible = false
 	hug_mat.set_shader_parameter("cut_y", 2.0)
 	hug_mat.set_shader_parameter("wave_cut", 999.0)
 	if xfade:
@@ -583,8 +583,8 @@ func _update_crucify(delta: float) -> void:
 		xfade.visible = false
 		if lower_sp:
 			lower_sp.visible = false
-		if cru2_root:
-			cru2_root.visible = false
+		if cru2_view:
+			cru2_view.visible = false
 		cru2_go_t = -1.0
 		hug_mat.set_shader_parameter("cut_y", 2.0)
 		hug_mat.set_shader_parameter("wave_cut", 999.0)
@@ -1157,6 +1157,12 @@ func set_crucify_stage(st: int) -> void:
 # を1つの Node2D にまとめ、床を支点に skew でしならせる（全部の層が同じ曲がり方で揺れる）。
 var cru2 := {}
 var cru2_root: Node2D
+var cru2_vp: SubViewport
+var cru2_view: Sprite2D
+var cru2_bend: ShaderMaterial
+var cru2_tlag := 0.0
+const CRU2_VP := Vector2(560, 480)
+const CRU2_FLOOR := 460.0
 var cru2_wani: Sprite2D
 var cru2_win: Sprite2D
 var cru2_cat: Sprite2D
@@ -1189,9 +1195,29 @@ func _cru2_load() -> void:
 			arr.append(load(CRU2_DIR + "%s_%d.png" % [k, i]))
 			i += 1
 		cru2[k] = arr
+	# 場面をいったん小さな画面（SubViewport）に描き、それを床を支点にしならせて表示する
+	cru2_vp = SubViewport.new()
+	cru2_vp.size = Vector2i(int(CRU2_VP.x), int(CRU2_VP.y))
+	cru2_vp.transparent_bg = true
+	cru2_vp.disable_3d = true
+	cru2_vp.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
+	cru2_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(cru2_vp)
 	cru2_root = Node2D.new()
-	cru2_root.visible = false
-	add_child(cru2_root)
+	cru2_root.position = Vector2(CRU2_VP.x * 0.5, CRU2_FLOOR)
+	cru2_vp.add_child(cru2_root)
+	cru2_view = Sprite2D.new()
+	cru2_view.centered = false
+	cru2_view.texture = cru2_vp.get_texture()
+	cru2_view.offset = Vector2(-CRU2_VP.x * 0.5, -CRU2_FLOOR)
+	cru2_view.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	cru2_bend = ShaderMaterial.new()
+	cru2_bend.shader = preload("res://cru_bend.gdshader")
+	cru2_bend.set_shader_parameter("floor_px", CRU2_FLOOR)
+	cru2_bend.set_shader_parameter("tex_size", CRU2_VP)
+	cru2_view.material = cru2_bend
+	cru2_view.visible = false
+	add_child(cru2_view)
 	cru2_wani = _cru2_sprite()
 	cru2_win = _cru2_sprite()
 	cru2_cat = _cru2_sprite()
@@ -1233,7 +1259,7 @@ func _cru2_update(delta: float, p) -> void:
 		lower_sp.visible = false
 	for sg in segs:
 		sg.visible = false
-	cru2_root.visible = true
+	cru2_view.visible = true
 	cru2_root.scale = Vector2(-1.0 if facing > 0 else 1.0, 1.0)
 	var dobe = null
 	if p.sandwicher != null and is_instance_valid(p.sandwicher):
@@ -1332,7 +1358,12 @@ func _cru2_update(delta: float, p) -> void:
 	cru2_dobe.visible = dobe_tex != null or press_tex != null
 	cru2_dobe.texture = press_tex if press_tex != null else dobe_tex
 	cru2_dobe.position = Vector2(-128 + CRU2_DOBE.x, top + CRU2_DOBE.y + dobe_dy)
-	cru2_root.skew = tilt * 0.9
+	# 床を支点にしならせる（上ほど大きく、真ん中は少し遅れて付いてくる）
+	cru2_tlag = lerpf(cru2_tlag, tilt, 1.0 - exp(-delta * 5.0))
+	cru2_bend.set_shader_parameter("bend", sin(tilt) * 260.0)
+	cru2_bend.set_shader_parameter("lag", (cru2_tlag - tilt) * 120.0)
+	cru2_bend.set_shader_parameter("sink", absf(sin(tilt)) * 16.0)
+	cru2_bend.set_shader_parameter("height_px", maxf(vis_h, 120.0))
 	_update_drips(delta)
 
 

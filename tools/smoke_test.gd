@@ -73,8 +73,8 @@ func _process(delta: float) -> bool:
 		if t > 30.0 and not killed:
 			killed = true
 			main.player.damage(9999.0)
-		if t >= next_log and w != null and w.get("cru2_root") != null:
-			print("cru2 vis=%s wani=%s go_t=%.1f tilt=%.2f" % [str(w.cru2_root.visible), w.state, w.cru2_go_t, w.tilt])
+		if t >= next_log and w != null and w.get("cru2_view") != null:
+			print("cru2 vis=%s wani=%s go_t=%.1f tilt=%.2f" % [str(w.cru2_view.visible), w.state, w.cru2_go_t, w.tilt])
 	if mode == "cru":
 		pass
 	elif mode == "hd" or mode == "hds":
