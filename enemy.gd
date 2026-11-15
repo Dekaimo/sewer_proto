@@ -216,6 +216,7 @@ func _process(delta: float) -> void:
 		lower_sp.visible = false
 	if cru2_view:
 		cru2_view.visible = false
+		cru2_up.visible = false
 	hug_mat.set_shader_parameter("cut_y", 2.0)
 	hug_mat.set_shader_parameter("wave_cut", 999.0)
 	if xfade:
@@ -585,6 +586,7 @@ func _update_crucify(delta: float) -> void:
 			lower_sp.visible = false
 		if cru2_view:
 			cru2_view.visible = false
+			cru2_up.visible = false
 		cru2_go_t = -1.0
 		hug_mat.set_shader_parameter("cut_y", 2.0)
 		hug_mat.set_shader_parameter("wave_cut", 999.0)
@@ -1161,6 +1163,10 @@ var cru2_vp: SubViewport
 var cru2_view: Sprite2D
 var cru2_bend: ShaderMaterial
 var cru2_tlag := 0.0
+var cru2_up: Node2D
+var cru2_pwin: Sprite2D
+const CRU2_SPLIT := 190.0      # ここ（ワニの絵の上から）より上が上半身のまとまり、下が柱
+const CRU2_OVL := 8.0          # 上半身を柱に少し重ねて継ぎ目を隠す
 const CRU2_VP := Vector2(560, 480)
 const CRU2_FLOOR := 460.0
 var cru2_wani: Sprite2D
@@ -1195,7 +1201,8 @@ func _cru2_load() -> void:
 			arr.append(load(CRU2_DIR + "%s_%d.png" % [k, i]))
 			i += 1
 		cru2[k] = arr
-	# 場面をいったん小さな画面（SubViewport）に描き、それを床を支点にしならせて表示する
+	# 柱（腰より下）だけを小さな画面（SubViewport）に描き、床を支点にしならせて表示する。
+	# 上半身のまとまり（ワニの胸から上・猫・足首の粘液・ドーベルマン）はドット絵を歪めず、しなった柱の先に乗せて運ぶ
 	cru2_vp = SubViewport.new()
 	cru2_vp.size = Vector2i(int(CRU2_VP.x), int(CRU2_VP.y))
 	cru2_vp.transparent_bg = true
@@ -1218,18 +1225,23 @@ func _cru2_load() -> void:
 	cru2_view.material = cru2_bend
 	cru2_view.visible = false
 	add_child(cru2_view)
-	cru2_wani = _cru2_sprite()
-	cru2_win = _cru2_sprite()
-	cru2_cat = _cru2_sprite()
-	cru2_anchor = _cru2_sprite()
+	cru2_up = Node2D.new()
+	cru2_up.visible = false
+	add_child(cru2_up)
+	cru2_wani = _cru2_sprite(cru2_root)
+	cru2_pwin = _cru2_sprite(cru2_root)
+	cru2_win = _cru2_sprite(cru2_up)
+	cru2_cat = _cru2_sprite(cru2_up)
+	cru2_anchor = _cru2_sprite(cru2_up)
 	cru2_anchor.texture = cru2["anchor"]
-	cru2_dobe = _cru2_sprite()
+	cru2_dobe = _cru2_sprite(cru2_up)
 
 
-func _cru2_sprite() -> Sprite2D:
+func _cru2_sprite(parent: Node) -> Sprite2D:
 	var sp := Sprite2D.new()
 	sp.centered = false
-	cru2_root.add_child(sp)
+	sp.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	parent.add_child(sp)
 	return sp
 
 
@@ -1260,7 +1272,9 @@ func _cru2_update(delta: float, p) -> void:
 	for sg in segs:
 		sg.visible = false
 	cru2_view.visible = true
+	cru2_up.visible = true
 	cru2_root.scale = Vector2(-1.0 if facing > 0 else 1.0, 1.0)
+	cru2_up.scale = cru2_root.scale
 	var dobe = null
 	if p.sandwicher != null and is_instance_valid(p.sandwicher):
 		dobe = p.sandwicher
@@ -1335,6 +1349,15 @@ func _cru2_update(delta: float, p) -> void:
 		cru2_go_t = -1.0
 	# 並べる（床＝0、上がマイナス）
 	var top := -vis_h
+	var waist := top + CRU2_SPLIT                 # 上半身と柱の境目（床からの高さは負）
+	var hs := maxf(vis_h - CRU2_SPLIT, 0.0)       # しなる柱の長さ
+	var wtex: Texture2D = win_tex if win_tex != null else cru2["tall"]
+	# 柱：窓の絵の腰より下＋縦長の絵の残り（SubViewport の中、床が基準）
+	cru2_pwin.visible = vis_h > CRU2_SPLIT
+	cru2_pwin.texture = wtex
+	cru2_pwin.region_enabled = true
+	cru2_pwin.region_rect = Rect2(0, CRU2_SPLIT, 256, maxf(minf(256.0, vis_h) - CRU2_SPLIT, 1.0))
+	cru2_pwin.position = Vector2(-128, waist)
 	if vis_h > 256.0:
 		cru2_wani.visible = true
 		cru2_wani.texture = cru2["tall"]
@@ -1343,27 +1366,36 @@ func _cru2_update(delta: float, p) -> void:
 		cru2_wani.position = Vector2(-128, top + 256.0)
 	else:
 		cru2_wani.visible = false
-	cru2_win.visible = true
-	cru2_win.texture = win_tex if win_tex != null else cru2["tall"]
+	# しなり：床を支点に上ほど大きく曲がり、真ん中は少し遅れて付いてくる
+	cru2_tlag = lerpf(cru2_tlag, tilt, 1.0 - exp(-delta * 5.0))
+	var bend := hs * tan(tilt) * 0.5
+	var lag := (cru2_tlag - tilt) * hs * 0.25
+	var sink := absf(sin(tilt)) * 10.0
+	cru2_bend.set_shader_parameter("bend", bend)
+	cru2_bend.set_shader_parameter("lag", lag)
+	cru2_bend.set_shader_parameter("sink", sink)
+	cru2_bend.set_shader_parameter("height_px", maxf(hs, 1.0))
+	# 上半身のまとまり：しなった柱の先に乗り、先の向きに合わせて傾く（絵そのものは歪めない）
+	var slope := 0.0
+	if hs > 1.0:
+		slope = (2.0 * bend - PI * lag) / hs
+	cru2_up.position = Vector2(roundf(bend), roundf(waist + sink))
+	cru2_up.rotation = atan(slope)
+	cru2_win.texture = wtex
 	cru2_win.region_enabled = true
-	cru2_win.region_rect = Rect2(0, 0, 256, minf(256.0, vis_h))
-	cru2_win.position = Vector2(-128, top)
+	cru2_win.region_rect = Rect2(0, 0, 256, minf(minf(256.0, vis_h), CRU2_SPLIT + CRU2_OVL))
+	cru2_win.position = Vector2(-128, -CRU2_SPLIT)
 	cru2_cat.visible = cat_show and cat_tex != null
 	cru2_cat.texture = cat_tex
-	cru2_cat.position = Vector2(-128 + CRU2_CAT.x, minf(CRU2_CAT_STAND, top + CRU2_CAT.y))
+	cru2_cat.position = Vector2(-128 + CRU2_CAT.x, minf(CRU2_CAT_STAND - waist, CRU2_CAT.y - CRU2_SPLIT))
 	var cm: float = p.contamination()
 	cru2_cat.modulate = Color(1.0, 1.0 - 0.22 * cm, 1.0 - 0.08 * cm)
 	cru2_anchor.visible = state == "crucify" and not forming and not (main.game_over and cru2_go_t > 0.2)
-	cru2_anchor.position = Vector2(-128, top)
+	cru2_anchor.position = Vector2(-128, -CRU2_SPLIT)
 	cru2_dobe.visible = dobe_tex != null or press_tex != null
 	cru2_dobe.texture = press_tex if press_tex != null else dobe_tex
-	cru2_dobe.position = Vector2(-128 + CRU2_DOBE.x, top + CRU2_DOBE.y + dobe_dy)
-	# 床を支点にしならせる（上ほど大きく、真ん中は少し遅れて付いてくる）
-	cru2_tlag = lerpf(cru2_tlag, tilt, 1.0 - exp(-delta * 5.0))
-	cru2_bend.set_shader_parameter("bend", sin(tilt) * 260.0)
-	cru2_bend.set_shader_parameter("lag", (cru2_tlag - tilt) * 120.0)
-	cru2_bend.set_shader_parameter("sink", absf(sin(tilt)) * 16.0)
-	cru2_bend.set_shader_parameter("height_px", maxf(vis_h, 120.0))
+	cru2_dobe.position = Vector2(-128 + CRU2_DOBE.x, CRU2_DOBE.y - CRU2_SPLIT + dobe_dy)
+	sway = Vector2(bend + sin(cru2_up.rotation) * 150.0, sink)
 	_update_drips(delta)
 
 
@@ -1391,7 +1423,6 @@ func _cru2_metronome(delta: float, p, forming: bool) -> void:
 			p.add_dirt(p.random_body_point(), 2)
 	var s := sin(met_phase)
 	tilt = 0.17 * tilt_amp * s + 0.05 * agit * sin(met_phase * 3.0)
-	sway = Vector2(sin(tilt) * 240.0, absf(sin(tilt)) * 18.0)
 	if fmod(cru_t, 0.25) < delta:
 		main.add_goop(position + Vector2(randf_range(-50, 50), randf_range(-15, 15)), randf_range(40, 80), 0.3)
 	if randf() < 0.5:
