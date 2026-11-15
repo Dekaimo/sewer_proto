@@ -1349,12 +1349,12 @@ func _cru2_update(delta: float, p) -> void:
 		_cru2_metronome(delta, p, forming)
 		if not forming:
 			# ゆっくり呼吸しながらネバネバを垂れ落とす
-			# 目線：ペンキを飲ませている間は右下（主人公の方）、抵抗で大きく揺れている間はわざと上
+			# 目線：抵抗で大きく揺れている間はわざと上（飲ませ中でも上が優先）、ペンキを飲ませている間は右下（主人公の方）
 			var bk := "breathe"
-			if cru2_phase_prev == "drink" and not cru2.get("breathe_dr", []).is_empty():
-				bk = "breathe_dr"
-			elif cru2_eyes_up and not cru2.get("breathe_up", []).is_empty():
+			if cru2_eyes_up and not cru2.get("breathe_up", []).is_empty():
 				bk = "breathe_up"
+			elif cru2_phase_prev == "drink" and not cru2.get("breathe_dr", []).is_empty():
+				bk = "breathe_dr"
 			win_tex = _cru2_frame(bk, cru_t * 6.0, true)
 	# 便乗するドーベルマン（ワニと同じ曲がり方で揺らすため、ここで描く）
 	if dobe != null:
