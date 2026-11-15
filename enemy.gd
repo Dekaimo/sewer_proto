@@ -1183,6 +1183,7 @@ const CRU2_VP := Vector2(560, 480)
 const CRU2_FLOOR := 460.0
 var cru2_wani: Sprite2D
 var cru2_win: Sprite2D
+var cru2_win_mat: ShaderMaterial   # ペンキを飲ませる間、ワニの上半身を右へずらして主人公を後ろから支える
 var cru2_cat: Sprite2D
 var cru2_anchor: Sprite2D
 var cru2_dobe: Sprite2D
@@ -1193,7 +1194,7 @@ const CRU2_H := 400.0
 const CRU2_CAT := Vector2(56, 52)       # 猫の左上（ワニの絵の左上から）
 const CAT_LEAN_DEG := 12.0                  # 飲まされている間ののけぞり（猫の口 (56,56) をドーベルマンの鼻先へ）
 const CAT_LEAN_PIVOT := Vector2(45, 120)
-const CAT_LEAN_MOVE := Vector2(10, -15)
+const CAT_LEAN_MOVE := Vector2(9, -15)     # 口がドーベルマンの鼻先にぎりぎり隠れる位置
 const CRU2_DOBE := Vector2(-35, 49)     # ドーベルマンの層の左上（ワニの絵の左上から）
 const CRU2_FORM_T := 1.7                # 柱の頭がグチュグチュ盛り上がってワニになるまで
 const CRU2_CAT_STAND := -118.0          # 立っている猫の絵の上端（足が床）
@@ -1249,6 +1250,9 @@ func _cru2_load() -> void:
 	cru2_wani = _cru2_sprite(cru2_root)
 	cru2_pwin = _cru2_sprite(cru2_root)
 	cru2_win = _cru2_sprite(cru2_up)
+	cru2_win_mat = ShaderMaterial.new()
+	cru2_win_mat.shader = load("res://cru_lean.gdshader")
+	cru2_win.material = cru2_win_mat
 	cru2_cat = _cru2_sprite(cru2_up)
 	cru2_anchor = _cru2_sprite(cru2_up)
 	cru2_anchor.texture = cru2["anchor"]
@@ -1485,7 +1489,11 @@ func _cru2_update(delta: float, p) -> void:
 	cru2_win.texture = wtex
 	cru2_win.region_enabled = true
 	cru2_win.region_rect = Rect2(0, 0, 256, minf(minf(256.0, vis_h), CRU2_SPLIT + CRU2_OVL))
-	cru2_win.position = Vector2(-128, -CRU2_SPLIT)
+	# ペンキを飲ませる間：主人公がのけぞった分、ワニの上半身も右へずれて後ろから支える（腰から下はそのまま）
+	var win_shift: float = roundf(CAT_LEAN_MOVE.x * cat_lean)
+	cru2_win.position = Vector2(-128 + win_shift, -CRU2_SPLIT)
+	cru2_win_mat.set_shader_parameter("shift_px", win_shift)
+	cru2_win_mat.set_shader_parameter("tex_size", wtex.get_size())
 	cru2_cat.visible = cat_show and cat_tex != null
 	cru2_cat.texture = cat_tex
 	# のけぞり：足元（絵の中の CAT_LEAN_PIVOT）を支点に右へ傾け、口がドーベルマンの鼻先に合う所まで寄せる（絵のドットはそのまま）
