@@ -1,0 +1,10 @@
+{
+  "name": "dobe_lean9",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_lean9_draft.png",
+  "ref": "assets_raw/dobe_lean_key5.png",
+  "desc": "clean up into one seamless gooey character like the reference: keep the head, face, closed eyes, faint smirk, ears, the leaning upper body, the bent hugging arm on the right and the lower body exactly where they are now. Merge the overlapping shoulder and arm into one natural shoulder with a normal length upper arm, join the waist smoothly to the dripping lower body with no seam, gap, step or doubled outline, remove stray dots. Same colors, pixel art rendering and line weight as the reference.",
+  "generations_before": 6997.8,
+  "generations_after": 6987.8,
+  "used": 10.0
+}
