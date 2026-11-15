@@ -1,0 +1,9 @@
+{
+  "name": "eyetest_dr4b",
+  "mode": "editv2",
+  "src": "assets/cru2/breathe_0.png",
+  "desc": "pink goo crocodile, same image. It smugly side-eyes something below it on the right: each black pupil slides along the white to the right tip of the eye, near its cheek, low in the eye. The white to the left of the pupil is empty. Keep everything else identical.",
+  "generations_before": 6340.8,
+  "generations_after": 6330.8,
+  "used": 10.0
+}

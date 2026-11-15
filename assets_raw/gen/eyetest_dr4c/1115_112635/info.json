@@ -1,0 +1,9 @@
+{
+  "name": "eyetest_dr4c",
+  "mode": "editv2",
+  "src": "assets/cru2/breathe_up_0.png",
+  "desc": "pink goo crocodile, same image. Its eyes now look down to the right: each small black pupil moves from the top of the white down to the lower right end of the white, and the upper left of the eye becomes plain white. Keep everything else identical.",
+  "generations_before": 6330.8,
+  "generations_after": 6320.8,
+  "used": 10.0
+}

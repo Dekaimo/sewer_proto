@@ -1,0 +1,9 @@
+{
+  "name": "eyetest_dr4a",
+  "mode": "editv2",
+  "src": "assets/cru2/breathe_0.png",
+  "desc": "pink goo crocodile, same image. Its eyes glance sideways to the right side of the picture: in each eye the small black pupil is moved to the far right end of the white, pressed against the right edge, and the left part of the eye becomes plain white. Keep everything else identical.",
+  "generations_before": 6350.8,
+  "generations_after": 6340.8,
+  "used": 10.0
+}
