@@ -1,0 +1,11 @@
+{
+  "name": "wani_rise_top",
+  "mode": "anim",
+  "src": "assets_raw/wani_form_A.png",
+  "last": "assets_raw/wani_form_A.png",
+  "frames": 8,
+  "desc": "the top of a thick pink and yellow marbled goo pillar shooting upward: the goo top surges, stretches and wobbles, thick goo sloshes and bulges, sticky drips fling off and run down the sides, very gooey, the lower pillar stays the same width, looping",
+  "generations_before": 7179.8,
+  "generations_after": 7178.8,
+  "used": 1.0
+}
