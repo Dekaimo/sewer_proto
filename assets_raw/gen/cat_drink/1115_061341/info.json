@@ -1,0 +1,11 @@
+{
+  "name": "cat_drink",
+  "mode": "anim",
+  "src": "assets_raw/cat_cru_push_key3.png",
+  "last": "assets_raw/cat_cru_push_key3.png",
+  "frames": 8,
+  "desc": "little black witch cat with eyes shut weakly pushes with its small paws toward the left again and again while its throat and chest heave as if gulping, small shoulder jerks and feeble little kicks of its feet, face stays the same, nothing added, looping",
+  "generations_before": 6843.8,
+  "generations_after": 6842.8,
+  "used": 1.0
+}
