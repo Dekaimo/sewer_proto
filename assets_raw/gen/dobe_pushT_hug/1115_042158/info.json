@@ -1,0 +1,11 @@
+{
+  "name": "dobe_pushT_hug",
+  "mode": "anim",
+  "src": "assets_raw/dobe_lean_keyT.png",
+  "last": "assets_raw/dobe_hug_key_tight.png",
+  "frames": 8,
+  "desc": "pink goo doberman with its head tilted back presses its head and upper back forward again into a tight hug with the eyes hidden, its bent hugging arm stays exactly the same and is not stretched, its lower body and drips stay still, smooth motion",
+  "generations_before": 6974.8,
+  "generations_after": 6974.8,
+  "used": 0.0
+}
