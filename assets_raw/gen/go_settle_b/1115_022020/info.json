@@ -1,0 +1,9 @@
+{
+  "name": "go_settle_b",
+  "mode": "editv2",
+  "src": "assets_raw/go_wani_settle.png",
+  "desc": "keep the exact same outline, size, pose, head, arms and colors. Only change the shading on the goo chest and belly: the soft wide bulges and shine highlights have slid to different places, as if the goo surface is slowly rolling, one wide soft dent and one wide soft swell in new positions. No bubbles, no dots, no round bumps. Same pixel art style.",
+  "generations_before": 7128.8,
+  "generations_after": 7118.8,
+  "used": 10.0
+}
