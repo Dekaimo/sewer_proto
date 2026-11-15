@@ -1,0 +1,10 @@
+{
+  "name": "dobe_leanA",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_leanA_draft.png",
+  "ref": "assets_raw/dobe_lean_keyT.png",
+  "desc": "clean up into one seamless gooey character: keep the head, face, closed eyes, faint smirk, ears and the arched-back upper body exactly as they are, keep the forearm and hand on the right and the lower body and drips exactly where they are. Smoothly join the elbow to the forearm and the waist to the lower body with no cut edge, gap, step or doubled outline. Do not stretch the arm. Same colors, pixel art rendering and line weight as the reference. Remove stray pixels.",
+  "generations_before": 6973.8,
+  "generations_after": 6963.8,
+  "used": 10.0
+}
