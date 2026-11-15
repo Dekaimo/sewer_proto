@@ -32,6 +32,7 @@ var cool := 0.0         # 次に声を出すまで
 var ctx := ""
 var anchor := Vector2.ZERO    # 主人公の頭の位置（ワールド座標）
 var last_line := ""
+var side := 0           # 0=頭の上に出す / 1=右横 / -1=左横（磔：ワニの顔を隠さないように、主人公の頭の横に出す）
 
 
 func _ready() -> void:
@@ -67,10 +68,13 @@ func _context(p) -> String:
 
 
 func _head(p) -> Vector2:
+	side = 0
 	if p.state == "crucified" or (p.state == "defeated" and p.crucifier != null):
 		var w = p.crucifier
 		if w != null and is_instance_valid(w) and w.has_method("cru2_on") and w.cru2_on() and w.cru2_cat != null:
-			return w.cru2_cat.to_global(Vector2(66, 16))
+			var h: Vector2 = w.cru2_cat.to_global(Vector2(92, 30))
+			side = 1 if h.x > w.cru2_cat.to_global(Vector2(30, 30)).x else -1
+			return h
 	if p.state == "swallowed" and p.swallower != null and is_instance_valid(p.swallower):
 		return p.swallower.position + Vector2(0, -90)
 	if p.state == "engulfed":
@@ -132,10 +136,14 @@ func _draw() -> void:
 	var ts := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE)
 	var pad := Vector2(6, 4)
 	var size := (ts + pad * 2.0).round()
-	# 頭の右上に出す（画面の右端に近ければ左上）
+	# 頭の右上に出す（画面の右端に近ければ左上）。磔では頭の横に出す
 	var right: bool = anchor.x < main.VIEW_W - size.x - 40.0
-	var tail := anchor + Vector2(6 if right else -6, -6)
-	var box_pos := anchor + (Vector2(16, -size.y - 20) if right else Vector2(-16 - size.x, -size.y - 20))
+	var box_pos: Vector2
+	if side != 0:
+		right = side > 0
+		box_pos = anchor + (Vector2(14, -size.y * 0.5) if right else Vector2(-14 - size.x, -size.y * 0.5))
+	else:
+		box_pos = anchor + (Vector2(16, -size.y - 20) if right else Vector2(-16 - size.x, -size.y - 20))
 	box_pos.y = maxf(box_pos.y, 4.0)
 	# ポンと膨らむ（小さい所から）
 	var center := box_pos + size * 0.5
@@ -143,13 +151,24 @@ func _draw() -> void:
 	var r := Rect2((center - size * 0.5 * sc).round(), (size * sc).round())
 	var line_col := Color(0.12, 0.08, 0.14, a)
 	var fill := Color(1.0, 0.97, 0.98, 0.95 * a) if not muffled else Color(0.93, 0.86, 0.9, 0.92 * a)
-	# しっぽ（頭へ向かう三角）
-	var base_x: float = r.position.x + (10.0 if right else r.size.x - 10.0)
-	var by: float = r.end.y
-	var tri := PackedVector2Array([Vector2(base_x - 4, by - 1), Vector2(base_x + 4, by - 1), tail.round()])
-	draw_colored_polygon(tri, fill)
-	draw_line(Vector2(base_x - 4, by), tail.round(), line_col, 1.0)
-	draw_line(Vector2(base_x + 4, by), tail.round(), line_col, 1.0)
+	# しっぽ（頭へ向かう三角）。頭の上なら下の辺から、横なら頭側の辺から出す
+	var tip: Vector2
+	var b0: Vector2
+	var b1: Vector2
+	if side != 0:
+		var ex: float = r.position.x if right else r.end.x - 1.0
+		var cy: float = roundf(r.position.y + r.size.y * 0.5)
+		b0 = Vector2(ex, cy - 4)
+		b1 = Vector2(ex, cy + 3)
+		tip = (anchor + Vector2(2 if right else -2, 2)).round()
+	else:
+		var bx: float = r.position.x + (10.0 if right else r.size.x - 10.0)
+		b0 = Vector2(bx - 4, r.end.y - 1)
+		b1 = Vector2(bx + 4, r.end.y - 1)
+		tip = (anchor + Vector2(6 if right else -6, -6)).round()
+	draw_colored_polygon(PackedVector2Array([b0, b1, tip]), fill)
+	draw_line(b0, tip, line_col, 1.0)
+	draw_line(b1, tip, line_col, 1.0)
 	# 本体：角を1ドット落とした四角
 	var x0 := r.position.x
 	var y0 := r.position.y
@@ -173,7 +192,10 @@ func _draw() -> void:
 		draw_rect(Rect2(x0, y0 + 1, 1, r.size.y - 2), line_col)
 		draw_rect(Rect2(x1 - 1, y0 + 1, 1, r.size.y - 2), line_col)
 	# しっぽの付け根のふちを消して、本体とつなげる
-	draw_rect(Rect2(base_x - 3, by - 1, 7, 1), fill)
+	if side != 0:
+		draw_rect(Rect2(b0.x, b0.y + 1, 1, b1.y - b0.y - 1), fill)
+	else:
+		draw_rect(Rect2(b0.x + 1, b0.y, b1.x - b0.x - 1, 1), fill)
 	if pop < 1.0:
 		return
 	# 文字（くぐもった声は小刻みに震える）
