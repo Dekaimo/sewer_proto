@@ -1,0 +1,10 @@
+{
+  "name": "dobe_drink_key2",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_drink_key.png",
+  "ref": "assets_raw/dobe_hug_key_tight.png",
+  "desc": "keep this pink goo doberman exactly the same pose, size and position. Only change the head: it is seen from behind like the reference, so its eye and face are completely hidden behind the cheek and ears, no eye visible at all, only the back of the head, ears and the end of the muzzle pressed forward, pink goo dribbling from the muzzle. Same colors and pixel art style.",
+  "generations_before": 6841.8,
+  "generations_after": 6831.8,
+  "used": 10.0
+}
