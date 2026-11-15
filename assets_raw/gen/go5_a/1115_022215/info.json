@@ -1,0 +1,11 @@
+{
+  "name": "go5_a",
+  "mode": "anim",
+  "src": "assets_raw/go_wani_settle.png",
+  "last": "assets_raw/go_wani_settle_b.png",
+  "frames": 4,
+  "desc": "the goo belly surface of the crocodile slowly rolls and swells, wet goo sloshing, the crocodile keeps its pose and grin, no bubbles",
+  "generations_before": 7118.8,
+  "generations_after": 7117.8,
+  "used": 1.0
+}
