@@ -1563,8 +1563,9 @@ func _cru2_metronome(delta: float, p, forming: bool) -> void:
 		cru2_eyes_up = agit > 0.45 and not forming
 	cru2_snort_t -= delta
 	if cru2_eyes_up and cru2_snort_t <= 0.0:
-		cru2_snort_t = randf_range(1.1, 1.8)
-		main.sfx.play_any(["snort"], -2.0)
+		# 時々、ゆっくり重く長く「フゥーン……」と吐く（余裕たっぷり）
+		cru2_snort_t = randf_range(3.5, 5.5)
+		main.sfx.play_any(["snort"], 0.0)
 		_cru2_puff()
 	if fmod(cru_t, 0.25) < delta:
 		main.add_goop(position + Vector2(randf_range(-50, 50), randf_range(-15, 15)), randf_range(40, 80), 0.3)
@@ -1572,15 +1573,14 @@ func _cru2_metronome(delta: float, p, forming: bool) -> void:
 		drip_vis.append({"x": randf_range(-90.0, 90.0) + sway.x * 0.6, "y": -randf_range(200.0, 320.0), "v": 0.0, "vx": 0.0})
 
 
-## 鼻息：鼻先からもやを2回に分けて吐く（フンッ）
+## 鼻息：鼻先から、ゆっくり重く長い息のもやを吐く（フゥーン……）
 const CRU2_NOSE := Vector2(81, 47)    # 窓の絵（ワニの上半身）の中の鼻の穴
 func _cru2_puff() -> void:
 	if cru2_win == null:
 		return
 	var nose: Vector2 = cru2_win.position + CRU2_NOSE
-	for k in 2:
-		for i in 4:
-			cru2_puffs.append({"p": nose + Vector2(randf_range(-1, 1), randf_range(-1, 1)), "v": Vector2(-randf_range(40.0, 75.0), randf_range(8.0, 26.0)), "t": -0.12 * k, "life": randf_range(0.45, 0.7)})
+	for i in 18:
+		cru2_puffs.append({"p": nose + Vector2(randf_range(-1, 1), randf_range(-1, 1)), "v": Vector2(-randf_range(16.0, 28.0), randf_range(5.0, 14.0)), "t": -i * 0.07, "life": randf_range(1.3, 1.8)})
 
 
 func _cru2_update_puffs(delta: float) -> void:
@@ -1588,7 +1588,7 @@ func _cru2_update_puffs(delta: float) -> void:
 		pf.t += delta
 		if pf.t > 0.0:
 			pf.p += pf.v * delta
-			pf.v *= 1.0 - 2.5 * delta
+			pf.v *= 1.0 - 1.2 * delta
 	cru2_puffs = cru2_puffs.filter(func(pf): return pf.t < pf.life)
 	if cru2_puff_node != null:
 		cru2_puff_node.queue_redraw()
@@ -1599,8 +1599,8 @@ func _cru2_draw_puffs() -> void:
 		if pf.t < 0.0:
 			continue
 		var k: float = pf.t / pf.life
-		var r: float = roundf(lerpf(1.0, 4.0, k))
-		var c := Color(1.0, 0.9, 0.95, 0.75 * (1.0 - k))
+		var r: float = roundf(lerpf(1.0, 6.0, k))
+		var c := Color(1.0, 0.92, 0.96, 0.5 * (1.0 - k))
 		var q: Vector2 = pf.p.round()
 		cru2_puff_node.draw_rect(Rect2(q.x - r, q.y - r + 1, r * 2.0, r * 2.0 - 2.0), c)
 		cru2_puff_node.draw_rect(Rect2(q.x - r + 1, q.y - r, r * 2.0 - 2.0, r * 2.0), c)

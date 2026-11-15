@@ -24,7 +24,7 @@ PROMPTS = {
     "defeat": ("slowly sinking into thick wet slime, deep sloppy squelching and gurgling ooze", 2.5),
     "gurgle": ("thick wet goo churning and squelching, sloppy slimy bubbling, something squirming inside sticky slime", 1.6),
     "slurp": ("thick wet goo being forced down a throat, sloppy wet gulping and squelching, sticky slurp", 1.2),
-    "snort": ("a big relaxed smug snort through the nose of a large beast, a short amused huff of breath out the nostrils, slightly wet", 0.8),
+    "snort": ("a slow, heavy, long exhale through the nose of a big burly muscular man, a deep low satisfied and smug hmmmph, long breath out the nostrils, masculine, unhurried", 2.2),
 }
 
 
