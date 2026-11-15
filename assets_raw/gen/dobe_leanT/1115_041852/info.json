@@ -1,0 +1,10 @@
+{
+  "name": "dobe_leanT",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_leanT_draft.png",
+  "ref": "assets_raw/dobe_hug_key_tight.png",
+  "desc": "clean up into one seamless gooey character: keep the head, face, closed eyes, faint smirk and ears exactly as they are, keep the bent hugging arm on the right exactly as it is with the same short length, keep the lower body and drips exactly as they are. Smoothly connect the neck to the shoulders and back with no cut edge, gap, step or doubled outline. Do not stretch the arm. Same colors, pixel art rendering and line weight as the reference. Remove stray pixels.",
+  "generations_before": 6985.8,
+  "generations_after": 6975.8,
+  "used": 10.0
+}
