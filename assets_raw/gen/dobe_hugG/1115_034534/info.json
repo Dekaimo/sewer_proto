@@ -1,0 +1,10 @@
+{
+  "name": "dobe_hugG",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_hugG_draft.png",
+  "ref": "assets_raw/dobe_grip_key.png",
+  "desc": "clean up into one seamless gooey character: a pink goo doberman seen from behind at an angle, hunched forward hugging tightly, head pressed forward with the eyes hidden. Keep the pose, head position, the bent arm and the hand clutching on the lower right, the lower body and drips exactly where they are. Join the shoulder smoothly to the arm with no seam or step, remove stray pixels. Same colors, pixel art rendering and line weight as the reference.",
+  "generations_before": 7019.8,
+  "generations_after": 7009.8,
+  "used": 10.0
+}
