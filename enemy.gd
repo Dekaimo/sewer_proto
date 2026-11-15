@@ -1166,6 +1166,9 @@ var cru2_tlag := 0.0
 var cru2_push_t := 0.0       # 押し合いっこのコマ位置（もがいている間だけ進む）
 var cru2_push_on := 0.0      # もがきの入力があってからの残り時間
 var cru2_last_struggle := 0.0
+var cru2_twitch_t := 0.0     # 飲まされている間の猫のビクッ（残り時間）
+var cru2_twitch_next := 0.0
+var cru2_twitch_off := Vector2.ZERO
 var cru2_up: Node2D
 var cru2_paw: Sprite2D
 var cru2_pawtex := {}
@@ -1294,6 +1297,7 @@ func _cru2_update(delta: float, p) -> void:
 	var dobe_dy := 0.0
 	var dobe_dx := 0.0
 	var paw_tex: Texture2D = null
+	var cat_off := Vector2.ZERO
 	var forming := false
 	if state == "pillar":
 		# 足元から柱が一気に生えて、上でゆっくり止まる（頭はドロドロ波打つ）
@@ -1336,6 +1340,15 @@ func _cru2_update(delta: float, p) -> void:
 				dobe_tex = _cru2_frame("dobe_drink", cru_t * 8.0, true)
 				cat_tex = _cru2_frame("cat_drink", cru_t * 8.0, true)
 				dobe_dx = 3.0
+				# 飲まされている間、ときどき小さくビクッと震える（不規則に1ドット、たまに2回続けて）
+				cru2_twitch_next -= delta
+				if cru2_twitch_next <= 0.0:
+					cru2_twitch_t = 0.06
+					cru2_twitch_off = Vector2(randi_range(-1, 1), -1.0)
+					cru2_twitch_next = 0.12 if randf() < 0.35 else randf_range(0.3, 0.9)
+				if cru2_twitch_t > 0.0:
+					cru2_twitch_t -= delta
+					cat_off = cru2_twitch_off
 				if fmod(cru_t, 0.45) < delta:
 					main.sfx.play_any(["slurp", "gurgle", "grab_loop"], -2.0)
 					p.add_dirt(Vector2i(randi_range(48, 80), randi_range(30, 58)), 2)
@@ -1431,7 +1444,7 @@ func _cru2_update(delta: float, p) -> void:
 	cru2_win.position = Vector2(-128, -CRU2_SPLIT)
 	cru2_cat.visible = cat_show and cat_tex != null
 	cru2_cat.texture = cat_tex
-	cru2_cat.position = Vector2(-128 + CRU2_CAT.x, minf(CRU2_CAT_STAND - waist, CRU2_CAT.y - CRU2_SPLIT))
+	cru2_cat.position = Vector2(-128 + CRU2_CAT.x, minf(CRU2_CAT_STAND - waist, CRU2_CAT.y - CRU2_SPLIT)) + cat_off
 	var cm: float = p.contamination()
 	cru2_cat.modulate = Color(1.0, 1.0 - 0.22 * cm, 1.0 - 0.08 * cm)
 	cru2_anchor.visible = state == "crucify" and not forming and not (main.game_over and cru2_go_t > 0.2)
