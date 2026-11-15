@@ -1202,7 +1202,7 @@ func _cru2_load() -> void:
 	for i in 9:
 		if ResourceLoader.exists(CRU2_DIR + "cat_pushpaw_%d.png" % i):
 			cru2_pawtex[i] = load(CRU2_DIR + "cat_pushpaw_%d.png" % i)
-	for k in ["form", "rise_top", "cat_struggle", "cat_startle", "cat_refuse", "go_absorb", "go_sink", "go_churn", "dobe_emerge", "dobe_push", "go_dobe_press", "breathe", "dobe_rub", "cat_push"]:
+	for k in ["form", "rise_top", "cat_struggle", "cat_startle", "cat_refuse", "go_absorb", "go_sink", "go_churn", "dobe_emerge", "dobe_push", "go_dobe_press", "breathe", "dobe_rub", "cat_push", "dobe_drink", "cat_drink"]:
 		var arr: Array = []
 		var i := 0
 		while ResourceLoader.exists(CRU2_DIR + "%s_%d.png" % [k, i]):
@@ -1292,6 +1292,7 @@ func _cru2_update(delta: float, p) -> void:
 	var cat_tex: Texture2D = _cru2_frame("cat_struggle", cru_t * 7.0, true)
 	var dobe_tex: Texture2D = null
 	var dobe_dy := 0.0
+	var dobe_dx := 0.0
 	var paw_tex: Texture2D = null
 	var forming := false
 	if state == "pillar":
@@ -1329,9 +1330,19 @@ func _cru2_update(delta: float, p) -> void:
 			dobe_tex = _cru2_frame("dobe_emerge", f * _cru2_count("dobe_emerge"), false)
 			cat_tex = _cru2_frame("cat_startle", minf(f * 1.4, 0.999) * _cru2_count("cat_startle"), false)
 		elif dobe.state == "sandwich" and dobe.sub == "hug":
-			# 抵抗に失敗した後：がっちり抱きついたまま体を上下に擦りつけて汚す
-			dobe_tex = _cru2_frame("dobe_rub", dobe.rub_t * 4.0, true) if not cru2.get("dobe_rub", []).is_empty() else cru2["hug"]
-			cat_tex = _cru2_frame("cat_refuse", cru_t * 9.0, true)
+			# 抵抗に失敗した後：がっちり抱きついたまま、体を擦りつけて汚す ⇄ 顔を押しつけてペンキを飲ませる、を交互に
+			var drinking: bool = not cru2.get("dobe_drink", []).is_empty() and fmod(dobe.t, 7.0) > 3.5
+			if drinking:
+				dobe_tex = _cru2_frame("dobe_drink", cru_t * 8.0, true)
+				cat_tex = _cru2_frame("cat_drink", cru_t * 8.0, true)
+				dobe_dx = 3.0
+				if fmod(cru_t, 0.45) < delta:
+					main.sfx.play_any(["gurgle", "grab_loop"], -4.0)
+					p.add_dirt(Vector2i(randi_range(48, 80), randi_range(30, 58)), 2)
+					p.damage(0.6)
+			else:
+				dobe_tex = _cru2_frame("dobe_rub", dobe.rub_t * 4.0, true) if not cru2.get("dobe_rub", []).is_empty() else cru2["hug"]
+				cat_tex = _cru2_frame("cat_refuse", cru_t * 9.0, true)
 		else:
 			# 押し合いっこ：抱きしめ⇄のけぞりを止まらずに繰り返す（押し返されたフリの間は速く）
 			# 押し合いっこはもがいている間だけ動かす。手を止めたら抱きついた姿勢（0コマ目）まで進めて止める
@@ -1427,7 +1438,7 @@ func _cru2_update(delta: float, p) -> void:
 	cru2_anchor.position = Vector2(-128, -CRU2_SPLIT)
 	cru2_dobe.visible = dobe_tex != null or press_tex != null
 	cru2_dobe.texture = press_tex if press_tex != null else dobe_tex
-	cru2_dobe.position = Vector2(-128 + CRU2_DOBE.x, CRU2_DOBE.y - CRU2_SPLIT + dobe_dy)
+	cru2_dobe.position = Vector2(-128 + CRU2_DOBE.x + dobe_dx, CRU2_DOBE.y - CRU2_SPLIT + dobe_dy)
 	cru2_paw.visible = paw_tex != null and cru2_cat.visible
 	cru2_paw.texture = paw_tex
 	cru2_paw.position = cru2_cat.position
