@@ -19,6 +19,7 @@ const LINES := {
 	"rub": {"t": ["うぅ…", "ひぅ…", "や…め…っ", "んぅ…"], "muffled": false, "gap": [1.8, 3.2]},
 	"drink": {"t": ["んぐっ…", "んむぅ…！", "んくっ…", "むー…っ"], "muffled": true, "gap": [1.2, 2.4]},
 	"muffled": {"t": ["むぐ…", "んむー…！", "もごもご…", "んんー…！"], "muffled": true, "gap": [1.8, 3.2]},
+	"under": {"t": ["～～～！！！", "～～～っ！！", "～～っ…！", "～～～…！"], "muffled": true, "gap": [1.4, 2.8]},
 	"faint": {"t": ["…ぅ…", "…ぁ…", "……"], "muffled": true, "gap": [5.0, 9.0]},
 	"free": {"t": ["ぷはっ…！", "はぁ…はぁ…"], "muffled": false, "gap": [99.0, 99.0]},
 }
@@ -60,7 +61,9 @@ func _context(p) -> String:
 			if w != null and is_instance_valid(w) and "cru2_phase" in w and w.cru2_phase != "":
 				return w.cru2_phase
 			return "cru"
-		"swallowed", "engulfed", "pinned":
+		"swallowed":
+			return "under"     # 地面の中（呑まれて地中を引き回される）：声にならない
+		"engulfed", "pinned":
 			return "muffled"
 		"defeated":
 			return "faint"
