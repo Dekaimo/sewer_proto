@@ -1,0 +1,11 @@
+{
+  "name": "dobe_push6_hug",
+  "mode": "anim",
+  "src": "assets_raw/dobe_lean_key5.png",
+  "last": "assets_raw/dobe_hug_key2_pl.png",
+  "frames": 8,
+  "desc": "pink goo doberman leaning far back pulls its head and body forward again toward its own bent hugging arm, which stays exactly in place and does not move at all, the stretched upper arm shortens, its lower body and drips stay still stuck to the goo pillar, goo ropes shorten and stick back, head goes forward with the eyes hidden, smooth motion",
+  "generations_before": 7093.8,
+  "generations_after": 7093.8,
+  "used": 0.0
+}
