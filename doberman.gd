@@ -51,6 +51,9 @@ var last_struggle := 0.0
 var wobble := 0.0
 var fake_left := 0          # あと何回「押されたフリ」をするか
 var rub_t := 0.0
+var sw_idle_t := 0.0     # 磔の押し合いっこ中、主人公が押し返していない時間（長いと抵抗をあきらめたとみなして抱きしめへ）
+var sw_last_push := 0.0
+const SW_IDLE_GIVEUP := 5.0
 var push_off := 0.0         # 押し返されて離れている距離（見た目）
 var tex_masks := {}         # コマのテクスチャ → 主人公部分のマスク
 var hug_mat: ShaderMaterial
@@ -532,11 +535,23 @@ func _update_sandwich(delta: float, p) -> void:
 			if t > 1.6:
 				sub = "tease"
 				t = 0.0
+				sw_idle_t = 0.0
+				sw_last_push = p.push
 				main.sfx.play("grab")
 				for i in 3:
 					p.add_dirt(p.random_body_point(), 2)
 		"tease":
 			# 抱きしめようとして、嗤いながら上体を前後にグッチャグッチャ揺らす（押し返しゲージは有効）
+			# 押し返さずにしばらく放っておくと、抵抗をあきらめたとみなして抱きしめ（→擦りつけ ⇄ ペンキを飲ませる）へ
+			if p.push > sw_last_push + 0.001:
+				sw_idle_t = 0.0
+			else:
+				sw_idle_t += delta
+			sw_last_push = p.push
+			if sw_idle_t > SW_IDLE_GIVEUP:
+				sw_idle_t = 0.0
+				_sw_start_hug(p)
+				return
 			rub_t += delta * 1.6
 			var r := sin(rub_t * TAU * 0.5)
 			if frames.has("sw_tease"):
@@ -581,6 +596,11 @@ func on_pushed(p) -> void:
 		main.sfx.play("hit", -4.0)
 		return
 	# 押されたフリを使い切った：遊びは終わり。がっちり抱きしめる
+	_sw_start_hug(p)
+
+
+## 抵抗に失敗した（押されたフリを使い切った・押し返さずに放っておいた）：がっちり抱きしめる → 擦りつけ ⇄ ペンキを飲ませる
+func _sw_start_hug(p) -> void:
 	state = "sandwich"
 	sub = "hug"
 	t = 0.0
@@ -610,6 +630,8 @@ func _update_pushed(delta: float, p) -> void:
 			sub = "tease"
 			t = 0.0
 			p.push = 0.0
+			sw_idle_t = 0.0
+			sw_last_push = 0.0
 			main.sfx.play("grab", 0.0)
 			for i in 4:
 				p.add_dirt(p.random_body_point(), 3)
