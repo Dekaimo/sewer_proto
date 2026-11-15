@@ -1,0 +1,9 @@
+{
+  "name": "eyetest_dr2b",
+  "mode": "editv2",
+  "src": "assets/cru2/breathe_0.png",
+  "desc": "pink goo crocodile, same image. It glances down and backward toward the bottom right: in each eye the white eyeball stays white and the small black pupil sits at the lower right corner of the white, toward the back of its head (away from its snout). Keep everything else identical.",
+  "generations_before": 6550.8,
+  "generations_after": 6540.8,
+  "used": 10.0
+}
