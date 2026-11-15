@@ -1,0 +1,9 @@
+{
+  "name": "eyetest_drb",
+  "mode": "editv2",
+  "src": "assets/cru2/breathe_0.png",
+  "desc": "pink goo crocodile, same image. Its eyes look down to the right: each eye keeps its white eyeball and the small black pupil is moved to the bottom right corner of the white. Keep everything else identical.",
+  "generations_before": 6570.8,
+  "generations_after": 6560.8,
+  "used": 10.0
+}
