@@ -1,0 +1,9 @@
+{
+  "name": "eyetest_down",
+  "mode": "editv2",
+  "src": "assets/cru2/breathe_0.png",
+  "desc": "pink goo crocodile, same image. It looks straight down: in each eye the white eyeball stays white and the small black pupil sits at the bottom edge of the white. Keep everything else identical.",
+  "generations_before": 6440.8,
+  "generations_after": 6430.8,
+  "used": 10.0
+}
