@@ -1179,7 +1179,7 @@ var cru2_go_dobe := false
 const CRU2_DIR := "res://assets/cru2/"
 const CRU2_H := 400.0
 const CRU2_CAT := Vector2(56, 52)       # 猫の左上（ワニの絵の左上から）
-const CRU2_DOBE := Vector2(-39, 63)     # ドーベルマンの層の左上（ワニの絵の左上から）
+const CRU2_DOBE := Vector2(-35, 57)     # ドーベルマンの層の左上（ワニの絵の左上から）
 const CRU2_FORM_T := 1.7                # 柱の頭がグチュグチュ盛り上がってワニになるまで
 const CRU2_CAT_STAND := -118.0          # 立っている猫の絵の上端（足が床）
 
@@ -1194,7 +1194,7 @@ func _cru2_load() -> void:
 	cru2["tall"] = load(CRU2_DIR + "wani_tall.png")
 	cru2["anchor"] = load(CRU2_DIR + "anchor.png")
 	cru2["hug"] = load(CRU2_DIR + "dobe_hug.png")
-	for k in ["form", "rise_top", "cat_struggle", "cat_startle", "cat_refuse", "go_absorb", "go_sink", "go_churn", "dobe_emerge", "dobe_push", "go_dobe_press", "breathe"]:
+	for k in ["form", "rise_top", "cat_struggle", "cat_startle", "cat_refuse", "go_absorb", "go_sink", "go_churn", "dobe_emerge", "dobe_push", "go_dobe_press", "breathe", "dobe_rub"]:
 		var arr: Array = []
 		var i := 0
 		while ResourceLoader.exists(CRU2_DIR + "%s_%d.png" % [k, i]):
@@ -1319,8 +1319,8 @@ func _cru2_update(delta: float, p) -> void:
 			dobe_tex = _cru2_frame("dobe_emerge", f * _cru2_count("dobe_emerge"), false)
 			cat_tex = _cru2_frame("cat_startle", minf(f * 1.4, 0.999) * _cru2_count("cat_startle"), false)
 		elif dobe.state == "sandwich" and dobe.sub == "hug":
-			dobe_tex = cru2["hug"]
-			dobe_dy = sin(dobe.rub_t * PI) * 4.0
+			# 抵抗に失敗した後：がっちり抱きついたまま体を上下に擦りつけて汚す
+			dobe_tex = _cru2_frame("dobe_rub", dobe.rub_t * 4.0, true) if not cru2.get("dobe_rub", []).is_empty() else cru2["hug"]
 			cat_tex = _cru2_frame("cat_refuse", cru_t * 9.0, true)
 		else:
 			# 押し合いっこ：抱きしめ⇄のけぞりを止まらずに繰り返す（押し返されたフリの間は速く）
