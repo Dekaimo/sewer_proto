@@ -1,0 +1,11 @@
+{
+  "name": "dobe_emerge_a",
+  "mode": "anim",
+  "src": "assets_raw/dobe_emerge_draft.png",
+  "last": "assets_raw/dobe_emerge_lump.png",
+  "frames": 8,
+  "desc": "sticky pink and yellow marbled goo bulges out of the side of a goo pillar and swells up into a big lumpy heaving mass, wet bubbles swell and pop, sticky strings stretch, thick drips run down, gooey and squelchy",
+  "generations_before": 7168.8,
+  "generations_after": 7167.8,
+  "used": 1.0
+}

@@ -1,0 +1,11 @@
+{
+  "name": "dobe_emerge_b",
+  "mode": "anim",
+  "src": "assets_raw/dobe_emerge_lump.png",
+  "last": "assets_raw/dobe_join_key3_wide_d3.png",
+  "frames": 8,
+  "desc": "the lumpy heaving mass of sticky goo squelches into the shape of a muscular doberman seen from behind at an angle: the back and shoulders rise out of the goo, the head with pointed ears pushes up, one arm stretches out to the right to hug, sticky strings stretch and snap, goo drips everywhere, the lower part stays merged in the dripping goo",
+  "generations_before": 7167.8,
+  "generations_after": 7166.8,
+  "used": 1.0
+}
