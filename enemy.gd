@@ -1166,6 +1166,7 @@ var cru2_tlag := 0.0
 var cru2_push_t := 0.0       # 押し合いっこのコマ位置（もがいている間だけ進む）
 var cru2_push_on := 0.0      # もがきの入力があってからの残り時間
 var cru2_last_struggle := 0.0
+var cru2_phase := ""       # 今の磔の場面（フキダシのセリフ選び用）: rise / startle / push / rub / drink / cru
 var cru2_twitch_t := 0.0     # 飲まされている間の猫のビクッ（残り時間）
 var cru2_twitch_next := 0.0
 var cru2_twitch_off := Vector2.ZERO
@@ -1299,6 +1300,7 @@ func _cru2_update(delta: float, p) -> void:
 	var paw_tex: Texture2D = null
 	var cat_off := Vector2.ZERO
 	var forming := false
+	cru2_phase = "rise" if state == "pillar" else "cru"
 	if state == "pillar":
 		# 足元から柱が一気に生えて、上でゆっくり止まる（頭はドロドロ波打つ）
 		var k := clampf(cru_t / RISE_T, 0.0, 1.0)
@@ -1333,9 +1335,11 @@ func _cru2_update(delta: float, p) -> void:
 			var f: float = clampf(dobe.t / 1.6, 0.0, 0.999)
 			dobe_tex = _cru2_frame("dobe_emerge", f * _cru2_count("dobe_emerge"), false)
 			cat_tex = _cru2_frame("cat_startle", minf(f * 1.4, 0.999) * _cru2_count("cat_startle"), false)
+			cru2_phase = "startle"
 		elif dobe.state == "sandwich" and dobe.sub == "hug":
 			# 抵抗に失敗した後：がっちり抱きついたまま、体を擦りつけて汚す ⇄ 顔を押しつけてペンキを飲ませる、を交互に
 			var drinking: bool = not cru2.get("dobe_drink", []).is_empty() and fmod(dobe.t, 7.0) > 3.5
+			cru2_phase = "drink" if drinking else "rub"
 			if drinking:
 				dobe_tex = _cru2_frame("dobe_drink", cru_t * 8.0, true)
 				cat_tex = _cru2_frame("cat_drink", cru_t * 8.0, true)
@@ -1359,6 +1363,7 @@ func _cru2_update(delta: float, p) -> void:
 		else:
 			# 押し合いっこ：抱きしめ⇄のけぞりを止まらずに繰り返す（押し返されたフリの間は速く）
 			# 押し合いっこはもがいている間だけ動かす。手を止めたら抱きついた姿勢（0コマ目）まで進めて止める
+			cru2_phase = "push"
 			if p.struggle > cru2_last_struggle + 0.001:
 				cru2_push_on = 0.35
 			cru2_last_struggle = p.struggle

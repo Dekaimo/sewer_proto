@@ -478,7 +478,15 @@ func _start_sandwich(p) -> void:
 	p.sandwicher = self
 	p.push = 0.0
 	main.sfx.play("gurgle", 0.0)
-	main.zoom_moment(p.position + Vector2(0, -150), 1.4)
+	main.zoom_moment(_sw_focus(p), 1.4)
+
+
+## 磔の便乗でアップにする場所：磔の主人公（猫の絵）の胸のあたり。柱の高さ・しなりに合わせて実際の位置から取る
+func _sw_focus(p) -> Vector2:
+	var w = p.crucifier
+	if w != null and is_instance_valid(w) and w.has_method("cru2_on") and w.cru2_on() and w.cru2_cat != null:
+		return w.cru2_cat.to_global(Vector2(56, 56))
+	return p.position + Vector2(0, -260)
 
 
 ## 磔の柱（ワニ）より必ず手前に描く
@@ -577,7 +585,7 @@ func on_pushed(p) -> void:
 	sub = "hug"
 	t = 0.0
 	main.sfx.play("grab", 2.0)
-	main.zoom_moment(p.position + Vector2(0, -150), 1.0)
+	main.zoom_moment(_sw_focus(p), 1.0)
 	for i in 5:
 		p.add_dirt(p.random_body_point(), 3)
 	p.damage(3.0)

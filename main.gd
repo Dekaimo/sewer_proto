@@ -10,6 +10,7 @@ const DobeScript = preload("res://doberman.gd")
 const BellyScript = preload("res://belly_view.gd")
 const FinisherScript = preload("res://finisher.gd")
 const TouchScript = preload("res://touch_ui.gd")
+const VoiceScript = preload("res://voice.gd")
 const FloorShader = preload("res://floor.gdshader")
 const WallShader = preload("res://wall_paint.gdshader")
 
@@ -30,6 +31,7 @@ var finisher = null   # フィニッシュ演出（終わるまでゲームオ�
 var cam: Camera2D
 var zoom_t := 0.0
 var zoom_focus := Vector2.ZERO
+var voice   # 捕まっている間の主人公のうめき声（フキダシ）
 var dobes: Array = []
 var heaves: Array = []   # このフレームの床の盛り上がり（地中で暴れている）: [x, y, 半径, 高さ]
 var rings: Array = []    # 床の波紋 {pos, t, power}
@@ -115,6 +117,9 @@ func _ready() -> void:
 	var belly = BellyScript.new()
 	belly.main = self
 	layer.add_child(belly)
+	voice = VoiceScript.new()
+	voice.main = self
+	add_child(voice)
 	cam = Camera2D.new()
 	cam.anchor_mode = Camera2D.ANCHOR_MODE_FIXED_TOP_LEFT
 	add_child(cam)
@@ -211,6 +216,12 @@ func _update_zoom(delta: float) -> void:
 	# スロー中でも実時間で戻るように補正
 	var real: float = delta / maxf(Engine.time_scale, 0.01)
 	var target_zoom := 1.0
+	# 地上でサンドイッチにされている間（負けて抱き潰され続ける間も）は、サンドイッチにズームしたままにする
+	if player != null and (player.state == "pinned" or player.trio_finish):
+		if zoom_t < 0.2:
+			zoom_t = 0.2
+			Engine.time_scale = 1.0
+			zoom_focus = player.position + Vector2(0, -78)
 	if zoom_t > 0.0:
 		zoom_t -= real
 		target_zoom = 2.0   # ドット絵がきれいに見える整数倍
