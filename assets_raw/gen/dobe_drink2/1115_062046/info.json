@@ -1,0 +1,11 @@
+{
+  "name": "dobe_drink2",
+  "mode": "anim",
+  "src": "assets_raw/dobe_drink_key2.png",
+  "last": "assets_raw/dobe_drink_key2.png",
+  "frames": 8,
+  "desc": "pink goo doberman seen from behind with its head pressed forward, its face and eyes always hidden, only the back of its head and ears visible, rhythmically pushes its muzzle in again and again as if pouring something, its thick neck pulses, shoulders heave, pink goo dribbles down from its muzzle, its arm squeezes, lower body stays still stuck to the pillar, continuous motion, looping",
+  "generations_before": 6831.8,
+  "generations_after": 6830.8,
+  "used": 1.0
+}
