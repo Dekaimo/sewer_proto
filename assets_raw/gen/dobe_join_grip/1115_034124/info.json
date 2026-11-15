@@ -1,0 +1,9 @@
+{
+  "name": "dobe_join_grip",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_join_grip_blue.png",
+  "desc": "keep the pink doberman exactly the same: pose, head, face, body, arm length, lower body and drips, and keep the blue pillar exactly the same. Only change its right hand: instead of an open hand reaching into the air, the hand firmly clutches the right edge of the blue pillar, fingers wrapped around it and sinking into the goo. Do not make the arm longer. Same pink colors and pixel art style.",
+  "generations_before": 7039.8,
+  "generations_after": 7029.8,
+  "used": 10.0
+}
