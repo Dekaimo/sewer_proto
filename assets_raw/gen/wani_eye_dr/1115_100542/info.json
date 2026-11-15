@@ -1,0 +1,9 @@
+{
+  "name": "wani_eye_dr",
+  "mode": "editv2",
+  "src": "assets_raw/wani_cru_window.png",
+  "desc": "keep this pink and yellow marbled goo crocodile exactly the same: same pose, size, position, colors, toothy grin and pixel art style. Only change its eyes: its black pupils look down and to the right (toward the lower right). Nothing else changes.",
+  "generations_before": 6710.8,
+  "generations_after": 6700.8,
+  "used": 10.0
+}
