@@ -1166,6 +1166,7 @@ var cru2_tlag := 0.0
 var cru2_push_t := 0.0       # 押し合いっこのコマ位置（もがいている間だけ進む）
 var cru2_push_on := 0.0      # もがきの入力があってからの残り時間
 var cru2_last_struggle := 0.0
+var cru2_rub_t := 0.0        # 押し合いっこ中、手を止めている間のヌチャヌチャ擦りつけ（コマ位置）
 var cru2_phase := ""       # 今の磔の場面（フキダシのセリフ選び用）: rise / startle / push / rub / drink / cru
 var cru2_twitch_t := 0.0     # 飲まされている間の猫のビクッ（残り時間）
 var cru2_twitch_next := 0.0
@@ -1369,15 +1370,31 @@ func _cru2_update(delta: float, p) -> void:
 			cru2_last_struggle = p.struggle
 			cru2_push_on -= delta
 			var npf: float = _cru2_count("dobe_push")
-			if cru2_push_on > 0.0:
+			var nrf: float = _cru2_count("dobe_rub")
+			# 手を止めている間は、抱きついた姿勢からそのままヌチャヌチャ擦りつける（擦りつけの最初と最後のコマ＝抱きついた姿勢）
+			var rub_mid: bool = nrf > 0.0 and fmod(cru2_rub_t, nrf) > 0.01
+			var idle_rub := false
+			if cru2_push_on > 0.0 and rub_mid:
+				# もがき始めた：擦りつけを素早く抱きついた姿勢まで進めてから押し合いっこへ
+				var nr: float = cru2_rub_t + delta * 24.0
+				if floorf(nr / nrf) > floorf(cru2_rub_t / nrf):
+					nr = floorf(nr / nrf) * nrf
+				cru2_rub_t = nr
+				idle_rub = true
+			elif cru2_push_on > 0.0:
 				cru2_push_t += delta * 9.0
 			elif fmod(cru2_push_t, npf) > 0.01:
 				var nxt: float = cru2_push_t + delta * 9.0
 				if floorf(nxt / npf) > floorf(cru2_push_t / npf):
 					nxt = floorf(nxt / npf) * npf
 				cru2_push_t = nxt
+			elif nrf > 0.0:
+				cru2_rub_t += delta * 7.0
+				idle_rub = true
+				if fmod(cru2_rub_t, nrf) < delta * 7.0:
+					main.sfx.play_any(["grab_loop", "gurgle", "slurp"], -5.0, 0.2)
 			var pp: float = cru2_push_t
-			dobe_tex = _cru2_frame("dobe_push", pp, true)
+			dobe_tex = _cru2_frame("dobe_rub", cru2_rub_t, true) if idle_rub else _cru2_frame("dobe_push", pp, true)
 			# 主人公はのけぞりに合わせて必死に押し返す（ドーベルマンと同じコマ番号で動かす）
 			if not cru2.get("cat_push", []).is_empty():
 				var ci: int = posmod(int(floorf(pp)), int(_cru2_count("dobe_push")))
