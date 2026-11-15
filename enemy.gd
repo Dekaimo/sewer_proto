@@ -1184,7 +1184,7 @@ var cru2_go_dobe := false
 const CRU2_DIR := "res://assets/cru2/"
 const CRU2_H := 400.0
 const CRU2_CAT := Vector2(56, 52)       # 猫の左上（ワニの絵の左上から）
-const CRU2_DOBE := Vector2(-35, 53)     # ドーベルマンの層の左上（ワニの絵の左上から）
+const CRU2_DOBE := Vector2(-35, 49)     # ドーベルマンの層の左上（ワニの絵の左上から）
 const CRU2_FORM_T := 1.7                # 柱の頭がグチュグチュ盛り上がってワニになるまで
 const CRU2_CAT_STAND := -118.0          # 立っている猫の絵の上端（足が床）
 
