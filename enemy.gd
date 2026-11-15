@@ -1191,6 +1191,9 @@ var cru2_go_dobe := false
 const CRU2_DIR := "res://assets/cru2/"
 const CRU2_H := 400.0
 const CRU2_CAT := Vector2(56, 52)       # 猫の左上（ワニの絵の左上から）
+const CAT_LEAN_DEG := 12.0                  # 飲まされている間ののけぞり（猫の口 (56,56) をドーベルマンの鼻先へ）
+const CAT_LEAN_PIVOT := Vector2(45, 120)
+const CAT_LEAN_MOVE := Vector2(10, -15)
 const CRU2_DOBE := Vector2(-35, 49)     # ドーベルマンの層の左上（ワニの絵の左上から）
 const CRU2_FORM_T := 1.7                # 柱の頭がグチュグチュ盛り上がってワニになるまで
 const CRU2_CAT_STAND := -118.0          # 立っている猫の絵の上端（足が床）
@@ -1302,6 +1305,7 @@ func _cru2_update(delta: float, p) -> void:
 	var dobe_dx := 0.0
 	var paw_tex: Texture2D = null
 	var cat_off := Vector2.ZERO
+	var cat_lean := 0.0          # 飲まされている間、主人公を右斜めにのけぞらせる割合（0〜1。口と鼻先を合わせる）
 	var forming := false
 	cru2_phase = "rise" if state == "pillar" else "cru"
 	if state == "pillar":
@@ -1355,11 +1359,13 @@ func _cru2_update(delta: float, p) -> void:
 				dobe_tex = _cru2_frame("dobe_todrink", todrink_f, false)
 				cat_tex = _cru2_frame("cat_drink", 0, false)
 				dobe_dx = roundf(3.0 * todrink_f / _cru2_count("dobe_todrink"))
+				cat_lean = todrink_f / _cru2_count("dobe_todrink")
 			elif drinking:
 				cru2_todrink_t = -1.0
 				dobe_tex = _cru2_frame("dobe_drink", cru_t * 8.0, true)
 				cat_tex = _cru2_frame("cat_drink", cru_t * 8.0, true)
 				dobe_dx = 3.0
+				cat_lean = 1.0
 				# 飲まされている間、ときどき小さくビクッと震える（不規則に1ドット、たまに2回続けて）
 				cru2_twitch_next -= delta
 				if cru2_twitch_next <= 0.0:
@@ -1482,7 +1488,11 @@ func _cru2_update(delta: float, p) -> void:
 	cru2_win.position = Vector2(-128, -CRU2_SPLIT)
 	cru2_cat.visible = cat_show and cat_tex != null
 	cru2_cat.texture = cat_tex
-	cru2_cat.position = Vector2(-128 + CRU2_CAT.x, minf(CRU2_CAT_STAND - waist, CRU2_CAT.y - CRU2_SPLIT)) + cat_off
+	# のけぞり：足元（絵の中の CAT_LEAN_PIVOT）を支点に右へ傾け、口がドーベルマンの鼻先に合う所まで寄せる（絵のドットはそのまま）
+	var lean_rot: float = deg_to_rad(CAT_LEAN_DEG) * cat_lean
+	cru2_cat.rotation = lean_rot
+	cru2_cat.position = Vector2(-128 + CRU2_CAT.x, minf(CRU2_CAT_STAND - waist, CRU2_CAT.y - CRU2_SPLIT)) + cat_off \
+		+ (CAT_LEAN_MOVE * cat_lean).round() + CAT_LEAN_PIVOT - CAT_LEAN_PIVOT.rotated(lean_rot)
 	var cm: float = p.contamination()
 	cru2_cat.modulate = Color(1.0, 1.0 - 0.22 * cm, 1.0 - 0.08 * cm)
 	cru2_anchor.visible = state == "crucify" and not forming and not (main.game_over and cru2_go_t > 0.2)
