@@ -1,0 +1,11 @@
+{
+  "name": "dobe_drink7c",
+  "mode": "anim",
+  "src": "assets_raw/dobe_drink_key5.png",
+  "last": "assets_raw/dobe_drink_key5.png",
+  "frames": 8,
+  "desc": "pink goo doberman seen from behind keeps its pursed muzzle pressed forward into the other face, its mouth stays hidden on the far side and is never visible, no mouth, no teeth, no eye visible. Almost no motion: the body, arm, shoulders and lower body stay perfectly still, only its head and neck bob extremely slightly up and down by just one or two pixels like slow steady gulps, the back of its neck gently pulses, a few sticky pink goo strands ooze from the pressed muzzle tip and drip down, very subtle, looping",
+  "generations_before": 6761.8,
+  "generations_after": 6760.8,
+  "used": 1.0
+}
