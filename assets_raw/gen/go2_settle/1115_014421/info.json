@@ -1,0 +1,11 @@
+{
+  "name": "go2_settle",
+  "mode": "anim",
+  "src": "assets_raw/go_wani_end_nohat.png",
+  "last": "assets_raw/go_wani_settle.png",
+  "frames": 8,
+  "desc": "the round goo bulge in the crocodile chest sinks heavily into the body with a gooey plop at the same height, wobbling and sloshing, the surface settles into slightly swollen lumpy goo, the crocodile keeps its pose and grin",
+  "generations_before": 7145.8,
+  "generations_after": 7143.8,
+  "used": 2.0
+}

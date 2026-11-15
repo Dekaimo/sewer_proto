@@ -1,0 +1,11 @@
+{
+  "name": "go2_press",
+  "mode": "anim",
+  "src": "assets_raw/go_dobe_s0.png",
+  "last": "assets_raw/go_dobe_end_nohat.png",
+  "frames": 8,
+  "desc": "the pink goo doberman hugging the little cat squeezes it tight and presses it hard into the goo body of the crocodile behind, the doberman melts and merges into the pillar together with the cat, gooey and sticky, the goo closes smoothly over them so nothing of the cat is visible, leaving a round bulge in the chest, goo dripping",
+  "generations_before": 7145.8,
+  "generations_after": 7145.8,
+  "used": 0.0
+}

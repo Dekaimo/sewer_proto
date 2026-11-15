@@ -1,0 +1,11 @@
+{
+  "name": "go2_churn",
+  "mode": "anim",
+  "src": "assets_raw/go_wani_settle.png",
+  "last": "assets_raw/go_wani_settle.png",
+  "frames": 8,
+  "desc": "vague lumps squirm and churn under the wet goo surface of the crocodile chest and belly, the goo bulges and ripples here and there and sloshes, squelchy, no clear shapes, the crocodile keeps its pose and grin, looping",
+  "generations_before": 7143.8,
+  "generations_after": 7143.8,
+  "used": 0.0
+}
