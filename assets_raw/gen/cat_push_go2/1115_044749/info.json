@@ -1,0 +1,11 @@
+{
+  "name": "cat_push_go2",
+  "mode": "anim",
+  "src": "assets_raw/cat_cru_refuse_key.png",
+  "last": "assets_raw/cat_cru_push_key.png",
+  "frames": 8,
+  "desc": "little black witch cat with eyes shut and a small tear desperately pushes with both dark gray paws toward the left, straining, upper body leaning into the push, small pink goo stays stuck on its wrists, legs and feet stay in place, same face, no white spots, smooth motion",
+  "generations_before": 6938.8,
+  "generations_after": 6938.8,
+  "used": 0.0
+}

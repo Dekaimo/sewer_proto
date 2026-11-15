@@ -1,0 +1,11 @@
+{
+  "name": "cat_push_back2",
+  "mode": "anim",
+  "src": "assets_raw/cat_cru_push_key.png",
+  "last": "assets_raw/cat_cru_refuse_key.png",
+  "frames": 8,
+  "desc": "little black witch cat with eyes shut and a small tear gets its arms pushed back in toward its chest, upper body pulled back, still resisting, small pink goo stays stuck on its wrists, no goo band across the body, legs and feet stay in place, same face, smooth motion",
+  "generations_before": 6938.8,
+  "generations_after": 6936.8,
+  "used": 2.0
+}
