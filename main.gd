@@ -32,6 +32,7 @@ var cam: Camera2D
 var zoom_t := 0.0
 var zoom_focus := Vector2.ZERO
 var voice   # 捕まっている間の主人公のうめき声（フキダシ）
+var belly   # 地中の様子を見せる小窓
 var dobes: Array = []
 var heaves: Array = []   # このフレームの床の盛り上がり（地中で暴れている）: [x, y, 半径, 高さ]
 var rings: Array = []    # 床の波紋 {pos, t, power}
@@ -114,12 +115,16 @@ func _ready() -> void:
 	layer.add_child(hud)
 	var touch = TouchScript.new()
 	layer.add_child(touch)
-	var belly = BellyScript.new()
+	belly = BellyScript.new()
 	belly.main = self
 	layer.add_child(belly)
+	# フキダシは小窓（ワイプ）より上の層に描く（地中で引きずり込まれている間も見えるように）
+	var vlayer := CanvasLayer.new()
+	vlayer.layer = 11
+	add_child(vlayer)
 	voice = VoiceScript.new()
 	voice.main = self
-	add_child(voice)
+	vlayer.add_child(voice)
 	cam = Camera2D.new()
 	cam.anchor_mode = Camera2D.ANCHOR_MODE_FIXED_TOP_LEFT
 	add_child(cam)

@@ -10,16 +10,16 @@ const FADE_T := 0.25         # 消えていく時間
 
 ## 場面ごとのセリフ。muffled=口がふさがれている（フキダシをくぐもらせ、文字を小刻みに震わせる）
 const LINES := {
-	"caught": {"t": ["ひゃっ…！", "わっ…！", "ひぅ…っ"], "muffled": false, "gap": [1.2, 2.0]},
-	"grabbed": {"t": ["く…っ", "ん…っ！", "うぅ…", "んっ…ぅ…", "は、はなし…っ"], "muffled": false, "gap": [1.8, 3.4]},
-	"rise": {"t": ["わ、わっ…！", "ひっ…"], "muffled": false, "gap": [1.5, 2.5]},
-	"startle": {"t": ["ひっ…", "え…っ"], "muffled": false, "gap": [1.0, 1.5]},
-	"cru": {"t": ["うぅ…", "く…っ", "ん…っ"], "muffled": false, "gap": [2.2, 4.0]},
-	"push": {"t": ["や…だ…っ", "い…や…っ…", "う…ぅぅ…っ", "や…め…て…っ", "や…ぁ…っ"], "muffled": false, "shaky": true, "gap": [1.4, 2.6]},
-	"rub": {"t": ["うぅ…", "ひぅ…", "や…め…っ", "んぅ…"], "muffled": false, "gap": [1.8, 3.2]},
-	"drink": {"t": ["んぐっ…", "んむぅ…！", "んくっ…", "ん…ぅ…っ"], "muffled": true, "gap": [1.2, 2.4]},
-	"muffled": {"t": ["むぐ…っ", "んむ…！", "んんっ…！", "ん…ぅ…"], "muffled": true, "gap": [1.8, 3.2]},
-	"under": {"t": ["～～～！！！", "～～～っ！！", "～～っ…！", "～～～…！"], "muffled": true, "gap": [1.4, 2.8]},
+	"caught": {"t": ["ひゃっ…！", "わっ…！", "ひぅ…っ"], "muffled": false, "gap": [0.7, 1.1]},
+	"grabbed": {"t": ["く…っ", "ん…っ！", "うぅ…", "んっ…ぅ…", "は、はなし…っ"], "muffled": false, "gap": [1.0, 1.9]},
+	"rise": {"t": ["わ、わっ…！", "ひっ…"], "muffled": false, "gap": [0.8, 1.4]},
+	"startle": {"t": ["ひっ…", "え…っ"], "muffled": false, "gap": [0.6, 0.8]},
+	"cru": {"t": ["うぅ…", "く…っ", "ん…っ"], "muffled": false, "gap": [1.2, 2.2]},
+	"push": {"t": ["や…だ…っ", "い…や…っ…", "う…ぅぅ…っ", "や…め…て…っ", "や…ぁ…っ"], "muffled": false, "shaky": true, "gap": [0.8, 1.4]},
+	"rub": {"t": ["うぅ…", "ひぅ…", "や…め…っ", "んぅ…"], "muffled": false, "gap": [1.0, 1.8]},
+	"drink": {"t": ["んぐっ…", "んむぅ…！", "んくっ…", "ん…ぅ…っ"], "muffled": true, "gap": [0.7, 1.3]},
+	"muffled": {"t": ["むぐ…っ", "んむ…！", "んんっ…！", "ん…ぅ…"], "muffled": true, "gap": [1.0, 1.8]},
+	"under": {"t": ["～～～！！！", "～～～っ！！", "～～っ…！", "～～～…！"], "muffled": true, "gap": [0.8, 1.5]},
 	"faint": {"t": ["…ぅ…", "…ぁ…", "……"], "muffled": true, "gap": [5.0, 9.0]},
 	"free": {"t": ["ぷはっ…！", "はぁ…はぁ…"], "muffled": false, "gap": [99.0, 99.0]},
 }
@@ -33,6 +33,8 @@ var t := 0.0            # 表示中の経過時間（-1 = 表示していない�
 var cool := 0.0         # 次に声を出すまで
 var ctx := ""
 var anchor := Vector2.ZERO    # 主人公の頭の位置（ワールド座標）
+var scr := Vector2.ZERO       # 画面上の位置（フキダシはワイプより上の層に描く）
+var zs := 1.0                 # 描く倍率（カメラのズームに合わせる。ワイプの中は等倍）
 var last_line := ""
 var side := 0           # 0=頭の上に出す / 1=右横 / -1=左横（磔：ワニの顔を隠さないように、主人公の頭の横に出す）
 
@@ -128,12 +130,25 @@ func _process(delta: float) -> void:
 		if t > SHOW_T:
 			t = -1.0
 	anchor = _head(p)
+	# 地中で引きずり込まれている間は、小窓（ワイプ）の中の主人公から出す
+	var b = main.belly
+	if ctx == "under" and b != null and b.visible:
+		scr = b.position + Vector2(b.W * 0.5 + 18.0, b.H * 0.5 - 34.0)
+		zs = 1.0
+		side = 0
+	else:
+		var ct: Transform2D = get_viewport().get_canvas_transform()
+		scr = ct * anchor
+		zs = maxf(ct.get_scale().x, 1.0)
 	queue_redraw()
 
 
 func _draw() -> void:
 	if t < 0.0 or text == "":
 		return
+	# 画面上の位置へ、カメラのズームと同じ倍率で描く（ドットの大きさを周りの絵とそろえる）
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(zs, zs))
+	var ap := (scr / zs).round()
 	var a := 1.0
 	if t > SHOW_T - FADE_T:
 		a = clampf((SHOW_T - t) / FADE_T, 0.0, 1.0)
@@ -142,13 +157,13 @@ func _draw() -> void:
 	var pad := Vector2(6, 4)
 	var size := (ts + pad * 2.0).round()
 	# 頭の右上に出す（画面の右端に近ければ左上）。磔では頭の横に出す
-	var right: bool = anchor.x < main.VIEW_W - size.x - 40.0
+	var right: bool = ap.x < main.VIEW_W / zs - size.x - 40.0
 	var box_pos: Vector2
 	if side != 0:
 		right = side > 0
-		box_pos = anchor + (Vector2(14, -size.y * 0.5) if right else Vector2(-14 - size.x, -size.y * 0.5))
+		box_pos = ap + (Vector2(14, -size.y * 0.5) if right else Vector2(-14 - size.x, -size.y * 0.5))
 	else:
-		box_pos = anchor + (Vector2(16, -size.y - 20) if right else Vector2(-16 - size.x, -size.y - 20))
+		box_pos = ap + (Vector2(16, -size.y - 20) if right else Vector2(-16 - size.x, -size.y - 20))
 	box_pos.y = maxf(box_pos.y, 4.0)
 	# ポンと膨らむ（小さい所から）
 	var center := box_pos + size * 0.5
@@ -165,12 +180,12 @@ func _draw() -> void:
 		var cy: float = roundf(r.position.y + r.size.y * 0.5)
 		b0 = Vector2(ex, cy - 4)
 		b1 = Vector2(ex, cy + 3)
-		tip = (anchor + Vector2(2 if right else -2, 2)).round()
+		tip = (ap + Vector2(2 if right else -2, 2)).round()
 	else:
 		var bx: float = r.position.x + (10.0 if right else r.size.x - 10.0)
 		b0 = Vector2(bx - 4, r.end.y - 1)
 		b1 = Vector2(bx + 4, r.end.y - 1)
-		tip = (anchor + Vector2(6 if right else -6, -6)).round()
+		tip = (ap + Vector2(6 if right else -6, -6)).round()
 	draw_colored_polygon(PackedVector2Array([b0, b1, tip]), fill)
 	draw_line(b0, tip, line_col, 1.0)
 	draw_line(b1, tip, line_col, 1.0)
