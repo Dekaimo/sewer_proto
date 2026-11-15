@@ -1,0 +1,9 @@
+{
+  "name": "cat_turnaway",
+  "mode": "editv2",
+  "src": "assets_raw/cat_turnaway_draft.png",
+  "desc": "clean up this pixel art of a little black witch cat into one seamless character: keep the head facing right exactly as it is with eyes shut tight as thin lines, mouth very slightly open and the small tear, keep the hat with the hanging bell fully inside the image, keep the raised arms, the pink goo strings, the cape, legs and tail exactly as they are. Smoothly join the neck and collar to the body, remove the stray cut pieces near the shoulders. Same colors and pixel art style, nothing added.",
+  "generations_before": 6905.8,
+  "generations_after": 6895.8,
+  "used": 10.0
+}
