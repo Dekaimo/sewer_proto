@@ -1166,6 +1166,8 @@ var cru2_tlag := 0.0
 var cru2_push_t := 0.0       # 押し合いっこのコマ位置（もがいている間だけ進む）
 var cru2_push_on := 0.0      # もがきの入力があってからの残り時間
 var cru2_last_struggle := 0.0
+var cru2_todrink_t := -1.0   # 抱きついた姿勢 → 鼻先を押し付けて飲ませ始める、つなぎの動き（経過時間。-1 = 再生していない）
+var cru2_was_drink := false
 var cru2_rub_t := 0.0        # 押し合いっこ中、手を止めている間のヌチャヌチャ擦りつけ（コマ位置）
 var cru2_phase := ""       # 今の磔の場面（フキダシのセリフ選び用）: rise / startle / push / rub / drink / cru
 var cru2_twitch_t := 0.0     # 飲まされている間の猫のビクッ（残り時間）
@@ -1207,7 +1209,7 @@ func _cru2_load() -> void:
 	for i in 9:
 		if ResourceLoader.exists(CRU2_DIR + "cat_pushpaw_%d.png" % i):
 			cru2_pawtex[i] = load(CRU2_DIR + "cat_pushpaw_%d.png" % i)
-	for k in ["form", "rise_top", "cat_struggle", "cat_startle", "cat_refuse", "go_absorb", "go_sink", "go_churn", "dobe_emerge", "dobe_push", "go_dobe_press", "breathe", "dobe_rub", "cat_push", "dobe_drink", "cat_drink"]:
+	for k in ["form", "rise_top", "cat_struggle", "cat_startle", "cat_refuse", "go_absorb", "go_sink", "go_churn", "dobe_emerge", "dobe_push", "go_dobe_press", "breathe", "dobe_rub", "cat_push", "dobe_drink", "cat_drink", "dobe_todrink"]:
 		var arr: Array = []
 		var i := 0
 		while ResourceLoader.exists(CRU2_DIR + "%s_%d.png" % [k, i]):
@@ -1339,9 +1341,22 @@ func _cru2_update(delta: float, p) -> void:
 			cru2_phase = "startle"
 		elif dobe.state == "sandwich" and dobe.sub == "hug":
 			# 抵抗に失敗した後：がっちり抱きついたまま、体を擦りつけて汚す ⇄ 顔を押しつけてペンキを飲ませる、を交互に
-			var drinking: bool = not cru2.get("dobe_drink", []).is_empty() and fmod(dobe.t, 7.0) > 3.5
+			# 抵抗しないまま抱きしめられた時は、ずっとペンキを飲ませる
+			var drinking: bool = not cru2.get("dobe_drink", []).is_empty() and (dobe.sw_drink_only or fmod(dobe.t, 7.0) > 3.5)
 			cru2_phase = "drink" if drinking else "rub"
-			if drinking:
+			if drinking and not cru2_was_drink and not cru2.get("dobe_todrink", []).is_empty():
+				cru2_todrink_t = 0.0
+				main.sfx.play_any(["grab", "grab_loop"], -2.0)
+			cru2_was_drink = drinking
+			var todrink_f: float = cru2_todrink_t * 8.0 if cru2_todrink_t >= 0.0 else -1.0
+			if drinking and todrink_f >= 0.0 and todrink_f < _cru2_count("dobe_todrink"):
+				# 抱きついた姿勢から、ぎゅっと抱き寄せて鼻先を口に押し付ける
+				cru2_todrink_t += delta
+				dobe_tex = _cru2_frame("dobe_todrink", todrink_f, false)
+				cat_tex = _cru2_frame("cat_drink", 0, false)
+				dobe_dx = roundf(3.0 * todrink_f / _cru2_count("dobe_todrink"))
+			elif drinking:
+				cru2_todrink_t = -1.0
 				dobe_tex = _cru2_frame("dobe_drink", cru_t * 8.0, true)
 				cat_tex = _cru2_frame("cat_drink", cru_t * 8.0, true)
 				dobe_dx = 3.0
@@ -1365,6 +1380,7 @@ func _cru2_update(delta: float, p) -> void:
 			# 押し合いっこ：抱きしめ⇄のけぞりを止まらずに繰り返す（押し返されたフリの間は速く）
 			# 押し合いっこはもがいている間だけ動かす。手を止めたら抱きついた姿勢（0コマ目）まで進めて止める
 			cru2_phase = "push"
+			cru2_was_drink = false
 			if p.struggle > cru2_last_struggle + 0.001:
 				cru2_push_on = 0.35
 			cru2_last_struggle = p.struggle

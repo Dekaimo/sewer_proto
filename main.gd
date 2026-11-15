@@ -227,6 +227,14 @@ func _update_zoom(delta: float) -> void:
 			zoom_t = 0.2
 			Engine.time_scale = 1.0
 			zoom_focus = player.position + Vector2(0, -78)
+	# 磔でペンキを飲まされている間は、2匹にズームしたままにする
+	if player != null and player.state == "crucified":
+		var w = player.crucifier
+		if w != null and is_instance_valid(w) and w.cru2_phase == "drink" and w.cru2_cat != null:
+			if zoom_t < 0.2:
+				zoom_t = 0.2
+				Engine.time_scale = 1.0
+				zoom_focus = w.cru2_cat.to_global(Vector2(56, 40))
 	if zoom_t > 0.0:
 		zoom_t -= real
 		target_zoom = 2.0   # ドット絵がきれいに見える整数倍

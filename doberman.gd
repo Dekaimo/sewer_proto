@@ -54,6 +54,7 @@ var rub_t := 0.0
 var sw_idle_t := 0.0     # 磔の押し合いっこ中、主人公が押し返していない時間（長いと抵抗をあきらめたとみなして抱きしめへ）
 var sw_last_push := 0.0
 const SW_IDLE_GIVEUP := 5.0
+var sw_drink_only := false   # 抵抗しないまま抱きしめられた：擦りつけを挟まず、ずっとペンキを飲ませる
 var push_off := 0.0         # 押し返されて離れている距離（見た目）
 var tex_masks := {}         # コマのテクスチャ → 主人公部分のマスク
 var hug_mat: ShaderMaterial
@@ -474,6 +475,7 @@ func _start_sandwich(p) -> void:
 	sprite.texture = base_tex
 	t = 0.0
 	rub_t = 0.0
+	sw_drink_only = false
 	push_off = 0.0
 	fake_left = randi_range(1, 3)
 	position.x = p.position.x
@@ -550,6 +552,7 @@ func _update_sandwich(delta: float, p) -> void:
 			sw_last_push = p.push
 			if sw_idle_t > SW_IDLE_GIVEUP:
 				sw_idle_t = 0.0
+				sw_drink_only = true
 				_sw_start_hug(p)
 				return
 			rub_t += delta * 1.6
@@ -595,7 +598,8 @@ func on_pushed(p) -> void:
 		t = 0.0
 		main.sfx.play("hit", -4.0)
 		return
-	# 押されたフリを使い切った：遊びは終わり。がっちり抱きしめる
+	# 押されたフリを使い切った：遊びは終わり。がっちり抱きしめる（擦りつけ ⇄ ペンキを飲ませる）
+	sw_drink_only = false
 	_sw_start_hug(p)
 
 
