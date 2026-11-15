@@ -1,0 +1,11 @@
+{
+  "name": "cat_push_back",
+  "mode": "anim",
+  "src": "assets_raw/cat_cru_push_key.png",
+  "last": "assets_raw/cat_cru_refuse_key.png",
+  "frames": 8,
+  "desc": "little black witch cat with eyes shut and a small tear is squeezed back as its arms get pushed in again, upper body pulled back, still resisting, legs and feet stay in place, same face, smooth motion",
+  "generations_before": 6939.8,
+  "generations_after": 6938.8,
+  "used": 1.0
+}

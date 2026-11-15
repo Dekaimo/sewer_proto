@@ -1,0 +1,11 @@
+{
+  "name": "cat_push_go",
+  "mode": "anim",
+  "src": "assets_raw/cat_cru_refuse_key.png",
+  "last": "assets_raw/cat_cru_push_key.png",
+  "frames": 8,
+  "desc": "little black witch cat with eyes shut and a small tear desperately pushes with both arms toward the left, straining hard, upper body leaning into the push, legs and feet stay in place, same face, smooth motion",
+  "generations_before": 6940.8,
+  "generations_after": 6939.8,
+  "used": 1.0
+}
