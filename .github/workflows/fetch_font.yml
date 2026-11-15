@@ -1,0 +1,27 @@
+name: Fetch font
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download DotGothic16 (SIL OFL)
+        run: |
+          mkdir -p fonts
+          curl -sSfL -o fonts/DotGothic16-Regular.ttf https://github.com/google/fonts/raw/main/ofl/dotgothic16/DotGothic16-Regular.ttf
+          curl -sSfL -o fonts/OFL.txt https://github.com/google/fonts/raw/main/ofl/dotgothic16/OFL.txt
+          ls -la fonts
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898273+github-actions[bot]@users.noreply.github.com"
+          git add fonts
+          git diff --cached --quiet && echo "nothing new" && exit 0
+          git commit -m "Add DotGothic16 font"
+          git push
