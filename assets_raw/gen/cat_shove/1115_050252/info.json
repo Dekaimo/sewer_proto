@@ -1,0 +1,11 @@
+{
+  "name": "cat_shove",
+  "mode": "anim",
+  "src": "assets_raw/cat_cru_refuse_key.png",
+  "last": "assets_raw/cat_cru_refuse_key.png",
+  "frames": 8,
+  "desc": "little black witch cat with eyes shut and a small tear strains and shoves to its left with its shoulders and upper arms: its shoulders hunch and push toward the left, the upper arms press outward a little, elbows stay bent close to its body, then it relaxes back, short repeated motion, legs and feet stay still, pink goo stays on its wrists, same face, no new objects, looping",
+  "generations_before": 6926.8,
+  "generations_after": 6925.8,
+  "used": 1.0
+}
