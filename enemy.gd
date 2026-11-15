@@ -1183,6 +1183,11 @@ const CRU2_VP := Vector2(560, 480)
 const CRU2_FLOOR := 460.0
 var cru2_wani: Sprite2D
 var cru2_win: Sprite2D
+var cru2_phase_prev := ""    # 前のフレームの場面（目線の切り替えに使う）
+var cru2_eyes_up := false       # 抵抗で大きくグラグラしている間：わざと上を見て余裕たっぷりに鼻息を吐く
+var cru2_snort_t := 1.0
+var cru2_puffs: Array = []        # 鼻息のもや（cru2_up の中の座標）
+var cru2_puff_node: Node2D
 var cru2_win_mat: ShaderMaterial   # ペンキを飲ませる間、ワニの上半身を右へずらして主人公を後ろから支える
 var cru2_cat: Sprite2D
 var cru2_anchor: Sprite2D
@@ -1213,7 +1218,7 @@ func _cru2_load() -> void:
 	for i in 9:
 		if ResourceLoader.exists(CRU2_DIR + "cat_pushpaw_%d.png" % i):
 			cru2_pawtex[i] = load(CRU2_DIR + "cat_pushpaw_%d.png" % i)
-	for k in ["form", "rise_top", "cat_struggle", "cat_startle", "cat_refuse", "go_absorb", "go_sink", "go_churn", "dobe_emerge", "dobe_push", "go_dobe_press", "breathe", "dobe_rub", "cat_push", "dobe_drink", "cat_drink", "dobe_todrink"]:
+	for k in ["form", "rise_top", "cat_struggle", "cat_startle", "cat_refuse", "go_absorb", "go_sink", "go_churn", "dobe_emerge", "dobe_push", "go_dobe_press", "breathe", "dobe_rub", "cat_push", "dobe_drink", "cat_drink", "dobe_todrink", "breathe_dr", "breathe_up"]:
 		var arr: Array = []
 		var i := 0
 		while ResourceLoader.exists(CRU2_DIR + "%s_%d.png" % [k, i]):
@@ -1253,6 +1258,9 @@ func _cru2_load() -> void:
 	cru2_win_mat = ShaderMaterial.new()
 	cru2_win_mat.shader = load("res://cru_lean.gdshader")
 	cru2_win.material = cru2_win_mat
+	cru2_puff_node = Node2D.new()
+	cru2_puff_node.draw.connect(_cru2_draw_puffs)
+	cru2_up.add_child(cru2_puff_node)
 	cru2_cat = _cru2_sprite(cru2_up)
 	cru2_anchor = _cru2_sprite(cru2_up)
 	cru2_anchor.texture = cru2["anchor"]
@@ -1286,6 +1294,7 @@ func _cru2_count(k: String) -> float:
 
 
 func _cru2_update(delta: float, p) -> void:
+	_cru2_update_puffs(delta)
 	trunk.visible = false
 	cru_base.visible = false
 	xfade.visible = false
@@ -1311,6 +1320,7 @@ func _cru2_update(delta: float, p) -> void:
 	var cat_off := Vector2.ZERO
 	var cat_lean := 0.0          # 飲まされている間、主人公を右斜めにのけぞらせる割合（0〜1。口と鼻先を合わせる）
 	var forming := false
+	cru2_phase_prev = cru2_phase
 	cru2_phase = "rise" if state == "pillar" else "cru"
 	if state == "pillar":
 		# 足元から柱が一気に生えて、上でゆっくり止まる（頭はドロドロ波打つ）
@@ -1339,7 +1349,13 @@ func _cru2_update(delta: float, p) -> void:
 		_cru2_metronome(delta, p, forming)
 		if not forming:
 			# ゆっくり呼吸しながらネバネバを垂れ落とす
-			win_tex = _cru2_frame("breathe", cru_t * 6.0, true)
+			# 目線：ペンキを飲ませている間は右下（主人公の方）、抵抗で大きく揺れている間はわざと上
+			var bk := "breathe"
+			if cru2_phase_prev == "drink" and not cru2.get("breathe_dr", []).is_empty():
+				bk = "breathe_dr"
+			elif cru2_eyes_up and not cru2.get("breathe_up", []).is_empty():
+				bk = "breathe_up"
+			win_tex = _cru2_frame(bk, cru_t * 6.0, true)
 	# 便乗するドーベルマン（ワニと同じ曲がり方で揺らすため、ここで描く）
 	if dobe != null:
 		if dobe.state == "sandwich" and dobe.sub == "form":
@@ -1540,7 +1556,51 @@ func _cru2_metronome(delta: float, p, forming: bool) -> void:
 			p.add_dirt(p.random_body_point(), 2)
 	var s := sin(met_phase)
 	tilt = 0.17 * tilt_amp * s + 0.05 * agit * sin(met_phase * 3.0)
+	# 抵抗で大きくグラグラしている間：わざと上を見て、余裕たっぷりに鼻息をフンッと吐く
+	if cru2_eyes_up:
+		cru2_eyes_up = agit > 0.25
+	else:
+		cru2_eyes_up = agit > 0.45 and not forming
+	cru2_snort_t -= delta
+	if cru2_eyes_up and cru2_snort_t <= 0.0:
+		cru2_snort_t = randf_range(1.1, 1.8)
+		main.sfx.play_any(["snort"], -2.0)
+		_cru2_puff()
 	if fmod(cru_t, 0.25) < delta:
 		main.add_goop(position + Vector2(randf_range(-50, 50), randf_range(-15, 15)), randf_range(40, 80), 0.3)
 	if randf() < 0.5:
 		drip_vis.append({"x": randf_range(-90.0, 90.0) + sway.x * 0.6, "y": -randf_range(200.0, 320.0), "v": 0.0, "vx": 0.0})
+
+
+## 鼻息：鼻先からもやを2回に分けて吐く（フンッ）
+const CRU2_NOSE := Vector2(81, 47)    # 窓の絵（ワニの上半身）の中の鼻の穴
+func _cru2_puff() -> void:
+	if cru2_win == null:
+		return
+	var nose: Vector2 = cru2_win.position + CRU2_NOSE
+	for k in 2:
+		for i in 4:
+			cru2_puffs.append({"p": nose + Vector2(randf_range(-1, 1), randf_range(-1, 1)), "v": Vector2(-randf_range(40.0, 75.0), randf_range(8.0, 26.0)), "t": -0.12 * k, "life": randf_range(0.45, 0.7)})
+
+
+func _cru2_update_puffs(delta: float) -> void:
+	for pf in cru2_puffs:
+		pf.t += delta
+		if pf.t > 0.0:
+			pf.p += pf.v * delta
+			pf.v *= 1.0 - 2.5 * delta
+	cru2_puffs = cru2_puffs.filter(func(pf): return pf.t < pf.life)
+	if cru2_puff_node != null:
+		cru2_puff_node.queue_redraw()
+
+
+func _cru2_draw_puffs() -> void:
+	for pf in cru2_puffs:
+		if pf.t < 0.0:
+			continue
+		var k: float = pf.t / pf.life
+		var r: float = roundf(lerpf(1.0, 4.0, k))
+		var c := Color(1.0, 0.9, 0.95, 0.75 * (1.0 - k))
+		var q: Vector2 = pf.p.round()
+		cru2_puff_node.draw_rect(Rect2(q.x - r, q.y - r + 1, r * 2.0, r * 2.0 - 2.0), c)
+		cru2_puff_node.draw_rect(Rect2(q.x - r + 1, q.y - r, r * 2.0 - 2.0, r * 2.0), c)

@@ -2,7 +2,7 @@ extends Node
 ## 効果音。res://sfx/<イベント名>/ に .ogg / .wav / .mp3 を置くと、その中からランダムに鳴る。
 ## ファイルが無いイベントは何も鳴らない。毎回ピッチと音量を少し揺らして単調さを消す。
 
-const EVENTS := ["hit", "grab", "grab_loop", "assist", "step_paint", "mop", "wipe", "escape", "defeat", "gurgle", "slurp"]
+const EVENTS := ["hit", "grab", "grab_loop", "assist", "step_paint", "mop", "wipe", "escape", "defeat", "gurgle", "slurp", "snort"]
 const VOICES := 10
 
 var banks := {}

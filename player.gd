@@ -1027,22 +1027,27 @@ func _update_crucified(delta: float) -> void:
 	struggle -= 0.12 * delta
 	var d := _mash_input()
 	var sandwiched: bool = sandwicher != null and is_instance_valid(sandwicher)
+	var hugged: bool = sandwiched and sandwicher.sub == "hug"
 	if d != 0 and d != last_dir:
 		last_dir = d
-		if sandwiched and sandwicher.sub == "hug":
-			# がっちり抱きしめられた：押し返せないが、もがけば少しずつ抜けられる
-			struggle += 0.04
+		if hugged:
+			# がっちり抱きしめられた（擦りつけ・ペンキを飲まされている）：振りほどいても押し合いっこに戻るだけ
+			struggle += 0.03
 		elif sandwiched:
 			# 押し問答の間：正面のドーベルマンを押し返しつつ、柱からも少しずつ抜けていく
-			push += 0.09
-			struggle += 0.02
+			push += 0.07
+			struggle += 0.015
 		else:
 			struggle += 0.06
 	if sandwiched:
 		if push >= 1.0:
 			push = 0.0
 			sandwicher.on_pushed(self)
-		push = maxf(push - 0.25 * delta, 0.0)
+		push = maxf(push - 0.3 * delta, 0.0)
+	if hugged and struggle >= 1.0:
+		struggle = 0.3
+		push = 0.0
+		sandwicher.on_shaken_off(self)
 	drip_timer += delta
 	if drip_timer > (0.18 if sandwiched else 0.3):
 		drip_timer = 0.0

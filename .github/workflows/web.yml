@@ -45,6 +45,7 @@ jobs:
           mkdir -p build
           ./godot --headless --import || true
           ./godot --headless --export-release "Web" build/index.html
+          cp web/mobile.js build/
           ls -la build
 
       - uses: actions/upload-pages-artifact@v3

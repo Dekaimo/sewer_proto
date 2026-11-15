@@ -603,6 +603,20 @@ func on_pushed(p) -> void:
 	_sw_start_hug(p)
 
 
+## 抱きしめ（擦りつけ・ペンキを飲ませる）を振りほどかれた：放しはせず、押し合いっこに戻る
+func on_shaken_off(p) -> void:
+	if state != "sandwich" or sub != "hug":
+		return
+	sub = "tease"
+	t = 0.0
+	fake_left = randi_range(1, 3)
+	sw_idle_t = 0.0
+	sw_last_push = 0.0
+	sw_drink_only = false
+	main.sfx.play("escape", -4.0)
+	main.add_goop(p.position, 80.0, 0.3)
+
+
 ## 抵抗に失敗した（押されたフリを使い切った・押し返さずに放っておいた）：がっちり抱きしめる → 擦りつけ ⇄ ペンキを飲ませる
 func _sw_start_hug(p) -> void:
 	state = "sandwich"

@@ -121,6 +121,13 @@ func _release(action: String) -> void:
 
 
 func _process(_delta: float) -> void:
+	# スマホを左右に振る（スイング）＝もがく（web/mobile.js が数える）
+	if OS.has_feature("web"):
+		var n = JavaScriptBridge.eval("window.__swingTake ? window.__swingTake() : 0", true)
+		var m = get_parent().get_parent()
+		if n != null and int(n) > 0 and m != null and _caught(m):
+			for i in mini(int(n), 3):
+				_mash()
 	queue_redraw()
 
 
