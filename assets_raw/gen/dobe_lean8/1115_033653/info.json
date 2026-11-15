@@ -1,0 +1,10 @@
+{
+  "name": "dobe_lean8",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_lean8_draft.png",
+  "ref": "assets_raw/dobe_lean_key7.png",
+  "desc": "clean up into one seamless gooey character: keep the head, face, closed eyes, faint smirk and ears exactly as they are, keep the bent hugging arm on the right, the lower body and drips exactly where they are. Join the neck and shoulders smoothly to the head so there is no horizontal cut edge, gap or step; the upper back arches slightly backward. Same colors, pixel art rendering and line weight as the reference. Remove stray pixels.",
+  "generations_before": 7049.8,
+  "generations_after": 7039.8,
+  "used": 10.0
+}
