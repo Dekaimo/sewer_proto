@@ -1,0 +1,11 @@
+{
+  "name": "wani_form2b",
+  "mode": "anim",
+  "src": "assets_raw/wani_form_mid.png",
+  "last": "assets_raw/wani_cru_window.png",
+  "frames": 8,
+  "desc": "the grotesque heaving mass of sticky goo squelches into shape: lumps squeeze and slide into muscles, the snout pushes out and the spiky head forms with a toothy grin, the half melted arms stretch out straight to both sides, sticky strings snap and goo drips, the lower pillar stays the same",
+  "generations_before": 7180.8,
+  "generations_after": 7180.8,
+  "used": 0.0
+}

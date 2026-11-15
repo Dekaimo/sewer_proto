@@ -1,0 +1,11 @@
+{
+  "name": "wani_form2a",
+  "mode": "anim",
+  "src": "assets_raw/wani_form_A.png",
+  "last": "assets_raw/wani_form_mid.png",
+  "frames": 8,
+  "desc": "the top of the goo pillar squelches and heaves: sticky lumps of pink and yellow goo bubble up and pile on top of each other, wet bubbles swell and pop, sticky strings stretch between the lumps, globs drip down, a grotesque mass grows taller, the lower pillar stays the same",
+  "generations_before": 7181.8,
+  "generations_after": 7180.8,
+  "used": 1.0
+}
