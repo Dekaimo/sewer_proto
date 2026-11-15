@@ -1,0 +1,11 @@
+{
+  "name": "dobe_pushG_hug",
+  "mode": "anim",
+  "src": "assets_raw/dobe_lean_keyG.png",
+  "last": "assets_raw/dobe_hug_keyG.png",
+  "frames": 8,
+  "desc": "pink goo doberman leaning slightly back presses its upper body and head forward again into a tight hug with the eyes hidden, its bent arm and the hand clutching the pillar stay exactly in place and do not move, its lower body and drips stay still, smooth motion",
+  "generations_before": 6998.8,
+  "generations_after": 6997.8,
+  "used": 1.0
+}
