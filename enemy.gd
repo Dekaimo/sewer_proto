@@ -1119,6 +1119,15 @@ func on_escaped() -> void:
 	if state == "pillar" or state == "crucify":
 		_end_hold()
 		sprite.position = Vector2.ZERO
+		# 磔（cru2）の間は本体の絵を隠しているので、抜け出されたら元に戻す
+		sprite.rotation = 0.0
+		sprite.region_enabled = false
+		sprite.offset = Vector2(-128, -FEET_Y - 1)
+		sprite.visible = true
+		cru2_go_t = -1.0
+		if hug_mat:
+			hug_mat.set_shader_parameter("cut_y", 2.0)
+			hug_mat.set_shader_parameter("wave_cut", 999.0)
 		main.release_token(self)
 		state = "recover"
 		t = 1.0
