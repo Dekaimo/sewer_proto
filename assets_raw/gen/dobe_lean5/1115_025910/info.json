@@ -1,0 +1,10 @@
+{
+  "name": "dobe_lean5",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_lean5_draft.png",
+  "ref": "assets_raw/dobe_hug_key2_pl.png",
+  "desc": "clean up into one seamless gooey character: keep the leaning-back head, face, closed eyes, faint smirk, upper body, lower body, drips and goo ropes exactly as they are, and keep the bent hugging arm on the right exactly where it is. Fill the gap between the shoulder on the left and the bent hugging arm on the right with a thick stretched gooey upper arm, pulled taut, smooth with no vertical cut edge. Same colors, pixel art rendering and line weight as the reference. Remove stray pixels.",
+  "generations_before": 7104.8,
+  "generations_after": 7094.8,
+  "used": 10.0
+}
