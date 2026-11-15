@@ -1,0 +1,10 @@
+{
+  "name": "dobe_face_clean",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_pushB3_src.png",
+  "ref": "assets_raw/dobe_leanback_key10.png",
+  "desc": "keep the exact pose, body, arm, head position and head angle of this pink goo doberman exactly as it is. Only clean up the rendering of the head, face, neck and ears: smooth clean dark outlines, clean shading, remove the noisy jagged scattered pixels, same clean rendering quality and same face design as the reference (closed eyes, faint smirk). Same colors and size.",
+  "generations_before": 6893.8,
+  "generations_after": 6883.8,
+  "used": 10.0
+}
