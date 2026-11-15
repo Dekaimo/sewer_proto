@@ -1359,7 +1359,7 @@ func _cru2_update(delta: float, p) -> void:
 					p.add_dirt(Vector2i(randi_range(48, 80), randi_range(30, 58)), 2)
 					p.damage(0.6)
 			else:
-				dobe_tex = _cru2_frame("dobe_rub", dobe.rub_t * 4.0, true) if not cru2.get("dobe_rub", []).is_empty() else cru2["hug"]
+				dobe_tex = _cru2_frame("dobe_rub", dobe.rub_t * 3.0, true) if not cru2.get("dobe_rub", []).is_empty() else cru2["hug"]
 				cat_tex = _cru2_frame("cat_refuse", cru_t * 9.0, true)
 		else:
 			# 押し合いっこ：抱きしめ⇄のけぞりを止まらずに繰り返す（押し返されたフリの間は速く）
