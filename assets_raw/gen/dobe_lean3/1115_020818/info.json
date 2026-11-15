@@ -1,0 +1,10 @@
+{
+  "name": "dobe_lean3",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_lean3_draft.png",
+  "ref": "assets_raw/dobe_join_key3_wide_d3.png",
+  "desc": "clean up into one seamless gooey character: keep the leaning upper body, head, face, arm, hand and the sagging goo ropes exactly as they are, keep the lower body and drips below the waist exactly as they are now (attached to the goo pillar at the same place as the reference). Smoothly join the waist so the upper body flows into the fixed lower body with no seam or step. Same colors, pixel art rendering and line weight as the reference. Remove stray pixels.",
+  "generations_before": 7142.8,
+  "generations_after": 7132.8,
+  "used": 10.0
+}
