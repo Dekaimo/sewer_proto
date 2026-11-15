@@ -1331,7 +1331,7 @@ func _cru2_update(delta: float, p) -> void:
 			cat_tex = _cru2_frame("cat_refuse", cru_t * 9.0, true)
 		else:
 			# 押し合いっこ：抱きしめ⇄のけぞりを止まらずに繰り返す（押し返されたフリの間は速く）
-			var pp: float = cru_t * (13.0 if dobe.state == "pushed" else 9.0)
+			var pp: float = cru_t * 9.0
 			dobe_tex = _cru2_frame("dobe_push", pp, true)
 			# 主人公はのけぞりに合わせて必死に押し返す（ドーベルマンと同じコマ番号で動かす）
 			if not cru2.get("cat_push", []).is_empty():
