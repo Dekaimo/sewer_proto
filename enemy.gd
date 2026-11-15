@@ -1194,7 +1194,7 @@ func _cru2_load() -> void:
 	cru2["tall"] = load(CRU2_DIR + "wani_tall.png")
 	cru2["anchor"] = load(CRU2_DIR + "anchor.png")
 	cru2["hug"] = load(CRU2_DIR + "dobe_hug.png")
-	for k in ["form", "rise_top", "cat_struggle", "cat_startle", "cat_refuse", "go_absorb", "go_sink", "go_churn", "dobe_emerge", "dobe_push", "go_dobe_press"]:
+	for k in ["form", "rise_top", "cat_struggle", "cat_startle", "cat_refuse", "go_absorb", "go_sink", "go_churn", "dobe_emerge", "dobe_push", "go_dobe_press", "breathe"]:
 		var arr: Array = []
 		var i := 0
 		while ResourceLoader.exists(CRU2_DIR + "%s_%d.png" % [k, i]):
@@ -1309,6 +1309,9 @@ func _cru2_update(delta: float, p) -> void:
 				main.sfx.play_any(["gurgle", "grab_loop"], -2.0)
 				main.add_goop(position + Vector2(randf_range(-70, 70), randf_range(-12, 12)), randf_range(50, 90), 0.4)
 		_cru2_metronome(delta, p, forming)
+		if not forming:
+			# ゆっくり呼吸しながらネバネバを垂れ落とす
+			win_tex = _cru2_frame("breathe", cru_t * 6.0, true)
 	# 便乗するドーベルマン（ワニと同じ曲がり方で揺らすため、ここで描く）
 	if dobe != null:
 		if dobe.state == "sandwich" and dobe.sub == "form":
