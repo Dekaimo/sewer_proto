@@ -1,0 +1,11 @@
+{
+  "name": "dobe_rub4",
+  "mode": "anim",
+  "src": "assets_raw/dobe_hug_key_tight.png",
+  "last": "assets_raw/dobe_hug_key_tight.png",
+  "frames": 8,
+  "desc": "pink goo doberman seen from behind hugging someone tightly, its hips, legs and the goo stalk at the bottom are glued to the pillar and never move. Only its upper body moves: its back stretches tall so its shoulders, arms, chest and head slide upward along the person by about ten pixels, then its back squashes down so they slide back down, grinding its broad chest against them, heavy and sticky, goo stretching and squishing at the waist. Purely vertical, no swaying sideways, eyes hidden, looping",
+  "generations_before": 6724.8,
+  "generations_after": 6723.8,
+  "used": 1.0
+}
