@@ -13,16 +13,17 @@ ONLY = os.environ.get("ONLY", "").strip()
 
 # イベント名: (プロンプト, 長さ秒)
 PROMPTS = {
-    "hit": ("soft thick slime glob landing, sticky gooey plop, viscous and muffled, no liquid splash", 0.9),
-    "grab": ("thick sticky slime slowly engulfing, gooey stretching squelch, viscous, muffled", 1.4),
-    "grab_loop": ("slow sticky goo squishing, thick slime kneaded in hands, gloopy squelch, gentle", 1.2),
-    "assist": ("big glob of thick viscous slime oozing over, gloopy sticky squelch, slow", 1.5),
-    "step_paint": ("foot sinking into thick sticky goo, slow gloopy squelch, mud-like", 0.6),
-    "mop": ("mop dragging through thick sticky slime, gooey smear", 0.8),
-    "wipe": ("sticky slime being slowly smeared and wiped off, gooey stretch", 0.8),
-    "escape": ("pulling out of thick sticky slime, long gooey stretch and suction release", 1.2),
-    "defeat": ("slowly sinking into thick viscous slime, deep gloopy gurgling ooze", 2.5),
-    "gurgle": ("muffled thick goo churning and squelching underground, slimy bubbling gurgles, something struggling inside sticky slime", 1.6),
+    "hit": ("wet sloppy glob of thick slime slapping on, squelchy gooey splat, sticky and squishy", 0.9),
+    "grab": ("thick wet slime wrapping and squeezing, sloppy squelching and squishing, sticky gooey stretch", 1.4),
+    "grab_loop": ("wet sticky goo being squished and kneaded, sloppy squelchy squishing, gloopy and slimy", 1.2),
+    "assist": ("big wet mass of thick slime oozing over, sloppy squelch, gloopy sticky splorch", 1.5),
+    "step_paint": ("foot squelching into thick wet sticky goo, sloppy squish", 0.6),
+    "mop": ("mop sloshing through thick wet slime, squelchy gooey smear", 0.8),
+    "wipe": ("wet sticky slime being smeared and wiped, squelchy gooey stretch", 0.8),
+    "escape": ("pulling free from thick wet slime, long squelchy stretch and wet suction pop", 1.2),
+    "defeat": ("slowly sinking into thick wet slime, deep sloppy squelching and gurgling ooze", 2.5),
+    "gurgle": ("thick wet goo churning and squelching, sloppy slimy bubbling, something squirming inside sticky slime", 1.6),
+    "slurp": ("thick wet goo being forced down a throat, sloppy wet gulping and squelching, sticky slurp", 1.2),
 }
 
 

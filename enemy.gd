@@ -1337,7 +1337,7 @@ func _cru2_update(delta: float, p) -> void:
 				cat_tex = _cru2_frame("cat_drink", cru_t * 8.0, true)
 				dobe_dx = 3.0
 				if fmod(cru_t, 0.45) < delta:
-					main.sfx.play_any(["gurgle", "grab_loop"], -4.0)
+					main.sfx.play_any(["slurp", "gurgle", "grab_loop"], -2.0)
 					p.add_dirt(Vector2i(randi_range(48, 80), randi_range(30, 58)), 2)
 					p.damage(0.6)
 			else:
