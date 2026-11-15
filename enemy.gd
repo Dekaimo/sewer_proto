@@ -1164,6 +1164,8 @@ var cru2_view: Sprite2D
 var cru2_bend: ShaderMaterial
 var cru2_tlag := 0.0
 var cru2_up: Node2D
+var cru2_paw: Sprite2D
+var cru2_pawtex := {}
 var cru2_pwin: Sprite2D
 const CRU2_SPLIT := 190.0      # ここ（ワニの絵の上から）より上が上半身のまとまり、下が柱
 const CRU2_OVL := 8.0          # 上半身を柱に少し重ねて継ぎ目を隠す
@@ -1194,7 +1196,10 @@ func _cru2_load() -> void:
 	cru2["tall"] = load(CRU2_DIR + "wani_tall.png")
 	cru2["anchor"] = load(CRU2_DIR + "anchor.png")
 	cru2["hug"] = load(CRU2_DIR + "dobe_hug.png")
-	for k in ["form", "rise_top", "cat_struggle", "cat_startle", "cat_refuse", "go_absorb", "go_sink", "go_churn", "dobe_emerge", "dobe_push", "go_dobe_press", "breathe", "dobe_rub"]:
+	for i in 9:
+		if ResourceLoader.exists(CRU2_DIR + "cat_pushpaw_%d.png" % i):
+			cru2_pawtex[i] = load(CRU2_DIR + "cat_pushpaw_%d.png" % i)
+	for k in ["form", "rise_top", "cat_struggle", "cat_startle", "cat_refuse", "go_absorb", "go_sink", "go_churn", "dobe_emerge", "dobe_push", "go_dobe_press", "breathe", "dobe_rub", "cat_push"]:
 		var arr: Array = []
 		var i := 0
 		while ResourceLoader.exists(CRU2_DIR + "%s_%d.png" % [k, i]):
@@ -1235,6 +1240,7 @@ func _cru2_load() -> void:
 	cru2_anchor = _cru2_sprite(cru2_up)
 	cru2_anchor.texture = cru2["anchor"]
 	cru2_dobe = _cru2_sprite(cru2_up)
+	cru2_paw = _cru2_sprite(cru2_up)   # 押し返す主人公の手（ドーベルマンより手前）
 
 
 func _cru2_sprite(parent: Node) -> Sprite2D:
@@ -1283,6 +1289,7 @@ func _cru2_update(delta: float, p) -> void:
 	var cat_tex: Texture2D = _cru2_frame("cat_struggle", cru_t * 7.0, true)
 	var dobe_tex: Texture2D = null
 	var dobe_dy := 0.0
+	var paw_tex: Texture2D = null
 	var forming := false
 	if state == "pillar":
 		# 足元から柱が一気に生えて、上でゆっくり止まる（頭はドロドロ波打つ）
@@ -1324,8 +1331,15 @@ func _cru2_update(delta: float, p) -> void:
 			cat_tex = _cru2_frame("cat_refuse", cru_t * 9.0, true)
 		else:
 			# 押し合いっこ：抱きしめ⇄のけぞりを止まらずに繰り返す（押し返されたフリの間は速く）
-			dobe_tex = _cru2_frame("dobe_push", cru_t * (13.0 if dobe.state == "pushed" else 9.0), true)
-			cat_tex = _cru2_frame("cat_refuse", cru_t * 9.0, true)
+			var pp: float = cru_t * (13.0 if dobe.state == "pushed" else 9.0)
+			dobe_tex = _cru2_frame("dobe_push", pp, true)
+			# 主人公はのけぞりに合わせて必死に押し返す（ドーベルマンと同じコマ番号で動かす）
+			if not cru2.get("cat_push", []).is_empty():
+				var ci: int = posmod(int(floorf(pp)), int(_cru2_count("dobe_push")))
+				cat_tex = _cru2_frame("cat_push", ci, false)
+				paw_tex = cru2_pawtex.get(ci, null)
+			else:
+				cat_tex = _cru2_frame("cat_refuse", cru_t * 9.0, true)
 	# 力尽きた：胸に取り込む（ドーベルマンがいれば抱きしめたまま押し込む）→ ドップンと沈む → 中でグチャグチャ
 	var press_tex: Texture2D = null
 	var cat_show := true
@@ -1398,6 +1412,10 @@ func _cru2_update(delta: float, p) -> void:
 	cru2_dobe.visible = dobe_tex != null or press_tex != null
 	cru2_dobe.texture = press_tex if press_tex != null else dobe_tex
 	cru2_dobe.position = Vector2(-128 + CRU2_DOBE.x, CRU2_DOBE.y - CRU2_SPLIT + dobe_dy)
+	cru2_paw.visible = paw_tex != null and cru2_cat.visible
+	cru2_paw.texture = paw_tex
+	cru2_paw.position = cru2_cat.position
+	cru2_paw.modulate = cru2_cat.modulate
 	sway = Vector2(bend + sin(cru2_up.rotation) * 150.0, sink)
 	_update_drips(delta)
 
