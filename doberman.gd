@@ -500,6 +500,9 @@ func _sw_place(r: float, rock := 0.0) -> void:
 		tl = p.crucifier.tilt
 	sprite.rotation = tl * 0.9 + rock
 	sprite.position = Vector2(-facing * push_off + sin(tl) * 40.0, -SW_LIFT + r).round()
+	# 新しい磔の絵では、ワニの側（enemy.gd の _cru2_update）が同じ曲がり方で描くので自分は隠れる
+	if p.crucifier != null and is_instance_valid(p.crucifier) and p.crucifier.has_method("cru2_on") and p.crucifier.cru2_on():
+		sprite.visible = false
 
 
 func _update_sandwich(delta: float, p) -> void:
@@ -608,6 +611,7 @@ func _update_pushed(delta: float, p) -> void:
 
 func _leave(real: bool) -> void:
 	var p = main.player
+	sprite.visible = true
 	sprite.scale = Vector2.ONE
 	sprite.rotation = 0.0
 	sprite.rotation = 0.0

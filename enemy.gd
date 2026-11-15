@@ -194,6 +194,7 @@ func _ready() -> void:
 	mound.visible = false
 	add_child(mound)
 	anim_t = -randf_range(0.0, 0.6)   # 2体の出現タイミングを少しずらす
+	_cru2_load()
 
 
 func active() -> bool:
@@ -213,6 +214,8 @@ func _process(delta: float) -> void:
 	sprite.rotation = 0.0
 	if lower_sp:
 		lower_sp.visible = false
+	if cru2_root:
+		cru2_root.visible = false
 	hug_mat.set_shader_parameter("cut_y", 2.0)
 	hug_mat.set_shader_parameter("wave_cut", 999.0)
 	if xfade:
@@ -580,11 +583,17 @@ func _update_crucify(delta: float) -> void:
 		xfade.visible = false
 		if lower_sp:
 			lower_sp.visible = false
+		if cru2_root:
+			cru2_root.visible = false
+		cru2_go_t = -1.0
 		hug_mat.set_shader_parameter("cut_y", 2.0)
 		hug_mat.set_shader_parameter("wave_cut", 999.0)
 		sprite.visible = true
 		state = "emerge"
 		anim_t = 0.6
+		return
+	if cru2_on():
+		_cru2_update(delta, p)
 		return
 	var feet := float(FEET_Y + 1)
 	if xfade.get_parent() == null:
@@ -1140,3 +1149,219 @@ func set_crucify_stage(st: int) -> void:
 	main.add_goop(position, 260.0, 0.8)
 	for i in 6:
 		main.splat_wall(Vector2(position.x + randf_range(-300, 300), main.FLOOR_TOP - randf_range(10, 260)), randf_range(50, 90))
+
+
+
+# ---------- 磔（2026-11-15 の層に分けた新しい絵） ----------
+# 縦長のワニ（柱こみ 256×400）／上256の差し替え（せり上がり・形成・ゲームオーバー）／猫／足首の粘液／便乗するドーベルマン
+# を1つの Node2D にまとめ、床を支点に skew でしならせる（全部の層が同じ曲がり方で揺れる）。
+var cru2 := {}
+var cru2_root: Node2D
+var cru2_wani: Sprite2D
+var cru2_win: Sprite2D
+var cru2_cat: Sprite2D
+var cru2_anchor: Sprite2D
+var cru2_dobe: Sprite2D
+var cru2_go_t := -1.0
+var cru2_go_dobe := false
+const CRU2_DIR := "res://assets/cru2/"
+const CRU2_H := 400.0
+const CRU2_CAT := Vector2(56, 52)       # 猫の左上（ワニの絵の左上から）
+const CRU2_DOBE := Vector2(-39, 63)     # ドーベルマンの層の左上（ワニの絵の左上から）
+const CRU2_FORM_T := 1.7                # 柱の頭がグチュグチュ盛り上がってワニになるまで
+const CRU2_CAT_STAND := -118.0          # 立っている猫の絵の上端（足が床）
+
+
+func cru2_on() -> bool:
+	return cru2.has("tall")
+
+
+func _cru2_load() -> void:
+	if not ResourceLoader.exists(CRU2_DIR + "wani_tall.png"):
+		return
+	cru2["tall"] = load(CRU2_DIR + "wani_tall.png")
+	cru2["anchor"] = load(CRU2_DIR + "anchor.png")
+	cru2["hug"] = load(CRU2_DIR + "dobe_hug.png")
+	for k in ["form", "rise_top", "cat_struggle", "cat_startle", "cat_refuse", "go_absorb", "go_sink", "go_churn", "dobe_emerge", "dobe_push", "go_dobe_press"]:
+		var arr: Array = []
+		var i := 0
+		while ResourceLoader.exists(CRU2_DIR + "%s_%d.png" % [k, i]):
+			arr.append(load(CRU2_DIR + "%s_%d.png" % [k, i]))
+			i += 1
+		cru2[k] = arr
+	cru2_root = Node2D.new()
+	cru2_root.visible = false
+	add_child(cru2_root)
+	cru2_wani = _cru2_sprite()
+	cru2_win = _cru2_sprite()
+	cru2_cat = _cru2_sprite()
+	cru2_anchor = _cru2_sprite()
+	cru2_anchor.texture = cru2["anchor"]
+	cru2_dobe = _cru2_sprite()
+
+
+func _cru2_sprite() -> Sprite2D:
+	var sp := Sprite2D.new()
+	sp.centered = false
+	cru2_root.add_child(sp)
+	return sp
+
+
+func _cru2_frame(k: String, pos: float, loop: bool) -> Texture2D:
+	var arr: Array = cru2.get(k, [])
+	if arr.is_empty():
+		return null
+	var i := int(floorf(pos))
+	if loop:
+		i = posmod(i, arr.size())
+	else:
+		i = clampi(i, 0, arr.size() - 1)
+	return arr[i]
+
+
+func _cru2_count(k: String) -> float:
+	var arr: Array = cru2.get(k, [])
+	return float(arr.size())
+
+
+func _cru2_update(delta: float, p) -> void:
+	trunk.visible = false
+	cru_base.visible = false
+	xfade.visible = false
+	sprite.visible = false
+	if lower_sp:
+		lower_sp.visible = false
+	for sg in segs:
+		sg.visible = false
+	cru2_root.visible = true
+	cru2_root.scale = Vector2(-1.0 if facing > 0 else 1.0, 1.0)
+	var dobe = null
+	if p.sandwicher != null and is_instance_valid(p.sandwicher):
+		dobe = p.sandwicher
+	var vis_h := CRU2_H
+	var win_tex: Texture2D = null
+	var cat_tex: Texture2D = _cru2_frame("cat_struggle", cru_t * 7.0, true)
+	var dobe_tex: Texture2D = null
+	var dobe_dy := 0.0
+	var forming := false
+	if state == "pillar":
+		# 足元から柱が一気に生えて、上でゆっくり止まる（頭はドロドロ波打つ）
+		var k := clampf(cru_t / RISE_T, 0.0, 1.0)
+		var e := 1.0 - pow(1.0 - k, 4.0)
+		vis_h = lerpf(70.0, CRU2_H, e)
+		win_tex = _cru2_frame("rise_top", cru_t * 14.0, true)
+		if fmod(cru_t, 0.3) < delta:
+			main.sfx.play_any(["gurgle", "grab_loop"], -4.0)
+			main.add_goop(position + Vector2(randf_range(-40, 40), randf_range(-10, 10)), randf_range(40, 70), 0.3)
+			p.add_dirt(p.random_body_point(), 2)
+		if cru_t > RISE_T + 0.1:
+			state = "crucify"
+			cru_t = 0.0
+			main.sfx.play("grab_loop", 2.0)
+			main.add_goop(position, 160.0, 0.5)
+	else:
+		var fk := cru_t / CRU2_FORM_T
+		forming = fk < 1.0
+		if forming:
+			# 柱の頭がグチュグチュ盛り上がって、ワニの上半身になる
+			win_tex = _cru2_frame("form", fk * _cru2_count("form"), false)
+			if fmod(cru_t, 0.25) < delta:
+				main.sfx.play_any(["gurgle", "grab_loop"], -2.0)
+				main.add_goop(position + Vector2(randf_range(-70, 70), randf_range(-12, 12)), randf_range(50, 90), 0.4)
+		_cru2_metronome(delta, p, forming)
+	# 便乗するドーベルマン（ワニと同じ曲がり方で揺らすため、ここで描く）
+	if dobe != null:
+		if dobe.state == "sandwich" and dobe.sub == "form":
+			var f: float = clampf(dobe.t / 1.6, 0.0, 0.999)
+			dobe_tex = _cru2_frame("dobe_emerge", f * _cru2_count("dobe_emerge"), false)
+			cat_tex = _cru2_frame("cat_startle", minf(f * 1.4, 0.999) * _cru2_count("cat_startle"), false)
+		elif dobe.state == "sandwich" and dobe.sub == "hug":
+			dobe_tex = cru2["hug"]
+			dobe_dy = sin(dobe.rub_t * PI) * 4.0
+			cat_tex = _cru2_frame("cat_refuse", cru_t * 9.0, true)
+		else:
+			# 押し合いっこ：抱きしめ⇄のけぞりを止まらずに繰り返す（押し返されたフリの間は速く）
+			dobe_tex = _cru2_frame("dobe_push", cru_t * (13.0 if dobe.state == "pushed" else 9.0), true)
+			cat_tex = _cru2_frame("cat_refuse", cru_t * 9.0, true)
+	# 力尽きた：胸に取り込む（ドーベルマンがいれば抱きしめたまま押し込む）→ ドップンと沈む → 中でグチャグチャ
+	var press_tex: Texture2D = null
+	var cat_show := true
+	if main.game_over and state == "crucify":
+		if cru2_go_t < 0.0:
+			cru2_go_t = 0.0
+			cru2_go_dobe = dobe != null
+		cru2_go_t += delta
+		cat_show = false
+		dobe_tex = null
+		var g := cru2_go_t
+		if g < 1.8:
+			if cru2_go_dobe:
+				press_tex = _cru2_frame("go_dobe_press", g / 1.8 * _cru2_count("go_dobe_press"), false)
+			else:
+				win_tex = _cru2_frame("go_absorb", g / 1.8 * _cru2_count("go_absorb"), false)
+		elif g < 2.6:
+			win_tex = _cru2_frame("go_sink", (g - 1.8) / 0.8 * _cru2_count("go_sink"), false)
+		else:
+			win_tex = _cru2_frame("go_churn", (g - 2.6) * 8.0, true)
+		if fmod(g, 0.35) < delta:
+			main.sfx.play_any(["gurgle", "grab_loop"], -3.0)
+	else:
+		cru2_go_t = -1.0
+	# 並べる（床＝0、上がマイナス）
+	var top := -vis_h
+	if vis_h > 256.0:
+		cru2_wani.visible = true
+		cru2_wani.texture = cru2["tall"]
+		cru2_wani.region_enabled = true
+		cru2_wani.region_rect = Rect2(0, 256, 256, vis_h - 256.0)
+		cru2_wani.position = Vector2(-128, top + 256.0)
+	else:
+		cru2_wani.visible = false
+	cru2_win.visible = true
+	cru2_win.texture = win_tex if win_tex != null else cru2["tall"]
+	cru2_win.region_enabled = true
+	cru2_win.region_rect = Rect2(0, 0, 256, minf(256.0, vis_h))
+	cru2_win.position = Vector2(-128, top)
+	cru2_cat.visible = cat_show and cat_tex != null
+	cru2_cat.texture = cat_tex
+	cru2_cat.position = Vector2(-128 + CRU2_CAT.x, minf(CRU2_CAT_STAND, top + CRU2_CAT.y))
+	var cm: float = p.contamination()
+	cru2_cat.modulate = Color(1.0, 1.0 - 0.22 * cm, 1.0 - 0.08 * cm)
+	cru2_anchor.visible = state == "crucify" and not forming and not (main.game_over and cru2_go_t > 0.2)
+	cru2_anchor.position = Vector2(-128, top)
+	cru2_dobe.visible = dobe_tex != null or press_tex != null
+	cru2_dobe.texture = press_tex if press_tex != null else dobe_tex
+	cru2_dobe.position = Vector2(-128 + CRU2_DOBE.x, top + CRU2_DOBE.y + dobe_dy)
+	cru2_root.skew = tilt * 0.9
+	_update_drips(delta)
+
+
+# 晒し上げの揺れ（床を支点に左右へぐーっとしならせる。抵抗すると荒ぶる）
+func _cru2_metronome(delta: float, p, forming: bool) -> void:
+	var prev_c := cos(met_phase)
+	if not forming:
+		var gain: float = maxf(p.struggle - last_struggle, 0.0)
+		agit = clampf(agit + gain * 4.0 - delta * 0.35, 0.0, 1.0)
+		met_phase += delta * met_speed * (1.0 + 1.6 * agit)
+	var c := cos(met_phase)
+	last_struggle = p.struggle
+	var want := 0.0 if forming else met_amp * met_scale * (1.0 + 1.4 * agit)
+	tilt_amp = lerpf(tilt_amp, want, 1.0 - exp(-delta * (1.2 + 3.0 * agit)))
+	if not forming and signf(c) != signf(prev_c):
+		met_amp = 1.5 if randf() < 0.3 else randf_range(0.9, 1.15)
+		var side := signf(sin(met_phase))
+		main.sfx.play_any(["gurgle", "grab_loop"], 0.0)
+		for i in 3:
+			main.splat_wall(Vector2(position.x + side * randf_range(60, 260), main.FLOOR_TOP - randf_range(30, 260)), randf_range(35, 70) * met_amp)
+			main.add_goop(position + Vector2(side * randf_range(40, 200), randf_range(-40, 40)), randf_range(50, 110), 0.5)
+		for i in int(10 * met_amp * (1.0 + 1.5 * agit)):
+			drip_vis.append({"x": side * randf_range(20.0, 110.0), "y": -randf_range(190.0, 290.0), "v": -randf_range(60.0, 200.0), "vx": side * randf_range(80.0, 260.0)})
+		for i in 2:
+			p.add_dirt(p.random_body_point(), 2)
+	var s := sin(met_phase)
+	tilt = 0.17 * tilt_amp * s + 0.05 * agit * sin(met_phase * 3.0)
+	sway = Vector2(sin(tilt) * 240.0, absf(sin(tilt)) * 18.0)
+	if fmod(cru_t, 0.25) < delta:
+		main.add_goop(position + Vector2(randf_range(-50, 50), randf_range(-15, 15)), randf_range(40, 80), 0.3)
+	if randf() < 0.5:
+		drip_vis.append({"x": randf_range(-90.0, 90.0) + sway.x * 0.6, "y": -randf_range(200.0, 320.0), "v": 0.0, "vx": 0.0})

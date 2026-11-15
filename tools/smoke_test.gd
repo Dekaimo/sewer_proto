@@ -13,6 +13,9 @@ func _initialize() -> void:
 	root.add_child(main)
 
 var solo := false
+var cru_started := false
+var sw_started := false
+var killed := false
 
 func _process(delta: float) -> bool:
 	t += delta
@@ -41,7 +44,40 @@ func _process(delta: float) -> bool:
 			if c.has_method("can_maw"):
 				c.queue_free()
 	var mode := OS.get_environment("SMOKE_SOLO")
-	if mode == "hd" or mode == "hds":
+	# cru：磔（新しい層の絵）を通しで確かめる。せり上がり→形成→ドーベルマン便乗→押し返し→力尽きて取り込み
+	if mode == "cru":
+		if main.shark_spawn_t > 0.0:
+			main.shark_spawn_t = 9999.0
+		for c in main.get_children():
+			if c.has_method("can_maw"):
+				c.queue_free()
+		Input.action_release("left"); Input.action_release("right")
+		var w = null
+		for e in main.enemies:
+			if is_instance_valid(e):
+				w = e
+				break
+		if w != null and t > 2.0 and not cru_started and main.player.state == "normal":
+			cru_started = true
+			w._start_pillar(main.player)
+		if t > 8.0 and not sw_started and main.player.state == "crucified":
+			for d in main.dobes:
+				if is_instance_valid(d):
+					sw_started = true
+					d._start_sandwich(main.player)
+					break
+		if t > 13.0 and t < 22.0 and fmod(t, 3.0) < delta:
+			main.player.push = 1.0
+		if main.player.state == "crucified":
+			main.player.struggle = minf(main.player.struggle, 0.5)
+		if t > 30.0 and not killed:
+			killed = true
+			main.player.damage(9999.0)
+		if t >= next_log and w != null and w.get("cru2_root") != null:
+			print("cru2 vis=%s wani=%s go_t=%.1f tilt=%.2f" % [str(w.cru2_root.visible), w.state, w.cru2_go_t, w.tilt])
+	if mode == "cru":
+		pass
+	elif mode == "hd" or mode == "hds":
 		# ヒップドロップ確認：ワニを消し、ドーベルマンはすぐ跳ぶ。主人公は立ち止まる
 		for e in main.enemies.duplicate():
 			if is_instance_valid(e):
