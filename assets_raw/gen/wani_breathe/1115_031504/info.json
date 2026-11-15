@@ -1,0 +1,11 @@
+{
+  "name": "wani_breathe",
+  "mode": "anim",
+  "src": "assets_raw/wani_cru_window.png",
+  "last": "assets_raw/wani_cru_window.png",
+  "frames": 8,
+  "desc": "the muscular pink and yellow marbled goo crocodile with arms spread straight out slowly breathes in and out, its big chest gently rises and falls, thick goo slowly drips and falls from its arms, fists and chin, the toothy grin and pose stay the same, arms stay spread, the pillar below stays still, looping",
+  "generations_before": 7072.8,
+  "generations_after": 7071.8,
+  "used": 1.0
+}

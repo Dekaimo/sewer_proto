@@ -1,0 +1,10 @@
+{
+  "name": "dobe_lean6",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_lean6_draft.png",
+  "ref": "assets_raw/dobe_lean_key5.png",
+  "desc": "clean up into one seamless gooey character: keep the head, face, closed eyes, faint smirk, the leaning body, the bent hugging arm on the right, the lower body, drips and goo ropes exactly where they are now. Smoothly join the shoulder and the upper arm so there is no vertical cut edge or step, remove stray dots. Same colors, pixel art rendering and line weight as the reference.",
+  "generations_before": 7092.8,
+  "generations_after": 7082.8,
+  "used": 10.0
+}
