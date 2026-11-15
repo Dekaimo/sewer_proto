@@ -1,0 +1,11 @@
+{
+  "name": "dobe_todrink2",
+  "mode": "anim",
+  "src": "assets_raw/dobe_hug_key_tight.png",
+  "last": "assets_raw/dobe_drink_key5.png",
+  "frames": 8,
+  "desc": "pink goo doberman seen from behind hugging someone: its one visible arm stays wrapped around them exactly as it is, same shape and length, no new arms or hands appear. Only its head and neck move: it slowly leans its head forward and presses its pursed muzzle flat onto their face like a deep kiss, mouth hidden on the far side, no teeth, no eye visible, goo strands oozing at the muzzle tip. Body and lower body stay still. Smooth single motion",
+  "generations_before": 6712.8,
+  "generations_after": 6712.8,
+  "used": 0.0
+}
