@@ -15,7 +15,7 @@ const LINES := {
 	"rise": {"t": ["わ、わっ…！", "ひっ…"], "muffled": false, "gap": [1.5, 2.5]},
 	"startle": {"t": ["ひっ…", "え…っ"], "muffled": false, "gap": [1.0, 1.5]},
 	"cru": {"t": ["うぅ…", "く…っ", "ん…っ"], "muffled": false, "gap": [2.2, 4.0]},
-	"push": {"t": ["んん…っ", "く…ぅ…", "や…っ", "ん…ぐ…っ"], "muffled": false, "gap": [1.4, 2.6]},
+	"push": {"t": ["や…だ…っ", "い…や…っ…", "う…ぅぅ…っ", "や…め…て…っ", "や…ぁ…っ"], "muffled": false, "shaky": true, "gap": [1.4, 2.6]},
 	"rub": {"t": ["うぅ…", "ひぅ…", "や…め…っ", "んぅ…"], "muffled": false, "gap": [1.8, 3.2]},
 	"drink": {"t": ["んぐっ…", "んむぅ…！", "んくっ…", "ん…ぅ…っ"], "muffled": true, "gap": [1.2, 2.4]},
 	"muffled": {"t": ["むぐ…っ", "んむ…！", "んんっ…！", "ん…ぅ…"], "muffled": true, "gap": [1.8, 3.2]},
@@ -28,6 +28,7 @@ var main
 var font: Font
 var text := ""
 var muffled := false
+var shaky := false       # 悲痛な声：文字だけ小刻みに震わせる（フキダシはふつう）
 var t := 0.0            # 表示中の経過時間（-1 = 表示していない）
 var cool := 0.0         # 次に声を出すまで
 var ctx := ""
@@ -98,6 +99,7 @@ func say(kind: String) -> void:
 	text = s
 	last_line = s
 	muffled = d["muffled"]
+	shaky = d.get("shaky", false)
 	t = 0.0
 	cool = SHOW_T + randf_range(d["gap"][0], d["gap"][1])
 
@@ -203,7 +205,7 @@ func _draw() -> void:
 		return
 	# 文字（くぐもった声は小刻みに震える）
 	var jit := Vector2.ZERO
-	if muffled and int(t * 20.0) % 3 == 0:
+	if (muffled or shaky) and int(t * 20.0) % 3 == 0:
 		jit = Vector2(randi_range(-1, 1), 0)
 	var tp := (r.position + pad + Vector2(0, font.get_ascent(FONT_SIZE)) + jit).round()
 	draw_string(font, tp, text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, Color(0.16, 0.1, 0.2, a))
