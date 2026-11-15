@@ -1,0 +1,11 @@
+{
+  "name": "go_wani_churn2",
+  "mode": "anim",
+  "src": "assets_raw/go_wani_end2.png",
+  "last": "assets_raw/go_wani_end2.png",
+  "frames": 8,
+  "desc": "inside the goo pillar the swallowed cat outline is churned and squeezed: the goo around it squirms, rolls and sloshes, the faint cat shape shifts and wriggles, bubbles and drips, the crocodile keeps its pose and grin, looping",
+  "generations_before": 7192.8,
+  "generations_after": 7192.8,
+  "used": 0.0
+}
