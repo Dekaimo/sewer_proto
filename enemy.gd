@@ -1512,6 +1512,9 @@ func _cru2_update(delta: float, p) -> void:
 	cru2_win_mat.set_shader_parameter("tex_size", wtex.get_size())
 	cru2_cat.visible = cat_show and cat_tex != null
 	cru2_cat.texture = cat_tex
+	# 主人公の汚れ（汚れマスクのマテリアル）をそのまま磔の猫にも反映する
+	if p.sprite != null and cru2_cat.material != p.sprite.material:
+		cru2_cat.material = p.sprite.material
 	# のけぞり：足元（絵の中の CAT_LEAN_PIVOT）を支点に右へ傾け、口がドーベルマンの鼻先に合う所まで寄せる（絵のドットはそのまま）
 	var lean_rot: float = deg_to_rad(CAT_LEAN_DEG) * cat_lean
 	cru2_cat.rotation = lean_rot
