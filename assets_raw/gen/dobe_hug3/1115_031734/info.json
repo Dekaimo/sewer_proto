@@ -1,0 +1,10 @@
+{
+  "name": "dobe_hug3",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_hug3_draft.png",
+  "ref": "assets_raw/dobe_hug_key2_pl.png",
+  "desc": "clean up into one seamless gooey character: a pink goo doberman seen from behind at an angle, hunched forward and hugging very tightly, squeezing hard. Keep the pose, head position, size and position unchanged, eyes hidden. Smoothly join the upper body and the lower dripping body with no seam, gap or step. Same colors, pixel art rendering and line weight as the reference. Remove stray pixels.",
+  "generations_before": 7071.8,
+  "generations_after": 7061.8,
+  "used": 10.0
+}
