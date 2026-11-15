@@ -1163,6 +1163,9 @@ var cru2_vp: SubViewport
 var cru2_view: Sprite2D
 var cru2_bend: ShaderMaterial
 var cru2_tlag := 0.0
+var cru2_push_t := 0.0       # 押し合いっこのコマ位置（もがいている間だけ進む）
+var cru2_push_on := 0.0      # もがきの入力があってからの残り時間
+var cru2_last_struggle := 0.0
 var cru2_up: Node2D
 var cru2_paw: Sprite2D
 var cru2_pawtex := {}
@@ -1181,7 +1184,7 @@ var cru2_go_dobe := false
 const CRU2_DIR := "res://assets/cru2/"
 const CRU2_H := 400.0
 const CRU2_CAT := Vector2(56, 52)       # 猫の左上（ワニの絵の左上から）
-const CRU2_DOBE := Vector2(-35, 57)     # ドーベルマンの層の左上（ワニの絵の左上から）
+const CRU2_DOBE := Vector2(-35, 53)     # ドーベルマンの層の左上（ワニの絵の左上から）
 const CRU2_FORM_T := 1.7                # 柱の頭がグチュグチュ盛り上がってワニになるまで
 const CRU2_CAT_STAND := -118.0          # 立っている猫の絵の上端（足が床）
 
@@ -1331,7 +1334,20 @@ func _cru2_update(delta: float, p) -> void:
 			cat_tex = _cru2_frame("cat_refuse", cru_t * 9.0, true)
 		else:
 			# 押し合いっこ：抱きしめ⇄のけぞりを止まらずに繰り返す（押し返されたフリの間は速く）
-			var pp: float = cru_t * 9.0
+			# 押し合いっこはもがいている間だけ動かす。手を止めたら抱きついた姿勢（0コマ目）まで進めて止める
+			if p.struggle > cru2_last_struggle + 0.001:
+				cru2_push_on = 0.35
+			cru2_last_struggle = p.struggle
+			cru2_push_on -= delta
+			var npf: float = _cru2_count("dobe_push")
+			if cru2_push_on > 0.0:
+				cru2_push_t += delta * 9.0
+			elif fmod(cru2_push_t, npf) > 0.01:
+				var nxt: float = cru2_push_t + delta * 9.0
+				if floorf(nxt / npf) > floorf(cru2_push_t / npf):
+					nxt = floorf(nxt / npf) * npf
+				cru2_push_t = nxt
+			var pp: float = cru2_push_t
 			dobe_tex = _cru2_frame("dobe_push", pp, true)
 			# 主人公はのけぞりに合わせて必死に押し返す（ドーベルマンと同じコマ番号で動かす）
 			if not cru2.get("cat_push", []).is_empty():
