@@ -1,0 +1,9 @@
+{
+  "name": "dobe_leanA2",
+  "mode": "editv2",
+  "src": "assets_raw/dobe_leanA_draft.png",
+  "desc": "clean up this pixel art into one seamless gooey pink and yellow marbled doberman: keep the arched-back upper body, the head tilted back with closed eyes and faint smirk, the forearm and hand on the right and the dripping lower body exactly where they are, same pose and same size. Connect the upper arm to the forearm and the waist to the lower body with smooth gooey shapes, no cut edges, gaps or steps. Do not change the pose. Remove stray pixels.",
+  "generations_before": 6963.8,
+  "generations_after": 6953.8,
+  "used": 10.0
+}
