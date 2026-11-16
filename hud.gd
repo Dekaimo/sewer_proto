@@ -6,6 +6,9 @@ const FS := 20      # 文字の大きさ
 const FS_SMALL := 14
 
 
+const GameState = preload("res://game_state.gd")
+const Gallery = preload("res://gallery.gd")
+
 var show_t := 0.0     # 抵抗ゲージの見え具合（もがくと 1、止めると消えていく）
 var last_val := 0.0
 
@@ -32,7 +35,7 @@ func _draw() -> void:
 	draw_rect(Rect2(18, 84, 240 * c, 8), Color("ec5a9e"))
 	_txt(Vector2(800, 30), "TIME %.1f" % main.survive_time)
 	if not DisplayServer.is_touchscreen_available() and main.survive_time < 8.0:
-		_txt(Vector2(12, 532), "KB: WASD move   Space jump   Z attack   X wipe      Mouse: L attack / L hold walk / R wipe / Wheel jump", Color("aab3ba"), FS_SMALL)
+		_txt(Vector2(12, 532), "KB: WASD move   Space jump   Z attack   X wipe      Mouse: L attack / L hold walk / R wipe / Wheel jump      Esc: menu", Color("aab3ba"), FS_SMALL)
 
 	if p.state == "swallowed":
 		# 地中：画面全体がドロドロに沈む
@@ -72,7 +75,27 @@ func _draw() -> void:
 			_txt(Vector2(300 - sub.length() * 5, 236), sub, Color("f4b6d4"), 18)
 		if f != null and f.is_new:
 			_txt(Vector2(300 + title.length() * 10 + 10, 190), "NEW!", Color("f9d84d"), 22)
+		elif main.over_new:
+			_txt(Vector2(300 + title.length() * 10 + 10, 190), "NEW!", Color("f9d84d"), 22)
 		_txt(Vector2(220, 290), "Lasted %.1f sec" % main.survive_time)
-		_txt(Vector2(200, 320), "Defeats collected  %d / %d" % [f.collected() if f else 0, f.ORDER.size() if f else 4], Color("aab3ba"))
-		_txt(Vector2(225, 360), "R : try again", Color("aab3ba"))
+		_txt(Vector2(200, 320), "Defeats collected  %d / %d" % [Gallery.collected(), Gallery.ENTRIES.size()], Color("aab3ba"))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		# もういちど／タイトルへ（キー・マウス・タッチ）
+		var jf := GameState.font()
+		for b in GameState.OVER_BUTTONS:
+			draw_rect(b.rect, Color(0, 0, 0, 0.6))
+			draw_rect(b.rect, Color("ec5a9e"), false, 2.0)
+			var w: float = jf.get_string_size(b.label, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+			draw_string(jf, (b.rect.get_center() + Vector2(-w * 0.5, 6)).round(), b.label, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color.WHITE)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	# ゲームオーバー画面のボタンをマウスで押す（タッチは touch_ui.gd）
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if main.game_over and main.finisher_done():
+			var a: String = GameState.over_button_at(make_input_local(event).position)
+			if a != "":
+				get_viewport().set_input_as_handled()
+				Input.action_press(a)
+				await get_tree().process_frame
+				Input.action_release(a)

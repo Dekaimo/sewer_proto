@@ -11,6 +11,8 @@ const BellyScript = preload("res://belly_view.gd")
 const FinisherScript = preload("res://finisher.gd")
 const TouchScript = preload("res://touch_ui.gd")
 const VoiceScript = preload("res://voice.gd")
+const GameState = preload("res://game_state.gd")
+const Gallery = preload("res://gallery.gd")
 const FloorShader = preload("res://floor.gdshader")
 const WallShader = preload("res://wall_paint.gdshader")
 
@@ -58,6 +60,7 @@ var flow_t := 0.0
 var spread_goop_t := 0.0
 var token_holder = null        # 同時に攻撃できる敵は1体だけ（攻撃権トークン）
 var game_over := false
+var over_new := false   # とどめ演出を使わない負け方（ヒップドロップ・サンドイッチ）が初めてだった
 var survive_time := 0.0
 ## スマホ（タッチ画面）：画面いっぱいに表示し、序盤の手加減を長めに、移動を少し速く
 var touch_mode := false
@@ -96,7 +99,15 @@ func _ready() -> void:
 	player.main = self
 	player.position = Vector2(300, FLOOR_Y)
 	add_child(player)
-	for x in [760.0]:   # ペンキワニは1体（2体目は別の敵として後で追加）
+	# 選んだステージで、出てくる敵を決める
+	var st: Dictionary = GameState.stage_info()
+	if not st.dobe:
+		dobe_spawn_t = 0.0
+	if not st.shark:
+		shark_spawn_t = 0.0
+	elif not st.wani and not st.dobe:
+		shark_spawn_t = 2.0   # サメだけのステージは待たせない
+	for x in ([760.0] if st.wani else []):   # ペンキワニは1体（2体目は別の敵として後で追加）
 		var e = EnemyScript.new()
 		e.main = self
 		e.position = Vector2(x, FLOOR_Y)
@@ -134,6 +145,10 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_update_zoom(delta)
 	_upload_heaves(delta)
+	if Input.is_action_just_pressed("menu"):
+		Engine.time_scale = 1.0
+		get_tree().change_scene_to_file(GameState.MENU_SCENE)
+		return
 	if game_over:
 		if Input.is_action_just_pressed("restart"):
 			Engine.time_scale = 1.0
@@ -173,6 +188,7 @@ func _setup_input() -> void:
 	_add_keys("attack", [KEY_Z, KEY_J])
 	_add_keys("clean", [KEY_X, KEY_K])
 	_add_keys("restart", [KEY_R])
+	_add_keys("menu", [KEY_ESCAPE])
 
 
 func _add_keys(action: String, keys: Array) -> void:
@@ -276,10 +292,12 @@ func on_player_defeated(grabber) -> void:
 	if player.engulfer != null and is_instance_valid(player.engulfer):
 		# ヒップドロップで取り込まれたまま力尽きた：とどめ演出は使わず、そのまま最後までひり出されて、とぐろの中で弄ばれ続ける
 		finisher = null
+		over_new = Gallery.record("hipdrop")
 		return
 	if player.trio_finish:
 		# 挟まれたまま負けた：その場で2体が主人公を取り込み、抱き潰し続ける（player.gd が描く）。画面はそのまま
 		finisher = null
+		over_new = Gallery.record("trio")
 		return
 	if player.state == "pinned" or player.state == "held":
 		# ドーベルマン絡みの負け。専用のとどめは素材ができてから（いまは地上の負けを流用）
@@ -351,7 +369,8 @@ func _init_goop() -> void:
 	add_goop(Vector2(150, 400), 110.0, 0.8)
 	add_goop(Vector2(520, 490), 90.0, 0.6)
 	add_goop(Vector2(330, 370), 70.0, 0.5)
-	add_goop(Vector2(760, 440), 240.0, 1.0)   # ワニの足元
+	if GameState.stage_info().wani:
+		add_goop(Vector2(760, 440), 240.0, 1.0)   # ワニの足元
 
 
 ## p を中心に横幅 w のドロドロを amount だけ足す（中心ほど厚い。奥行き方向は潰れた楕円）

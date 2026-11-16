@@ -589,6 +589,11 @@ func _update_frame(delta: float) -> void:
 			sprite.texture = _tired("getup", int((1.0 - slip_t / 0.5) * 8.0), FRAMES[0])
 
 
+## 汚れ・疲れ・床のドロドロが重なっても、歩く速さとジャンプの勢いはこの割合までしか落ちない
+const MIN_SPEED_K := 0.5
+const MIN_JUMP_K := 0.65
+
+
 func _update_normal(delta: float) -> void:
 	touch_mash = 0   # 捕まっていないときのタップは持ち越さない
 	var c := contamination()
@@ -622,7 +627,7 @@ func _update_normal(delta: float) -> void:
 	if land_t > 0.0 and ft > 0:
 		inp *= 0.3
 	# ペンキの重さ（汚れ）× 疲れ
-	var speed: float = 140.0 * (1.0 - 0.55 * c) * [1.0, 0.8, 0.6][ft] * (1.15 if main.touch_mode else 1.0)
+	var slow: float = (1.0 - 0.55 * c) * [1.0, 0.8, 0.6][ft]
 	# ふらふら：歩いていると勝手に左右（奥行き）によろけ、ときどきつまずく
 	if ft == 2 and inp != Vector2.ZERO:
 		wobble += delta * 3.1
@@ -632,7 +637,7 @@ func _update_normal(delta: float) -> void:
 	# 床のドロドロ：厚いほど遅く、ヌルヌル滑り、足元から汚れていく
 	var g: float = main.goop_at(position) if on_floor else 0.0
 	if g > 0.1:
-		speed *= 1.0 - 0.35 * g
+		slow *= 1.0 - 0.35 * g
 		floor_timer += delta * (0.5 + vel.length() / 140.0)
 		if floor_timer > 0.5 - 0.3 * g:
 			floor_timer = 0.0
@@ -646,6 +651,8 @@ func _update_normal(delta: float) -> void:
 	else:
 		# 地面が乾いていればキビキビ、ドロドロだと止まりにくく曲がりにくい
 		var accel := lerpf(1400.0, 220.0, g)
+		# どれだけ汚されて疲れていても、最低限は動ける（重なっても元の半分より遅くはならない）
+		var speed: float = 140.0 * maxf(slow, MIN_SPEED_K) * (1.15 if main.touch_mode else 1.0)
 		var target := Vector2(inp.x * speed, inp.y * speed * 0.6)   # 奥行き方向は少し遅い
 		# 勢いがついた状態で急に切り返す／止まると転ぶことがある
 		if g > 0.45 and absf(vel.x) > 90.0 and signf(target.x) != signf(vel.x) and randf() < 2.5 * g * delta:
@@ -656,7 +663,7 @@ func _update_normal(delta: float) -> void:
 	var jump := Input.is_action_just_pressed("jump") or queued_jump
 	queued_jump = false
 	if on_floor and jump and not cleaning:
-		vz = 360.0 * (1.0 - 0.4 * c) * [1.0, 0.82, 0.62][ft]
+		vz = 360.0 * maxf((1.0 - 0.4 * c) * [1.0, 0.82, 0.62][ft], MIN_JUMP_K)
 		on_floor = false
 
 	var mouse_attack := queued_attack

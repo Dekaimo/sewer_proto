@@ -10,6 +10,8 @@ const BTN := [
 	{"action": "attack", "label": "ATK", "pos": Vector2(736, 474), "r": 54.0},
 	{"action": "clean", "label": "WIPE", "pos": Vector2(876, 284), "r": 48.0},
 ]
+const GameState = preload("res://game_state.gd")
+const MENU_RECT := Rect2(272, 8, 84, 40)   # HP の右どなり
 const DEAD := 18.0
 const MAX_R := 70.0
 
@@ -33,9 +35,17 @@ func _input(event: InputEvent) -> void:
 			# リトライ（ゲームオーバー画面）
 			var main = get_parent().get_parent()
 			if main.game_over and main.finisher_done():
-				Input.action_press("restart")
+				# 「タイトルへ」を押したとき以外は、どこを触ってもリトライ
+				var act := "menu" if GameState.over_button_at(p) == "menu" else "restart"
+				Input.action_press(act)
 				await get_tree().process_frame
-				Input.action_release("restart")
+				Input.action_release(act)
+				return
+			# 左上の MENU：いつでもタイトルへ戻れる
+			if MENU_RECT.has_point(p):
+				Input.action_press("menu")
+				await get_tree().process_frame
+				Input.action_release("menu")
 				return
 			# 捕まっている：どこをタップしても左右の交互入力（もがく）
 			if _caught(main):
@@ -145,6 +155,10 @@ func _draw() -> void:
 	var main = get_parent().get_parent()
 	if _caught(main):
 		draw_string(ThemeDB.fallback_font, Vector2(330, 120), "TAP TAP TAP!", HORIZONTAL_ALIGNMENT_LEFT, -1, 40, Color(1, 1, 1, 0.55 + 0.35 * sin(Time.get_ticks_msec() * 0.02)))
+	if not main.game_over:
+		draw_rect(MENU_RECT, Color(1, 1, 1, 0.10))
+		draw_rect(MENU_RECT, Color(1, 1, 1, 0.4), false, 2.0)
+		draw_string(ThemeDB.fallback_font, MENU_RECT.position + Vector2(16, 26), "MENU", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(1, 1, 1, 0.7))
 	# ボタン
 	for b in BTN:
 		var on: bool = held.get(b.action, false)

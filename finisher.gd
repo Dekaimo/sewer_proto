@@ -427,13 +427,7 @@ func inset_state() -> Dictionary:
 
 ## 図鑑に記録。初めて見た負け方なら true
 func _record() -> bool:
-	var cfg := ConfigFile.new()
-	cfg.load(GALLERY)
-	var seen: bool = cfg.get_value("seen", kind, false)
-	cfg.set_value("seen", kind, true)
-	cfg.set_value("count", kind, int(cfg.get_value("count", kind, 0)) + 1)
-	cfg.save(GALLERY)
-	return not seen
+	return preload("res://gallery.gd").record(kind)
 
 
 static func collected() -> int:

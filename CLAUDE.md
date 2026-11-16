@@ -8,6 +8,7 @@ Godot 4.3 の 2D ドット絵アクション。主人公（黒猫）が下水道
 - 目・口・粘液を手打ちのドットで描き足さない（透明の穴を塗る・浮いたかけらを消す程度だけ可）。
 
 ## 構成
+- `menu.gd`（`menu.tscn`、起動時の画面）タイトル → ステージ選択／ギャラリー。`game_state.gd` 選んだステージ（どの敵が出るか）、`gallery.gd` やられ方の記録（`user://gallery.cfg`）。メニューの字は `fonts/dotgothic16_kana.ttf`（かな・英数字だけ、漢字なし）
 - `main.gd` 全体・カメラ（`zoom_moment`）／`player.gd` 主人公（状態：normal / grabbed / held / crucified / swallowed / engulfed / pinned / defeated）
 - `enemy.gd` ペンキワニ。磔は `_cru2_update`（素材 `assets/cru2/`、柱だけ `cru_bend.gdshader` でしならせ、上の群れ `cru2_up` が乗って傾く）
 - `doberman.gd` ペンキドーベルマン（待ち伏せ・羽交い締め・ヒップドロップ・磔に便乗 `sandwich`：form → tease（押し合いっこ）→ hug（擦りつけ／ペンキを飲ませる））
