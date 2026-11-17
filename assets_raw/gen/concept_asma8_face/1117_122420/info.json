@@ -1,0 +1,29 @@
+{
+  "name": "concept_asma8_face",
+  "mode": "gen",
+  "w": 160,
+  "h": 160,
+  "variants": 1,
+  "refs": [
+    [
+      "assets_raw/gen/concept_asma7_bare/1117_010833/v1_00.png",
+      "keep only this: the body from the neck down, pose, proportions (about 3.5 heads tall), size and position in the frame. Do NOT copy its head, face, snout, eyes, horns or hair."
+    ],
+    [
+      "assets_raw/ref/asma/ref4.png",
+      "the target face and head design and the art style to reproduce exactly, same three-quarter angle facing left: big round bulbous snout tip with no nostrils, half-lidded sly eyes with a thick upper eyelid line, light blue iris, small fang, spiky bangs, thick light blue crystal horns with diagonal facet lines, two white studs on the forehead."
+    ],
+    [
+      "assets_raw/ref/asma/face2.png",
+      "same character: copy the face design and the cute-but-cool art style: smooth round snout with no nostrils, light blue tongue sticking out with a small stud, small fang, half-lidded eyes, spiky bangs over one eye, silver bar piercings on the ear rim, collar with a silver ring."
+    ],
+    [
+      "assets_raw/ref/asma/ref3.png",
+      "same character from the same left-facing angle: copy the head shape, round snout, sleepy sly eye, cheek fur tufts and crystal horns."
+    ]
+  ],
+  "desc": "Full body pixel art sprite of the same character as the reference illustrations: a short muscular adult dragon-wolf man in a cute and cool anime furry art style, three-quarter view facing left, standing idle, about 3.5 heads tall. Face exactly like the illustrations: a large round bulbous snout tip with a smooth rounded nose and no nostrils, a short jaw, half-lidded sly eyes with a thick dark upper eyelid line, visible white of the eye and a large light blue iris glancing sideways, one small white fang, the light blue tongue sticking out a little. Spiky messy bangs falling over the forehead and partly over one eye, spiky fur tufts on the cheeks, big pointed ears with light blue insides and two small silver bar piercings on the ear rim, two thick light blue crystal horns with diagonal facet lines (the front horn larger), two small white studs on the forehead, dark collar with a small silver ring. Dark charcoal grey fur with a slight purple tint, a mid grey that is clearly lighter than black so the face reads clearly. Smooth muscular body with broad shoulders and a narrow waist, big fluffy tail. No clothing: smooth simple body like a mannequin, no anatomical details. Clean dark outline, simple soft shading. Plain flat light grey background, nothing else in the picture.",
+  "generations_before": 5608.8,
+  "generations_after": 5593.8,
+  "used": 15.0
+}
