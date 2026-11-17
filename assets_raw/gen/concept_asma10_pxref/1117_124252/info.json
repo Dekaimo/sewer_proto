@@ -1,0 +1,29 @@
+{
+  "name": "concept_asma10_pxref",
+  "mode": "gen",
+  "w": 160,
+  "h": 160,
+  "variants": 1,
+  "refs": [
+    [
+      "assets_raw/ref/asma/body_nohead.png",
+      "the body from the neck down: copy this pose, proportions, size and position in the frame exactly. It has no head on purpose; draw the head from the other references."
+    ],
+    [
+      "assets_raw/ref/asma/face4_px.png",
+      "the head and face to reproduce exactly, same three-quarter angle facing left: big round snout tip bulging forward with no nostrils, short jaw, half-lidded sly eye with a thick upper eyelid, light blue iris, small fang, big spiky hair tufts, thick flat light blue crystal horns with diagonal facets, two studs on the forehead"
+    ],
+    [
+      "assets_raw/ref/asma/face2_px.png",
+      "same character: light blue tongue sticking out with a stud, small fang, spiky bangs over the forehead, silver bar piercings on the ear rim, collar with a silver ring, purple-grey fur"
+    ],
+    [
+      "assets_raw/ref/asma/face3_px.png",
+      "same character facing left: head shape, round snout, sleepy sly eye, cheek fur tufts, crystal horns"
+    ]
+  ],
+  "desc": "Full body pixel art sprite: the same character as the head references, drawn on the headless body reference. A short muscular adult dragon-wolf man in a cute and cool anime furry style, three-quarter view facing left, standing idle with one hand raised. Head exactly like the references: big round smooth snout tip bulging forward with no nostrils, short jaw, half-lidded sly eyes with a thick dark upper eyelid and light blue iris, small white fang, light blue tongue sticking out a little, big spiky hair tufts and bangs over the forehead, big pointed ears with light blue insides and silver bar piercings, two thick flat light blue crystal horns with diagonal facet lines (front one larger), two small white studs on the forehead, dark collar with a silver ring. Purple-tinted charcoal grey fur, mid grey, lighter than black. Big fluffy tail. No clothing: smooth simple body like a mannequin, no anatomical details. Clean dark outline, simple soft shading. Plain flat light grey background, nothing else.",
+  "generations_before": 5589.8,
+  "generations_after": 5574.8,
+  "used": 15.0
+}

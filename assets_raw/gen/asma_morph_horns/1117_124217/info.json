@@ -1,0 +1,13 @@
+{
+  "name": "asma_morph_horns",
+  "mode": "anim",
+  "src": "assets_raw/gen/concept_asma8_face/1117_122420/v1_03.png",
+  "last": "assets_raw/gen/concept_asma9_pixen/1117_123201/v3_00.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a short muscular dragon-wolf man with crystal horns",
+  "desc": "standing still; only his head slowly changes: the crystal horns grow thicker, the spiky hair puffs up, the snout tip swells rounder. The body, arms, legs and tail do not move.",
+  "generations_before": 5590.8,
+  "generations_after": 5589.8,
+  "used": 1.0
+}
