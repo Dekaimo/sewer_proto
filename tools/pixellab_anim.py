@@ -104,13 +104,6 @@ def run_job(j: dict) -> None:
         # 高品質の1枚絵（Pro）。refs は [[パス, 使い方の説明], ...]
         path = "/generate-image-v2"
         def ref(pth, use):
-            if pth.startswith("inline:"):
-                # 公開リポジトリに置きたくない参考画像は、ジョブの "inline" に base64 で入れて渡す（記録・ログには残さない）
-                im = Image.open(io.BytesIO(base64.b64decode(j["inline"][pth[7:]]))).convert("RGB")
-                buf = io.BytesIO()
-                im.save(buf, "PNG")
-                return {"image": {"type": "base64", "base64": base64.b64encode(buf.getvalue()).decode(), "format": "png"},
-                        "size": {"width": im.width, "height": im.height}, "usage_description": use}
             im = Image.open(pth)
             return {"image": b64img(pth), "size": {"width": im.width, "height": im.height}, "usage_description": use}
         body = {"description": j["desc"], "image_size": {"width": int(j.get("w", 256)), "height": int(j.get("h", 256))},
@@ -208,8 +201,6 @@ def run_job(j: dict) -> None:
                 sheet.alpha_composite(f, (c * w, r * h))
         sheet.save(out / "sheet.png")
     info = dict(j, generations_before=before, generations_after=after, used=before - after)
-    if "inline" in info:
-        info["inline"] = sorted(info["inline"])   # 中身（参考画像）は残さず、名前だけ
     (out / "info.json").write_text(json.dumps(info, indent=2, ensure_ascii=False))
     print(json.dumps(info, ensure_ascii=False))
 
