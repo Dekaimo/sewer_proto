@@ -1,0 +1,17 @@
+{
+  "name": "concept_will",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "pixel art style, outline thickness, shading and body size to match (not the design)"
+    ]
+  ],
+  "desc": "A huge very muscular bird-man pro wrestler, three-quarter view facing left, standing idle, full body standing on two feet, wearing a black leather plague doctor mask with a long curved beak and round blue glass eye lenses, a purple top hat, black wrist bands, black gloves, plain black wrestling trunks, bare tan-brown muscular skin, black bird talon feet. Calm composed posture. Not made of goo, solid body. Clean dark outline, simple shading, pixel art sprite in the same style as the reference. Plain flat light grey background, no scenery, no floor details, nothing else in the picture.",
+  "generations_before": 5718.8,
+  "generations_after": 5708.8,
+  "used": 10.0
+}

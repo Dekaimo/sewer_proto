@@ -1,0 +1,17 @@
+{
+  "name": "concept_sludgedragon",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "pixel art style, glossy goo shading, body size and the goo puddle lower body to match (not the head or colors)"
+    ]
+  ],
+  "desc": "A big muscular sludge dragon monster made of glossy olive-brown muddy goo, three-quarter view facing left, standing idle, long dragon head with a long thin whisker hanging from each side of the snout, pointed ears, a white bone and a grey pipe stuck in the top of the head, a few white bone pieces stuck in the chest, smug half-closed eyes, long thick tail curling behind, lower body melting into a big olive-brown sludge puddle, drips running down. Clean dark outline, simple shading, pixel art sprite in the same style as the reference. Plain flat light grey background, no scenery, no floor details, nothing else in the picture.",
+  "generations_before": 5808.8,
+  "generations_after": 5798.8,
+  "used": 10.0
+}

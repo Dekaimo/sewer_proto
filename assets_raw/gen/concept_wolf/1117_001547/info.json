@@ -1,0 +1,17 @@
+{
+  "name": "concept_wolf",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "pixel art style, glossy goo shading, body size and the goo puddle lower body to match (not the head or colors)"
+    ]
+  ],
+  "desc": "A muscular slime wolf monster made of glossy pale lavender-grey goo, three-quarter view facing left, standing idle, wolf head with a large white spiky mane flowing back from the head, red eyes, open grin with the tongue out and goo dripping from the mouth, one arm raised flexing, lower body melting into a pale grey goo puddle, drips running down. Clean dark outline, simple shading, pixel art sprite in the same style as the reference. Plain flat light grey background, no scenery, no floor details, nothing else in the picture.",
+  "generations_before": 5768.8,
+  "generations_after": 5758.8,
+  "used": 10.0
+}

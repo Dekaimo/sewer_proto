@@ -1,0 +1,17 @@
+{
+  "name": "concept_nifram",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "pixel art style, outline thickness, shading and body size to match (not the design)"
+    ]
+  ],
+  "desc": "A muscular fox-wolf beast-man with dark navy-blue fur, three-quarter view facing left, standing idle, full body standing on two feet, big pointed ears, spiky hair tuft, green eyes, slight blush on the cheeks, a small fang showing, serious slightly grumpy look, one fist raised, very large fluffy tail, wearing simple dark shorts. Not made of goo, solid furry body. Clean dark outline, simple shading, pixel art sprite in the same style as the reference. Plain flat light grey background, no scenery, no floor details, nothing else in the picture.",
+  "generations_before": 5748.8,
+  "generations_after": 5738.8,
+  "used": 10.0
+}

@@ -1,0 +1,17 @@
+{
+  "name": "concept_asma",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "pixel art style, outline thickness, shading and body size to match (not the design)"
+    ]
+  ],
+  "desc": "A young muscular dragon-wolf beast-man with purple-grey fur, three-quarter view facing left, standing idle, full body standing on two feet, two glowing light blue horns, pointed ears with silver earrings, a dark collar around the neck, light blue eyes, playful grin with a light blue tongue, wearing simple dark shorts, fluffy tail. Medium build, smaller than his big brother. Not made of goo, solid furry body. Clean dark outline, simple shading, pixel art sprite in the same style as the reference. Plain flat light grey background, no scenery, no floor details, nothing else in the picture.",
+  "generations_before": 5738.8,
+  "generations_after": 5728.8,
+  "used": 10.0
+}

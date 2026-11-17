@@ -1,0 +1,17 @@
+{
+  "name": "concept_tardragon",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "pixel art style, glossy goo shading, body size and the goo puddle lower body to match (not the head or colors)"
+    ]
+  ],
+  "desc": "A huge heavy dragon monster made of glossy black-purple tar goo, three-quarter view facing left, standing idle, wide dragon head with large spiky fin crests on the back of the head, calm expressionless half-closed eyes, very broad thick chest and shoulders, lower body melting into a black tar puddle, thick slow drips. Faint oily rainbow sheen highlights. Clean dark outline, simple shading, pixel art sprite in the same style as the reference. Plain flat light grey background, no scenery, no floor details, nothing else in the picture.",
+  "generations_before": 5798.8,
+  "generations_after": 5788.8,
+  "used": 10.0
+}

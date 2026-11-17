@@ -1,0 +1,17 @@
+{
+  "name": "concept_leon",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "pixel art style, glossy goo shading, body size and the goo puddle lower body to match (not the head or colors)"
+    ]
+  ],
+  "desc": "A muscular slime lizard monster made of glossy mint-green goo with lighter green rounded patches, three-quarter view facing left, standing idle, lizard head with a small horn-like crest, small yellow scale markings on the cheek, sleepy half-closed eyes and a relaxed grin, one hand on the hip, thick tail, lower body melting into a green goo puddle, drips running down. Clean dark outline, simple shading, pixel art sprite in the same style as the reference. Plain flat light grey background, no scenery, no floor details, nothing else in the picture.",
+  "generations_before": 5788.8,
+  "generations_after": 5778.8,
+  "used": 10.0
+}

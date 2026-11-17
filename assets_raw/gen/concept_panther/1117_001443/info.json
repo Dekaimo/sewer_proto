@@ -1,0 +1,17 @@
+{
+  "name": "concept_panther",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "pixel art style, glossy goo shading, body size and the goo puddle lower body to match (not the head or colors)"
+    ]
+  ],
+  "desc": "A muscular slime panther monster made of glossy dark indigo-purple goo, three-quarter view facing left, standing idle, cat head with pointed ears, yellow eyes, confident calm smile, one hand on the hip and the other holding a small red flower near the head, long curling tail, lower body melting into an indigo goo puddle, drips running down. Clean dark outline, simple shading, pixel art sprite in the same style as the reference. Plain flat light grey background, no scenery, no floor details, nothing else in the picture.",
+  "generations_before": 5778.8,
+  "generations_after": 5768.8,
+  "used": 10.0
+}

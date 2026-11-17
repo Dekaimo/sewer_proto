@@ -1,0 +1,17 @@
+{
+  "name": "concept_henry",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "pixel art style, outline thickness, shading and body size to match (not the design)"
+    ]
+  ],
+  "desc": "A friendly muscular wolf beast-man with short dark grey fur, three-quarter view facing left, standing idle, full body standing on two feet, fluffy chest fur tuft, pointed ears, brown eyes, cheerful open-mouth grin with pink tongue, wearing simple dark shorts, fluffy tail. Not made of goo, solid furry body. Clean dark outline, simple shading, pixel art sprite in the same style as the reference. Plain flat light grey background, no scenery, no floor details, nothing else in the picture.",
+  "generations_before": 5758.8,
+  "generations_after": 5748.8,
+  "used": 10.0
+}

@@ -1,0 +1,17 @@
+{
+  "name": "concept_agares",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "pixel art style, outline thickness, shading and body size to match (not the design)"
+    ]
+  ],
+  "desc": "A big very muscular dragon-wolf beast-man with near-black charcoal fur and glowing light blue tiger-stripe markings on the face, chest and arms, three-quarter view facing left, standing idle, full body standing on two feet, two large glowing light blue horns, light blue inner ears, spiky hair, light blue eyes, wide confident grin with sharp jagged teeth, wearing simple dark shorts, big fluffy tail. Not made of goo, solid furry body. Clean dark outline, simple shading, pixel art sprite in the same style as the reference. Plain flat light grey background, no scenery, no floor details, nothing else in the picture.",
+  "generations_before": 5728.8,
+  "generations_after": 5718.8,
+  "used": 10.0
+}
