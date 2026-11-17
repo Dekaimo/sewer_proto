@@ -1,0 +1,17 @@
+{
+  "name": "concept_dread",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 2,
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "pixel art style, outline thickness, shading and body size to match (not the design)"
+    ]
+  ],
+  "desc": "A huge muscular dragon-man pro wrestler, three-quarter view facing left, standing idle with fists at his sides, full body standing on two feet, pixel art sprite. Warm grey-beige scaly skin, very broad heavy chest and thick arms, short spiky crest of scales on the head with two white horns, reptile snout, cocky toothy grin, narrowed confident eyes, black wrist bands, plain dark wrestling trunks, thick tail behind. Not made of goo, solid body. Clean dark outline, simple shading, same pixel art style as the reference.",
+  "generations_before": 5848.8,
+  "generations_after": 5828.8,
+  "used": 20.0
+}

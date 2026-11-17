@@ -1,0 +1,17 @@
+{
+  "name": "concept_slimedragon",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 2,
+  "refs": [
+    [
+      "assets/dobe_idle.png",
+      "pixel art style, glossy goo shading, body size and the goo puddle lower body to match (not the head or colors)"
+    ]
+  ],
+  "desc": "A slender muscular slime dragon monster made of glossy light sky-blue goo with darker blue rounded blotch spots, three-quarter view facing left, standing idle, pixel art sprite. Dragon head with long snout and pointed fin-like ears dripping goo, pale blue eyes, sly smile with the tongue slightly out, lean defined muscles, one hand raised near the chin, lower body melting into a light blue goo puddle on the floor, drips running down. Clean dark outline, glossy highlights, same pixel art style as the reference.",
+  "generations_before": 5828.8,
+  "generations_after": 5808.8,
+  "used": 20.0
+}
