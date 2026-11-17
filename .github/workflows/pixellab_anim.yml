@@ -24,7 +24,6 @@ jobs:
       - name: Generate
         env:
           PIXELLAB_API_KEY: ${{ secrets.PIXELLAB_API_KEY }}
-          JOBS: ${{ inputs.jobs }}
         run: python3 tools/pixellab_anim.py
       - name: Commit
         if: always()
