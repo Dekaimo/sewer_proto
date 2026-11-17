@@ -1,0 +1,21 @@
+{
+  "name": "concept_asma7_bare",
+  "mode": "gen",
+  "w": 160,
+  "h": 160,
+  "variants": 1,
+  "refs": [
+    [
+      "assets_raw/gen/concept_asma5_arms/1117_010115/v1_00.png",
+      "keep this body from the neck down exactly: thick arms, round shoulders, chest, six-pack abs, human-like legs, big curled tail, colors (but NOT its head or face)"
+    ],
+    [
+      "assets/cat_0.png",
+      "head size (about 32 pixels from crown to chin), pixel density and outline thickness to match (not the species, hat or colors)"
+    ]
+  ],
+  "desc": "A short, very muscular adult dragon-man in a cute anime-like furry art style, about 3.5 heads tall, three-quarter view facing left, standing idle, full body, pixel art sprite. Head the same size as the reference cat's head. Face: large rounded eyes with big light blue irises and a white highlight, clear dark eyebrow line, short rounded snout with no nostrils, confident sideways glance with one corner of the mouth raised in a sly smirk. Short messy spiky hair with pointed bangs falling over the forehead, big pointed ears with light blue insides, two thin straight light blue horns with spiral grooves, two tiny silver studs on the forehead, small silver ear piercings, dark collar. Near-black charcoal grey fur with lighter grey muscle shading. Very muscular adult body: thick arms, big round shoulders, thick chest, six-pack abs, human-like straight legs standing on the heels, very large fluffy curled tail. No clothing: smooth simple body like a mannequin, no anatomical details. Not made of goo. Clean dark outline, simple shading. Plain flat light grey background, nothing else in the picture.",
+  "generations_before": 5623.8,
+  "generations_after": 5608.8,
+  "used": 15.0
+}
