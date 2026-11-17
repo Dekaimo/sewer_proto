@@ -110,6 +110,9 @@ def run_job(j: dict) -> None:
                 "no_background": False, "reference_images": [ref(r[0], r[1]) for r in j.get("refs", [])]}
         if j.get("style"):
             body["style_image"] = ref(j["style"], "pixel art style")
+            # 画風画像から何を写すか（例：{"color_palette": false} で色は参考の絵から取る）
+            if j.get("style_options"):
+                body["style_options"] = j["style_options"]
         if j.get("seed") is not None:
             body["seed"] = int(j["seed"])
     elif j.get("mode") == "skel_est":
