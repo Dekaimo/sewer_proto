@@ -8,6 +8,8 @@ import base64
 import io
 import json
 import os
+import subprocess
+import tempfile
 import time
 import urllib.request
 from datetime import datetime, timezone
@@ -31,6 +33,26 @@ def call(method: str, path: str, body=None):
 
 def b64img(path: str) -> dict:
     return {"type": "base64", "base64": base64.b64encode(Path(path).read_bytes()).decode(), "format": "png"}
+
+
+_TMP = tempfile.mkdtemp()
+
+
+def plain(pth: str, j: dict) -> str:
+    """鍵付きの参考画像（refs_enc/*.enc）を、作業用マシンの一時フォルダで元の画像に戻してそのパスを返す。
+    戻した画像はリポジトリにもログにも残さない。鍵はジョブの "key"（記録には残さない）。画質はそのまま（バイト単位で元と同じ）"""
+    if not pth.endswith(".enc"):
+        return pth
+    out = os.path.join(_TMP, os.path.basename(pth)[:-4])
+    subprocess.run(["openssl", "enc", "-d", "-aes-256-cbc", "-pbkdf2", "-iter", "200000",
+                    "-in", pth, "-out", out, "-pass", "env:REF_KEY"],
+                   check=True, env=dict(os.environ, REF_KEY=j["key"]))
+    return out
+
+
+def public(j: dict) -> dict:
+    """記録・ログに出す用（鍵を外す）"""
+    return {k: v for k, v in j.items() if k != "key"}
 
 
 def remaining() -> float:
@@ -104,6 +126,7 @@ def run_job(j: dict) -> None:
         # 高品質の1枚絵（Pro）。refs は [[パス, 使い方の説明], ...]
         path = "/generate-image-v2"
         def ref(pth, use):
+            pth = plain(pth, j)
             im = Image.open(pth)
             return {"image": b64img(pth), "size": {"width": im.width, "height": im.height}, "usage_description": use}
         body = {"description": j["desc"], "image_size": {"width": int(j.get("w", 256)), "height": int(j.get("h", 256))},
@@ -116,7 +139,7 @@ def run_job(j: dict) -> None:
         # 骨格の推定（すぐ返る）。keypoints.json に保存して終わり
         r = call("POST", "/estimate-skeleton", {"image": b64img(j["src"])})
         (out / "keypoints.json").write_text(json.dumps(r.get("keypoints"), indent=1))
-        (out / "info.json").write_text(json.dumps(dict(j, used=before - remaining()), indent=2, ensure_ascii=False))
+        (out / "info.json").write_text(json.dumps(dict(public(j), used=before - remaining()), indent=2, ensure_ascii=False))
         print(name, "keypoints", len(r.get("keypoints") or []))
         return
     elif j.get("mode") == "skel":
@@ -200,7 +223,7 @@ def run_job(j: dict) -> None:
             for c, f in enumerate(frames):
                 sheet.alpha_composite(f, (c * w, r * h))
         sheet.save(out / "sheet.png")
-    info = dict(j, generations_before=before, generations_after=after, used=before - after)
+    info = dict(public(j), generations_before=before, generations_after=after, used=before - after)
     (out / "info.json").write_text(json.dumps(info, indent=2, ensure_ascii=False))
     print(json.dumps(info, ensure_ascii=False))
 
@@ -210,6 +233,8 @@ def main() -> None:
     ev = os.environ.get("GITHUB_EVENT_PATH")
     jobs = json.loads(Path(ev).read_text())["inputs"]["jobs"] if ev and not os.environ.get("JOBS") else os.environ["JOBS"]
     for j in json.loads(jobs):
+        if j.get("key"):
+            print("::add-mask::" + j["key"])   # 念のため、万一ログに出ても伏せ字にする
         run_job(j)
 
 
