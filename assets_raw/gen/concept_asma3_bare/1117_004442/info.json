@@ -1,0 +1,21 @@
+{
+  "name": "concept_asma3_bare",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "refs": [
+    [
+      "assets_raw/gen/concept_asma2_bare/1117_002947/v1_00.png",
+      "same character colors and details: near-black charcoal fur, light blue horns and inner ears, forehead piercings, collar, smooth simple body with no anatomical details (but NOT its long snout, toothy grin or tall adult proportions)"
+    ],
+    [
+      "assets/cat_0.png",
+      "cute rounded proportions and soft line style to lean toward: big head, rounded shapes"
+    ]
+  ],
+  "desc": "A small cute chubby-muscular young dragon-boy, three-quarter view facing left, standing idle with a relaxed sly pose, full body standing on two feet, pixel art sprite. Big head with a large messy fluffy mane of hair and big pointed ears, SHORT small rounded snout with a small nose, small closed smirk, light blue eyes glancing sideways, two thin straight light blue horns with spiral grooves, two small silver studs on the forehead, near-black charcoal grey fur, light blue inner ears. Compact short body with soft rounded muscles (not bulky, not hard-edged), big round hands and big round feet, a very large fluffy curled tail almost as big as the body. No clothing: smooth simple body like a mannequin, no anatomical details. The character is about 70 percent of the image height with empty space above the head. Not made of goo, solid furry body. Clean dark outline, simple soft shading. Plain flat light grey background, no scenery, nothing else in the picture.",
+  "generations_before": 5688.8,
+  "generations_after": 5678.8,
+  "used": 10.0
+}
