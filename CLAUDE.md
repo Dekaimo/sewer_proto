@@ -19,7 +19,8 @@ Godot 4.3 の 2D ドット絵アクション。主人公（黒猫）が下水道
 - 出力：`assets_raw/gen/<名前>/<時刻>/v1_0N.png`（raw_ は背景つき）。mode：anim（src/last、8コマ）・editv2（src、白背景）・gen・skel
 - 後処理（毎コマ）：`tools/fill_holes.py 入力 raw 出力` → `tools/hue_fix.py`（色ずれ）→ `tools/fill_small_holes.py`
 - editv2 は白い所（白目など）が背景と一緒に抜けることがある → raw の色で戻す
-- 候補は数本作って、動き（何ドット動くか）・コマ間の差・ガタつきを数値で測って選ぶ。見せる前にゲームと同じ重ね方で合成して確認する。
+- **生成は1回ずつ**（`variants` は書かない＝1。gen なら4枚・15回分）。結果を見せて、方向が合ってから次を回す。2回以上まとめて回すのはユーザーが頼んだときだけ。回す前に消費回数を書く。
+- 1回分の候補の中から、動き（何ドット動くか）・コマ間の差・ガタつきを数値で測って選ぶ。見せる前にゲームと同じ重ね方で合成して確認する。
 
 ## 確認
 - Web：push で `web.yml` が書き出して https://dekaimo.github.io/sewer_proto/ に公開。ログの「SCRIPT ERROR / Parse Error」が 0 件か見る。
