@@ -1,0 +1,32 @@
+{
+  "name": "concept_asma12_style",
+  "mode": "gen",
+  "w": 160,
+  "h": 160,
+  "variants": 1,
+  "style": "assets_raw/gen/concept_asma8_face/1117_122420/v1_03.png",
+  "style_options": {
+    "color_palette": false,
+    "outline": true,
+    "detail": true,
+    "shading": true
+  },
+  "refs": [
+    [
+      "assets_raw/ref/asma/clean4.png",
+      "the character's head: copy the head, face, hair, horns and colors from this illustration, seen from this angle"
+    ],
+    [
+      "assets_raw/ref/asma/clean2.png",
+      "the same character: copy the face, tongue, piercings, collar and fur colors from this illustration"
+    ],
+    [
+      "assets_raw/ref/asma/body_nohead.png",
+      "body from the neck down: use this pose, body proportions, size and position in the frame. Draw the head on it."
+    ]
+  ],
+  "desc": "The character from the reference illustrations as a full body pixel art sprite, three-quarter view facing left, standing idle with one hand raised, same pose and size as the body reference. Smooth simple body like a mannequin. Plain flat light grey background, nothing else in the picture.",
+  "generations_before": 5557.8,
+  "generations_after": 5542.8,
+  "used": 15.0
+}
