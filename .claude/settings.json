@@ -31,5 +31,12 @@
         ]
       }
     ]
+  },
+  "permissions": {
+    "deny": [
+      "Read(./assets_raw/archive/**)",
+      "Glob(./assets_raw/archive/**)",
+      "Grep(./assets_raw/archive/**)"
+    ]
   }
 }

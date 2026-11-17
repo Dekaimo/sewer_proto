@@ -96,6 +96,10 @@ def remove_bg(im: Image.Image) -> Image.Image:
 
 def run_job(j: dict) -> None:
     name = j["name"]
+    # assets_raw/archive/ は失敗作の置き場。生成の参考・元の絵に使わない
+    used = json.dumps({k: v for k, v in j.items() if k not in ("desc", "name")})
+    if "assets_raw/archive" in used:
+        raise SystemExit(f"{name}: assets_raw/archive/ の絵は参考に使えません")
     stamp = datetime.now(timezone.utc).strftime("%m%d_%H%M%S")
     out = Path("assets_raw/gen") / name / stamp
     out.mkdir(parents=True, exist_ok=True)
