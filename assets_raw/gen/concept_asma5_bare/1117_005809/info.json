@@ -1,0 +1,21 @@
+{
+  "name": "concept_asma5_bare",
+  "mode": "gen",
+  "w": 160,
+  "h": 160,
+  "variants": 1,
+  "refs": [
+    [
+      "assets/cat_0.png",
+      "match exactly: head size (about 32 pixels from crown to chin), cute face style, pixel density, outline thickness and art style (not the hat, clothes or colors)"
+    ],
+    [
+      "assets_raw/gen/concept_asma4_bare/1117_005215/v1_00.png",
+      "same character colors and accessories: near-black charcoal fur, light blue horns and inner ears, forehead studs, collar, curled fluffy tail (but make the head smaller, hair smaller, legs human-like and body more muscular)"
+    ]
+  ],
+  "desc": "A short but very muscular young dragon-boy, about 3.5 heads tall, three-quarter view facing left, standing idle, full body, pixel art sprite. Small head exactly the same size as the reference cat's head. Cute face: short small rounded snout, tiny simple nose with no nostrils, small closed sly smile, light blue eyes glancing sideways. Big pointed ears with light blue insides, a modest tuft of messy hair (not voluminous), two thin straight light blue horns with spiral grooves, two tiny silver studs on the forehead, dark collar. Near-black charcoal grey fur with muscle shading in a lighter grey so the muscles read clearly. Very muscular body: thick arms, big chest, broad shoulders, flat stomach with clearly visible six-pack abs. Human-like legs: straight legs like a human, standing flat on the heels, not digitigrade animal legs; simple rounded feet. Big fluffy curled tail. No clothing: smooth simple body like a mannequin, no anatomical details. Not made of goo, solid furry body. Clean dark outline, simple shading, same pixel art style as the cat reference. Plain flat light grey background, no scenery, nothing else in the picture.",
+  "generations_before": 5663.8,
+  "generations_after": 5648.8,
+  "used": 15.0
+}
