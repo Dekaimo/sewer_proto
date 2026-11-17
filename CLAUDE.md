@@ -25,6 +25,7 @@ Godot 4.3 の 2D ドット絵アクション。主人公（黒猫）が下水道
 - 出力：`assets_raw/gen/<名前>/<時刻>/v1_0N.png`（raw_ は背景つき）。mode：anim（src/last、8コマ）・editv2（src、白背景）・gen・skel
 - 後処理（毎コマ）：`tools/fill_holes.py 入力 raw 出力` → `tools/hue_fix.py`（色ずれ）→ `tools/fill_small_holes.py`
 - editv2 は白い所（白目など）が背景と一緒に抜けることがある → raw の色で戻す
+- 公開したくない参考画像は鍵をかけて `refs_enc/<名前>.png.enc` に置く（`openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:REF_KEY`、元の画像のまま）。ジョブに `"key"` を入れ、refs に `.enc` のパスを書くと、作業用マシンの中だけで元に戻して渡す（記録・ログに鍵も画像も残らない）。鍵はプロジェクトの各キャラの仕様メモにある。元の画像そのものはリポジトリに置かない。
 - 1回分の候補の中から、動き（何ドット動くか）・コマ間の差・ガタつきを数値で測って選ぶ。見せる前にゲームと同じ重ね方で合成して確認する。
 
 ## 確認
