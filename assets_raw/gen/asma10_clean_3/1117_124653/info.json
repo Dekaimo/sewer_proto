@@ -1,0 +1,10 @@
+{
+  "name": "asma10_clean_3",
+  "mode": "edit",
+  "src": "assets_raw/gen/concept_asma10_pxref/1117_124252/v1_03.png",
+  "desc": "Clean this up into crisp hand-drawn pixel art without changing the design, pose, proportions or face: a clean dark outline around the silhouette and the head, smooth simple shading, remove noisy specks and blur. Keep the round snout with no nostrils, the half-lidded eyes, the light blue mouth, the crystal horns and the hair. Make the body fur the same purple-grey as the head.",
+  "variants": 1,
+  "generations_before": 5573.8,
+  "generations_after": 5572.8,
+  "used": 1.0
+}
