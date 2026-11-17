@@ -1,0 +1,30 @@
+{
+  "name": "asuma_idle",
+  "mode": "gen",
+  "w": 160,
+  "h": 160,
+  "desc": "Pixel art game sprite, side view, full body from horns to feet, standing idle pose facing left in three-quarter view. A short but very muscular anthro dragon man: dark charcoal grey fur, spiky fluffy cheek fur and messy hair fringe, large pointed ears with dark inner ear and small silver piercings, two light-blue translucent crystal horns of the same size with segment lines, light blue eyes with a half-lidded cocky look, two small silver stud piercings above one eyebrow, short rounded dragon muzzle with a smooth tip, small white fang, faint confident smirk with mouth closed, black collar with a silver buckle, broad shoulders, thick arms, big chest and abs, big fluffy dark tail, bare feet with claws, no clothes, smooth plain featureless lower body like a toy figure. Compact stocky proportions, about three heads tall, arms relaxed at his sides. Plain flat background, no other characters.",
+  "style": "assets/cat_0.png",
+  "refs": [
+    [
+      "inline:a_body",
+      "the character seen from behind: body build, fur color, ears with piercings, horns, collar, fluffy tail"
+    ],
+    [
+      "inline:a_front",
+      "the character face and chest from the front: eyes, horns, brow piercings, collar, muscles"
+    ],
+    [
+      "inline:a_face",
+      "the character head in side view: muzzle shape, fang, eye, horns, cheek fur"
+    ]
+  ],
+  "inline": [
+    "a_body",
+    "a_face",
+    "a_front"
+  ],
+  "generations_before": 5497.8,
+  "generations_after": 5482.8,
+  "used": 15.0
+}
