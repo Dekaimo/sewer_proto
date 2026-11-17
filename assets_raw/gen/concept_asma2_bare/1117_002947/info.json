@@ -1,0 +1,17 @@
+{
+  "name": "concept_asma2_bare",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "variants": 1,
+  "refs": [
+    [
+      "assets/dobe_hd_air_0.png",
+      "body style to match: smooth simple muscular body with no clothing and no anatomical details, like a mannequin (not the head or colors)"
+    ]
+  ],
+  "desc": "A short compact but very muscular young dragon-man, three-quarter view facing left, standing idle, full body standing on two feet, pixel art sprite. Near-black charcoal grey fur, dragon head with a long rounded dragon snout (not a wolf), wide grin with jagged zigzag sharp teeth, light blue eyes, two glowing light blue straight horns, pointed ears with light blue inner ears, small silver piercings on the ear and two small studs on the forehead, messy spiky hair, dark collar around the neck, broad shoulders and thick arms on a short body, fluffy tail. No stripes. Short stature: the character is small, about 70 percent of the image height, with empty space above the head. Not made of goo, solid furry body. No clothing: smooth simple body like a mannequin, no anatomical details, the lower body is plain smooth fur. Clean dark outline, simple shading, same pixel art style as the reference. Plain flat light grey background, no scenery, nothing else in the picture.",
+  "generations_before": 5698.8,
+  "generations_after": 5688.8,
+  "used": 10.0
+}
