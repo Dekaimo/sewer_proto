@@ -1,0 +1,29 @@
+{
+  "name": "kurei_idle",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "desc": "Pixel art game sprite, side view, full body from head to tail tip, standing idle pose on four legs facing left. A big, heavy, burly four-legged dragon with a glossy clay-like body: shiny teal skin with cream-yellow throat, chest, belly, and underside of the tail. A very large, round, heavy cream belly bulging low between the legs. Thick neck, long sturdy body, thick strong legs with big grey claws. Thick tail ending in a wide fin-shaped tip. Spiky blond hair that runs from the head down the neck and back like a mane, small salmon-pink triangular spikes along the back, short salmon-orange stripes on the snout, cheeks and front legs. Two dark grey horns at the back of the head, a large curved tan-brown horn arching forward over the eye, cream furry ears. Yellow eyes with white sclera and slit black pupils, half-lidded with a sly, mean, smug look, small white fang, the tip of an orange-brown tongue showing. Small blobs of teal and cream goo dripping from the belly, legs and tail tip onto the ground. Plain flat background, the dragon alone.",
+  "style": "assets/cat_0.png",
+  "refs": [
+    [
+      "refs_enc/kurei_face.png.enc",
+      "the character head and face in side view: half-lidded sly yellow eye, smug mean expression, horns, blond hair, snout shape, colors"
+    ],
+    [
+      "refs_enc/kurei_full.png.enc",
+      "the character full body: four-legged body shape, fin-tipped tail, legs and grey claws, dripping goo blobs; drawn cute and simplified, so make the body bulkier"
+    ],
+    [
+      "refs_enc/kurei_belly.png.enc",
+      "the dragon seen from the front: very large round cream belly and big grey claws"
+    ],
+    [
+      "refs_enc/kurei_body_back.png.enc",
+      "the dragon's massive glossy teal body and blond mane seen from behind"
+    ]
+  ],
+  "generations_before": 5437.8,
+  "generations_after": 5437.8,
+  "used": 0.0
+}
