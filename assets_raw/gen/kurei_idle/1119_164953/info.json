@@ -1,0 +1,21 @@
+{
+  "name": "kurei_idle",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "desc": "Pixel art game sprite, side view, full body from head to tail tip, standing still in a neutral idle pose facing left, all four feet planted flat on the ground, head held level in profile, looking straight ahead to the left in the walking direction. A big, heavy, burly four-legged dragon with a glossy wet clay-like body: shiny teal skin with strong highlights, cream-yellow throat, chest, belly, and underside of the tail. A fairly small head compared to the huge body. A smooth cream chest and a huge, round, heavy cream belly. Thick neck, long sturdy body, thick strong legs with big grey claws. Thick tail ending in a wide fin-shaped tip. Light, short blond hair: a few simple pointed tufts on top of the head and a thin mane running down the neck and back. Flat salmon-orange markings painted on the skin: triangle patterns on the back and shoulders, short stripes on the snout, cheeks and front legs. Two dark grey horns at the back of the head, a large curved tan-brown horn arching forward over the eye, cream furry ears. Large eyes with clearly visible white sclera, yellow iris, black slit pupil with a small white highlight, heavy half-lidded eyes with a mischievous, teasing, scheming look. The head is shaped like the face reference: a flat forehead and a long, flat snout that tapers gently to a smooth rounded tip, with a long, simple mouth line. The only details on the face are the eye, the mouth line and a small white fang at the corner of the closed mouth, which is curled up in a sly, mischievous smirk. Thick glossy drips of teal and cream goo running down the belly, legs and tail tip, with small puddles on the ground. Plain flat background, the dragon alone.",
+  "style": "assets/wani_idle.png",
+  "refs": [
+    [
+      "refs_enc/kurei_face.png.enc",
+      "draw the face in the same simple, clean anime style as this drawing - head shape with a flat top and long flat snout, large eyes with clear white sclera, heavy half-lidded mischievous look, light spiky hair; the snout is plain and clean; the head should be drawn a bit smaller relative to the body than here"
+    ],
+    [
+      "refs_enc/kurei_full.png.enc",
+      "design reference only for the body: four-legged body, fin-tipped tail, claws, dripping goo; do not copy its pose; the drawing is cute and simplified, so make the body bulkier"
+    ]
+  ],
+  "generations_before": 5397.8,
+  "generations_after": 5387.8,
+  "used": 10.0
+}
