@@ -1,0 +1,10 @@
+{
+  "name": "kurei_look_down",
+  "mode": "anim",
+  "src": "assets_raw/gen/kurei_idle/1119_180018/clean.png",
+  "frames": 4,
+  "desc": "The big teal clay dragon stands perfectly still and only its eyes move: the half-lidded eyes slowly look down at the ground in front of it, the black pupils moving to the lower left of the eye whites. The body, head, hair, horns, mouth, tail and everything else stay exactly the same in every frame.",
+  "generations_before": 5337.8,
+  "generations_after": 5336.8,
+  "used": 1.0
+}
