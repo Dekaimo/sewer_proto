@@ -1,0 +1,21 @@
+{
+  "name": "kurei_idle",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "desc": "Pixel art game sprite, side view, full body from head to tail tip, standing still in a neutral idle pose facing left, all four feet planted flat on the ground, head held level in profile, looking straight ahead to the left in the walking direction. A big, heavy, burly four-legged dragon with a glossy wet clay-like body: shiny teal skin with strong highlights, cream-yellow throat, chest, belly, and underside of the tail. The body build, proportions, legs, belly and tail are exactly like the body reference: a long sturdy body, strong legs with big grey claws, a smooth cream chest and belly, and a thick tail that curves back and down to a wide fin-shaped tip. A fairly small head compared to the body. Blond hair with long, spiky bangs that fall forward over the forehead and hang down in front of the eye to the cheek, a few pointed tufts on top, and a thin mane running down the neck and back; the hair lies flat and is not puffy. Flat salmon-orange markings painted on the skin: triangle patterns on the back and shoulders, short stripes on the snout, cheeks and front legs. Two dark grey horns at the back of the head, a large curved tan-brown horn growing from the side of the head and curving forward over the top of the eye like the brim of a cap, cream furry ears. Large eyes with clearly visible white sclera, yellow iris, black slit pupil with a small white highlight, heavy half-lidded eyes with a mischievous, teasing, scheming look. The head is shaped like the face reference: a flat forehead and a long, flat snout that tapers gently to a smooth rounded tip, with a long, simple mouth line. The only details on the face are the eye, the mouth line and a small white fang at the corner of the closed mouth, which is curled up in a sly, mischievous smirk. Thick glossy drips of teal and cream goo running down the belly, legs and tail tip, with small puddles on the ground. Plain flat background, the dragon alone.",
+  "style": "assets/wani_idle.png",
+  "refs": [
+    [
+      "refs_enc/kurei_face.png.enc",
+      "draw the face in the same simple, clean anime style as this drawing - head shape with a flat top and long flat snout, large eyes with clear white sclera, heavy half-lidded mischievous look, light spiky hair; the snout is plain and clean; the head should be drawn a bit smaller relative to the body than here"
+    ],
+    [
+      "assets_raw/gen/kurei_idle/1119_164953/clean.png",
+      "body reference: copy this body build, proportions, legs, belly, tail shape and pose closely; draw the head and hair as described in the text and in the face reference instead of this head"
+    ]
+  ],
+  "generations_before": 5367.8,
+  "generations_after": 5357.8,
+  "used": 10.0
+}
