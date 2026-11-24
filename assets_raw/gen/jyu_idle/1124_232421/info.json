@@ -1,0 +1,25 @@
+{
+  "name": "jyu_idle",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "style": "assets/wani_idle.png",
+  "desc": "Pixel art game sprite of a huge, heavy, burly paint monster shaped like a bear man, exactly the character in the front and side view references: brown paint body with large cream marble blotches, very broad shoulders, thick arms, a big round belly, thick legs, small round ears, a short spiky cream tuft of hair on top, a cream muzzle, a round glossy black nose, the space between the nose and the mouth plain smooth cream, thick dark eyebrows, half-lidded stern eyes, the mouth slightly open with small fangs, cream paint dripping from the mouth and chin, paint dripping from the hands, straight human-shaped legs with bare human feet and small paint puddles at the feet, arms hanging at his sides. Three-quarter view facing left, standing idle pose. Same pixel art style and size as the reference crocodile sprite: dark outline, glossy highlights, drips.",
+  "refs": [
+    [
+      "refs_enc/jyu_sheet_front.png.enc",
+      "character design, front view"
+    ],
+    [
+      "refs_enc/jyu_sheet_side.png.enc",
+      "character design, side view"
+    ],
+    [
+      "refs_enc/jyu_dr1.png.enc",
+      "facial expression and head shape"
+    ]
+  ],
+  "generations_before": 5267.8,
+  "generations_after": 5257.8,
+  "used": 10.0
+}
