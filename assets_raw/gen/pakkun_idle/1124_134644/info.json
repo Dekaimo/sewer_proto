@@ -1,0 +1,17 @@
+{
+  "name": "pakkun_idle",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "style": "assets/wani_idle.png",
+  "desc": "Pixel art game sprite, side view, a huge monster made of thick glossy brown paint rising out of a wide, lumpy puddle of the same paint on the floor. From the middle of the puddle a long, thick neck of flowing paint curves up and forward to the left, ending in a big round head that is mostly one huge gaping mouth with thick, puffy, fleshy lips around its rim, like a giant goopy bowl tipped toward the left. Brown and cream paint pours and drips heavily out of the mouth and runs back down the neck into the puddle. Rich chocolate-brown paint with wide swirling cream-white marble streaks and a few thin golden streaks, strong wet highlights, bubbles on the puddle surface. Slimy and disgusting yet a little comical, a living sludge monster. Plain flat background, the monster alone.",
+  "refs": [
+    [
+      "refs_enc/pakkun_brown.png.enc",
+      "shape and silhouette: a wide paint puddle, a long curved neck of flowing paint, a round head with a thick rim around a big open mouth, paint pouring out; the glossy brown and cream marble swirls; draw it as pixel art, facing left"
+    ]
+  ],
+  "generations_before": 5326.8,
+  "generations_after": 5316.8,
+  "used": 10.0
+}

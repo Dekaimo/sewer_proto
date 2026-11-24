@@ -1,0 +1,25 @@
+{
+  "name": "tora_idle",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "style": "assets/wani_idle.png",
+  "desc": "Pixel art game sprite, side view, full body from ears to feet, standing idle pose facing left in three-quarter view. A big, very muscular anthro tiger man whose whole body is made of thick glossy brown paint: rich chocolate-brown body with wide swirling cream-white marble streaks and a few thin golden streaks, strong wet highlights, thick paint drips running down from the chin, arms, belly and legs. His tiger features stay in paint form: pointed ears with fur tufts, big fluffy cheek ruffs sticking out to the sides, darker stripe marks on the forehead, thick dark eyebrows, brown eyes with white sclera, a small dark nose and a short muzzle. A calm, cocky, self-satisfied look with a thin closed-mouth smirk, the corners of the mouth slightly raised. Broad shoulders, thick arms, a big chest and defined abs, a heavy powerful build like the body reference. One hand resting on his hip, the other arm relaxed at his side. He stands firmly on two straight human-shaped legs with bare human feet, both legs fully formed and separate down to the feet, the lower body smooth and covered in the same marbled paint, with small drips and a little splash of paint at his feet. A striped tail with a dark tip, also made of paint. Plain flat background, the character alone.",
+  "refs": [
+    [
+      "refs_enc/tora_dr1.png.enc",
+      "the character as he appears in the game, made of brown paint: face, expression, head shape, ears, cheek fur, eyebrows, forehead stripes, colors and marble pattern, hand-on-hip pose"
+    ],
+    [
+      "refs_enc/tora_dr2.png.enc",
+      "how his brown paint looks: glossy cream and brown swirls, thin golden streaks, thick drips falling from the body"
+    ],
+    [
+      "refs_enc/tora_body4.png.enc",
+      "body build and proportions only: muscle size, shoulders, arms, chest and belly; take the shape, not the colors or the face"
+    ]
+  ],
+  "generations_before": 5336.8,
+  "generations_after": 5326.8,
+  "used": 10.0
+}
