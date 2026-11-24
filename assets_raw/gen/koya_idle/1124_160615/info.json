@@ -1,0 +1,25 @@
+{
+  "name": "koya_idle",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "style": "assets/wani_idle.png",
+  "desc": "Pixel art game sprite of a slim, lean-muscled paint monster shaped like a dog man, exactly the character in the front and side view references: brown paint body with broad diagonal cream bands, a thin golden ring mark on the upper arm, paint dripping from the chin, neck, arms, hands and tail, pointed ears, messy spiky brown hair with long bangs falling over one eye and a cream streak in the bangs, yellow eyes, black nose, sly closed-mouth smirk, cream and brown paint drips running from the chin down the neck, a bushy brown tail with cream streaks, straight human-shaped legs with bare human feet, arms hanging relaxed at his sides. Three-quarter view facing left, standing idle pose. Same pixel art style and size as the reference crocodile sprite: dark outline, glossy highlights, drips.",
+  "refs": [
+    [
+      "refs_enc/koya_sheet_front.png.enc",
+      "character design, front view"
+    ],
+    [
+      "refs_enc/koya_sheet_side.png.enc",
+      "character design, side view"
+    ],
+    [
+      "refs_enc/koya_dr1.png.enc",
+      "facial expression and head shape"
+    ]
+  ],
+  "generations_before": 5296.8,
+  "generations_after": 5286.8,
+  "used": 10.0
+}
