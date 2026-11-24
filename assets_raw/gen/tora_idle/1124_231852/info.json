@@ -1,0 +1,25 @@
+{
+  "name": "tora_idle",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "style": "assets/wani_idle.png",
+  "desc": "Pixel art game sprite of a big muscular paint monster shaped like a tiger man, exactly the character in the front and side view references: brown paint body with broad diagonal cream bands and a few thin golden streaks, paint dripping from the arms, thighs and tail, pointed ears with light inner fur, short spiky brown hair, light cheek fur, thick dark eyebrows, a dark mark on the forehead, brown eyes, a wide, flat dark brown nose that is much wider than it is tall, with an almost straight top edge, the underside curving in from both sides to a short soft point, and two small nostrils at its lower corners, the space between the nose and the mouth plain smooth brown, calm closed-mouth smile, a long thick tail with a cream band, straight human-shaped legs with bare human feet, arms hanging relaxed at his sides. Three-quarter view facing left, standing idle pose. Same pixel art style and size as the reference crocodile sprite: dark outline, glossy highlights, drips.",
+  "refs": [
+    [
+      "refs_enc/tora_sheet_front.png.enc",
+      "character design, front view"
+    ],
+    [
+      "refs_enc/tora_sheet_side.png.enc",
+      "character design, side view"
+    ],
+    [
+      "refs_enc/tora_dr1.png.enc",
+      "facial expression and head shape"
+    ]
+  ],
+  "generations_before": 5277.8,
+  "generations_after": 5267.8,
+  "used": 10.0
+}
