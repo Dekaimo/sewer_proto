@@ -1,0 +1,10 @@
+{
+  "name": "tora_nose",
+  "mode": "inpaint",
+  "src": "assets_raw/gen/tora_idle/1124_154819/nolip.png",
+  "mask": "assets_raw/masks/tora_nose.png",
+  "desc": "the nose at the tip of the snout: a wide, flat dark brown nose, much wider than it is tall, with an almost straight top edge, the underside curving in from both sides to a short, soft point in the middle, and two small nostrils at its lower corners; the snout around it stays plain smooth brown paint",
+  "generations_before": 5286.8,
+  "generations_after": 5277.8,
+  "used": 9.0
+}
