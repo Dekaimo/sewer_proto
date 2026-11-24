@@ -174,6 +174,12 @@ def run_job(j: dict) -> None:
             body["reference_image"] = {"image": b64img(j["ref"]), "width": r.width, "height": r.height}
         if j.get("desc"):
             body["description"] = j["desc"]
+    elif j.get("mode") == "inpaint":
+        # 1枚の決めた範囲だけ描き直す（Pro Flash）。mask は src と同じ大きさの白黒PNG（白＝描き直す）。範囲の外の画素はそのまま
+        path = "/inpaint-image-pro-flash"
+        body = {"image": b64img(j["src"]), "mask_image": b64img(j["mask"]), "description": j["desc"]}
+        if j.get("seed") is not None:
+            body["seed"] = int(j["seed"])
     elif j.get("mode", "anim") == "edit":
         path = "/edit-image-pixen"
         body = {"image": b64img(j["src"]), "description": j["desc"], "no_background": False}
@@ -206,7 +212,8 @@ def run_job(j: dict) -> None:
         lr = st["last_response"] or {}
         imgs = lr.get("images") or ([lr["image"]] if lr.get("image") else [])
         raw = [decode(i) for i in imgs]
-        frames = [remove_bg(f.copy()) for f in raw]
+        # inpaint は元の透明をそのまま返すので背景抜きをしない（抜くと鼻などの暗い所が穴になるおそれ）
+        frames = [f.copy() for f in raw] if j.get("mode") == "inpaint" else [remove_bg(f.copy()) for f in raw]
         for i, f in enumerate(frames):
             f.save(out / f"v{v + 1}_{i:02d}.png")
             raw[i].save(out / f"raw_v{v + 1}_{i:02d}.png")   # 背景つきの元（確認用）
