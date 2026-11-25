@@ -1,0 +1,24 @@
+{
+  "name": "hira_idle",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "desc": "Pixel art game sprite of a very tall, extremely muscular horse man made entirely of glossy brown paint. His head and face are exactly the face reference: a long horse head with a long muzzle, large dark nostrils at the end of the muzzle, upright pointed ears, brown eyes under thin eyebrows, a mane of many thin pointed spikes standing up and out from the top of the head. The mane is brown and cream paint with thin dripping strands like the front and side view references, not pink. There is no line between the nostrils and the mouth. He has a sly, cheeky smirking grin. He wears nothing: no necklace, no armband, no wristband. His body, legs, feet and paint pattern are exactly the front and side view references: a huge chest, very broad shoulders, big thick arms, defined abs, thick straight legs with bare human feet, brown paint with random messy cream swirls that also fall across the face, paint dripping from the mane, chin and hands. His whole body is turned three-quarters to the left like the side view reference, chest facing the lower left, the far shoulder and arm partly hidden behind the body, standing idle pose with arms hanging at his sides. Clean pixel art game sprite style: dark outline, glossy highlights, drips. Plain flat light gray background, the character alone.",
+  "refs": [
+    [
+      "refs_enc/hira_pre1_head.png.enc",
+      "character design: head and face shape (eyes, eyebrows, nose, nostrils, ears, mane shape), ignore its colors"
+    ],
+    [
+      "refs_enc/hira_sheet_front.png.enc",
+      "body, legs, feet and paint pattern only, front view"
+    ],
+    [
+      "refs_enc/hira_sheet_side_left.png.enc",
+      "body, legs, feet and paint pattern, the body turned to the left"
+    ]
+  ],
+  "generations_before": 5147.8,
+  "generations_after": 5137.8,
+  "used": 10.0
+}
