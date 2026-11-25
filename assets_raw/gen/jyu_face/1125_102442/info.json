@@ -1,0 +1,9 @@
+{
+  "name": "jyu_face",
+  "mode": "editv2",
+  "src": "assets_raw/gen/jyu_idle/1125_013037/nolip.png",
+  "desc": "brown paint bear man, same image. Keep the head shape, the thick angular black eyebrows, the grumpy closed mouth, the muzzle, the nose, the ears, the body, the pose, the colors and the size exactly as they are. Change only the eyes and the face surface: each eye keeps a human-like half-lidded almond shape with an upper eyelid line and a dark brown iris, but the part around the iris is the same brown as the face paint instead of white; the face looks wet like fresh paint, with a bright glossy shine on the nose, a few soft wet highlights on the muzzle and brow, and paint dripping from the mouth and chin.",
+  "generations_before": 5157.8,
+  "generations_after": 5147.8,
+  "used": 10.0
+}
