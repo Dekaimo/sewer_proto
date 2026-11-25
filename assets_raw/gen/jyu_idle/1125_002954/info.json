@@ -1,0 +1,28 @@
+{
+  "name": "jyu_idle",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "desc": "Pixel art game sprite of a huge, heavy, burly paint monster shaped like a bear man, with the body exactly like the front and side view references and the face and head shape exactly like the face reference. His whole body, face included, is made of glossy brown paint; the cream color lies in random, messy splotches and smears with ragged edges, wherever the paint happened to fall, as in the references. Very broad shoulders, thick arms, a big round belly, thick legs, a squarish, compact head with small round ears, short spiky hair made of the same brown paint, a short boxy muzzle, a small oval black nose, the space between the nose and the mouth plain smooth paint, thick angular black eyebrows, small dark eyes, a grumpy stern look, the mouth slightly open with small fangs, paint dripping from the mouth, chin and hands, straight human-shaped legs with bare human feet and small paint puddles at the feet, arms hanging at his sides. Three-quarter view facing left, standing idle pose. Clean pixel art game sprite style: dark outline, glossy highlights, drips. Plain flat light gray background, the character alone.",
+  "refs": [
+    [
+      "refs_enc/jyu_sheet_front.png.enc",
+      "character design, front view"
+    ],
+    [
+      "refs_enc/jyu_sheet_side.png.enc",
+      "character design, side view"
+    ],
+    [
+      "refs_enc/jyu_pre3_head.png.enc",
+      "face and head shape only: squarish head, short boxy muzzle, small oval nose, small dark eyes, thick angular eyebrows, grumpy look; take only the shapes, the colors come from the other references"
+    ],
+    [
+      "assets_raw/gen/jyu_idle/1125_001352/mirror.png",
+      "pose, facing direction, body build and colors of this sprite; draw a new face and head from the face reference"
+    ]
+  ],
+  "generations_before": 5207.8,
+  "generations_after": 5197.8,
+  "used": 10.0
+}
