@@ -1,0 +1,24 @@
+{
+  "name": "jyu_idle",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "desc": "Pixel art game sprite of a huge, heavy bear man made entirely of glossy brown paint. His head and face are exactly the face reference: a squarish head with small round ears and short brown hair, a short boxy muzzle, a small black nose, plain smooth paint between the nose and the mouth, small dark eyes under thick angular black eyebrows, a grumpy stern look, the mouth closed in a short flat line. His body, legs, feet and paint pattern are exactly the front and side view references: very broad shoulders, thick arms, a big round belly, thick straight legs with bare human feet, brown paint with random messy cream splotches that also fall across the face, paint dripping from the chin and hands. Three-quarter view facing left, standing idle pose with arms hanging at his sides. Clean pixel art game sprite style: dark outline, glossy highlights, drips. Plain flat light gray background, the character alone.",
+  "refs": [
+    [
+      "refs_enc/jyu_pre3_head.png.enc",
+      "character design: head and face (shape, eyes, eyebrows, nose, mouth, ears, hair)"
+    ],
+    [
+      "refs_enc/jyu_sheet_front.png.enc",
+      "body, legs, feet and paint pattern only, front view"
+    ],
+    [
+      "refs_enc/jyu_sheet_side.png.enc",
+      "body, legs, feet and paint pattern only, side view"
+    ]
+  ],
+  "generations_before": 5197.8,
+  "generations_after": 5187.8,
+  "used": 10.0
+}
