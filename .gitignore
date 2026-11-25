@@ -2,3 +2,6 @@
 build/
 /godot
 __pycache__/
+# PC にだけ置く仕様の本体（参考画像の鍵を含む）と、チャットから移した元の画像
+docs_local/
+chat_uploads/
