@@ -1,0 +1,13 @@
+{
+  "name": "anim_koya_riseX",
+  "mode": "anim",
+  "src": "assets_raw/keys/koya_lump4.png",
+  "last": "assets_raw/keys/koya_pose2.png",
+  "frames": 16,
+  "direction": "west",
+  "subject": "a slim, lean-muscled handsome dog man made of glossy brown paint with broad diagonal cream bands and a bushy tail",
+  "desc": "One quick, smooth, continuous motion without pauses: he rises out of the slim paint column in one sleek upward sweep, the goo sliding off his lean body, his head tilts back with the mouth open and sticky strings for a moment, then he straightens, the legs pull out of the puddle, and he pushes his long bangs back with his hand, flicking drops of paint, with a sly sideways glance and a closed-mouth smirk. Sleek, quick, sticky, viscous paint.",
+  "generations_before": 4708.7,
+  "generations_after": 4706.7,
+  "used": 2.0
+}
