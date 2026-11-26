@@ -1,0 +1,28 @@
+{
+  "name": "koya_idle",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "desc": "Pixel art game sprite of a slim, lean-muscled paint monster shaped like a dog man, the shortest and slimmest of his group. His head and face are exactly the face reference: pointed ears, messy spiky brown hair with long bangs falling over one eye and a cream streak in the bangs, yellow eyes, black nose, a sly closed-mouth smirk. There is no line between the nose and the mouth. His body, legs, feet and paint pattern are exactly the front and side view references, and his size and proportions are exactly the gray mannequin reference: brown paint body with broad diagonal cream bands, a thin golden ring mark on the upper arm, paint dripping from the chin, neck, arms, hands and tail, cream and brown paint drips running from the chin down the neck, a bushy brown tail with cream streaks, a slim lean-muscled body, straight human-shaped legs with bare human feet. His whole body is turned three-quarters to the left, chest facing the lower left, standing idle pose with arms hanging relaxed at his sides. Clean pixel art game sprite style: dark outline, glossy highlights, drips. Plain flat light gray background, the character alone.",
+  "refs": [
+    [
+      "refs_enc/koya_dr1.png.enc",
+      "facial expression and head shape: the face, eyes, hair with bangs over one eye, ears and smirk"
+    ],
+    [
+      "refs_enc/koya_sheet_front.png.enc",
+      "body, legs, feet and paint pattern only, front view"
+    ],
+    [
+      "refs_enc/koya_sheet_side.png.enc",
+      "body, legs, feet and paint pattern, the body turned to the left"
+    ],
+    [
+      "assets_raw/guides/koya_size_guide.png",
+      "size, body proportions and pose only: a plain gray mannequin turned three-quarters to the left; ignore its colors and its simple shapes"
+    ]
+  ],
+  "generations_before": 5081.7,
+  "generations_after": 5071.7,
+  "used": 10.0
+}
