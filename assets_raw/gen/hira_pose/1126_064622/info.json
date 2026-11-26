@@ -1,0 +1,9 @@
+{
+  "name": "hira_pose",
+  "mode": "editv2",
+  "src": "assets_raw/gen/hira_idle/1126_002929/eye_ochre.png",
+  "desc": "Same character, same size, same three-quarter view facing left. New pose: he raises one clenched fist up in front of his chest and grins widely showing his teeth, the other arm relaxed at his side, standing with both feet planted, a cocky goofy pose. Keep the exact same head, face, body, colors, cream pattern, outline and pixel art style; change only the arms.",
+  "generations_before": 4978.7,
+  "generations_after": 4968.7,
+  "used": 10.0
+}
