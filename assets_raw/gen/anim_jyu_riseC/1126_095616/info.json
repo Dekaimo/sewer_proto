@@ -1,0 +1,13 @@
+{
+  "name": "anim_jyu_riseC",
+  "mode": "anim",
+  "src": "assets_raw/keys/jyu_gooface2.png",
+  "last": "assets_raw/keys/jyu_pose.png",
+  "frames": 12,
+  "direction": "west",
+  "subject": "a huge, heavy bear man made of glossy brown paint with messy cream splotches and a big round belly",
+  "desc": "The head slowly lowers from looking up to looking straight ahead and the gaping mouth closes into the grumpy closed mouth, the sticky strings snapping and dripping. The nose and the mouth take shape first, then the small round ears and the thick eyebrows pull up out of the paint, and the eyes open last. At the same time the melted body firms up, the legs pull out of the puddle into straight human legs with bare feet, and he crosses his thick arms over his chest. Slow, sticky, viscous, dripping. It ends exactly in the pose of the last frame.",
+  "generations_before": 4841.7,
+  "generations_after": 4839.7,
+  "used": 2.0
+}
