@@ -1,0 +1,13 @@
+{
+  "name": "anim_hira_riseX",
+  "mode": "anim",
+  "src": "assets_raw/keys/hira_lump4.png",
+  "last": "assets_raw/keys/hira_pose2.png",
+  "frames": 16,
+  "direction": "west",
+  "subject": "a very tall, extremely muscular horse man made of glossy brown paint with messy cream swirls",
+  "desc": "One fast continuous motion without pauses: he bursts up out of the paint mound with energy, the goo flinging off his huge muscles in thick splashing strands, his head pops up thrown back with the mouth gaping open and sticky strings between the teeth for a moment, then he snaps his head forward with a goofy toothy grin, the legs pull out of the puddle, and he bends his arm to flex a huge bicep. Thick, sticky, viscous paint, energetic and comical.",
+  "generations_before": 4712.7,
+  "generations_after": 4710.7,
+  "used": 2.0
+}
