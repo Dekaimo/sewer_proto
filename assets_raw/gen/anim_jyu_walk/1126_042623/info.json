@@ -1,0 +1,13 @@
+{
+  "name": "anim_jyu_walk",
+  "mode": "anim",
+  "src": "assets_raw/keys/jyu_walk_key.png",
+  "last": "assets_raw/keys/jyu_walk_key.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge, heavy bear man made of glossy brown paint with messy cream splotches, a big round belly, a grumpy face with the mouth closed, straight thick human legs with bare human feet",
+  "desc": "A slow, heavy, lumbering walk: a full walk cycle in place that starts and ends in this exact mid-stride pose, with two clear steps: from this pose the back leg swings forward past the front leg and plants its foot in front while the other leg goes behind, then that leg swings forward again and the pose returns to the start. Clear strides with the feet apart, the legs pass each other only once per step. The opposite arm swings forward with each step, the body bobs 2 or 3 pixels up and down, the big belly jiggles. Same view and same body width as this pose. The body does not move across the frame. The face keeps the same grumpy stern look with the mouth closed. Thick, sticky, viscous paint.",
+  "generations_before": 5082.7,
+  "generations_after": 5081.7,
+  "used": 1.0
+}
