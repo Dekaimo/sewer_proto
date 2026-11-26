@@ -1,0 +1,12 @@
+{
+  "name": "anim_koya_walk",
+  "mode": "anim",
+  "src": "assets_raw/gen/koya_idle/1124_160615/eye_a.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a slim, lean-muscled dog man made of glossy brown paint with broad diagonal cream bands, messy spiky brown hair with long bangs over one eye, yellow eyes, a sly closed-mouth smirk, a bushy brown tail with cream streaks, straight human legs with bare human feet",
+  "desc": "A full walk cycle in place with two clear steps, keeping the same three-quarter view as the first frame: the body never turns sideways. Clear strides with the feet well apart: first the near leg swings forward and plants its foot in front while the far leg pushes off behind, then the legs pass each other, then the far leg swings forward and plants in front while the near leg is behind, then they pass again. The legs never cross. The opposite arm swings forward with each step, the body bobs 2 or 3 pixels up and down, the hair and the bushy tail bounce. The body does not move across the frame. The face keeps the same sly closed-mouth smirk. Thick, sticky, viscous paint.",
+  "generations_before": 5090.8,
+  "generations_after": 5089.8,
+  "used": 1.0
+}
