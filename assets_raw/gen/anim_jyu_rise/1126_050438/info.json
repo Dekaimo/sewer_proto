@@ -1,0 +1,13 @@
+{
+  "name": "anim_jyu_rise",
+  "mode": "anim",
+  "src": "assets_raw/keys/jyu_puddle.png",
+  "last": "assets_raw/keys/jyu_faceless.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge, heavy bear man made of glossy brown paint with messy cream splotches and a big round belly",
+  "desc": "A flat brown paint puddle slowly and stickily rises: the middle bulges up into a lump, thick viscous paint stretches upward with sticky strands, the lump swells into a faceless paint humanoid, the arms peel away from the sides and droop down, everything sagging and dripping heavily. No face, no ears, the head is just a smooth dripping blob.",
+  "generations_before": 5006.7,
+  "generations_after": 5005.7,
+  "used": 1.0
+}
