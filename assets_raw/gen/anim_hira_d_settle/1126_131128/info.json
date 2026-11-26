@@ -1,0 +1,13 @@
+{
+  "name": "anim_hira_d_settle",
+  "mode": "anim",
+  "src": "assets_raw/keys/hira_pose_goo.png",
+  "last": "assets_raw/gen/hira_idle/1126_002929/eye_ochre.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a very tall, extremely muscular horse man made of glossy brown paint with messy cream swirls",
+  "desc": "He lowers his hand back down to his side, the sticky strands snapping and dripping, and at the same time the goo column below his waist pulls up and firms into straight human legs with bare feet standing in the puddle, ending in the calm standing pose. The face keeps the same grin. Slow, sticky, viscous.",
+  "generations_before": 4692.7,
+  "generations_after": 4691.7,
+  "used": 1.0
+}
