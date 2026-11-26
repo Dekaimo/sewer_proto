@@ -1,0 +1,13 @@
+{
+  "name": "anim_hira_riseA",
+  "mode": "anim",
+  "src": "assets_raw/keys/hira_puddle.png",
+  "last": "assets_raw/keys/hira_lump4.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a very tall, extremely muscular horse man made of glossy brown paint with messy cream swirls",
+  "desc": "The flat brown paint puddle heaves and squelches up into a thick shapeless mound: thick paint swells and wells up, bubbles bulge and pop, sticky strands stretch and sag, heavy drips run down. Only goo, no body parts. Slow, heavy, sticky, viscous, gooey.",
+  "generations_before": 4753.7,
+  "generations_after": 4752.7,
+  "used": 1.0
+}
