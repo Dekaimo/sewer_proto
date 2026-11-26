@@ -1,0 +1,13 @@
+{
+  "name": "anim_jyu_riseA",
+  "mode": "anim",
+  "src": "assets_raw/keys/jyu_puddle.png",
+  "last": "assets_raw/keys/jyu_lump5.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge, heavy bear man made of glossy brown paint with messy cream splotches and a big round belly",
+  "desc": "The flat brown paint puddle heaves and squelches up into a thick shapeless mound: thick paint swells and wells up, bubbles bulge and pop, sticky strands stretch and sag, heavy drips run down. Only goo, no body parts. Slow, heavy, sticky, viscous, gooey.",
+  "generations_before": 4734.7,
+  "generations_after": 4733.7,
+  "used": 1.0
+}
