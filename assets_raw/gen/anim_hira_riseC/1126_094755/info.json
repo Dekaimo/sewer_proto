@@ -1,0 +1,13 @@
+{
+  "name": "anim_hira_riseC",
+  "mode": "anim",
+  "src": "assets_raw/keys/hira_gooface2.png",
+  "last": "assets_raw/keys/hira_pose.png",
+  "frames": 12,
+  "direction": "west",
+  "subject": "a very tall, extremely muscular horse man made of glossy brown paint with messy cream swirls",
+  "desc": "The head slowly lowers from looking up to looking straight ahead and the gaping mouth closes into a big toothy grin, the sticky strings snapping and dripping. The nose and the mouth take shape first, then the upright ears and the spiky dripping mane pull up out of the paint, and the eyes open last. At the same time the melted body firms up, the legs pull out of the puddle into straight human legs with bare feet, and he raises one clenched fist up in front of his chest. Slow, sticky, viscous, dripping. It ends exactly in the pose of the last frame.",
+  "generations_before": 4846.7,
+  "generations_after": 4844.7,
+  "used": 2.0
+}
