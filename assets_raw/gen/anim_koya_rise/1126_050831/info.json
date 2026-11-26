@@ -1,0 +1,13 @@
+{
+  "name": "anim_koya_rise",
+  "mode": "anim",
+  "src": "assets_raw/keys/koya_puddle.png",
+  "last": "assets_raw/keys/koya_faceless.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a slim, lean-muscled dog man made of glossy brown paint with broad diagonal cream bands and a bushy tail",
+  "desc": "A flat brown paint puddle slowly and stickily rises: the middle bulges up into a lump, thick viscous paint stretches upward with sticky strands, the lump swells into a faceless paint humanoid, the arms peel away from the sides and droop down, everything sagging and dripping heavily. No face, no ears, the head is just a smooth dripping blob.",
+  "generations_before": 5004.7,
+  "generations_after": 5004.7,
+  "used": 0.0
+}
