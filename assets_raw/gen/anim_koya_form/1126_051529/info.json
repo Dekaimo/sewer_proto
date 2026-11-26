@@ -1,0 +1,13 @@
+{
+  "name": "anim_koya_form",
+  "mode": "anim",
+  "src": "assets_raw/keys/koya_faceless.png",
+  "last": "assets_raw/gen/koya_idle/1126_043730/eye_ochre.png",
+  "frames": 12,
+  "direction": "west",
+  "subject": "a slim, lean-muscled dog man made of glossy brown paint with broad diagonal cream bands and a bushy tail",
+  "desc": "The faceless paint humanoid finishes forming: the legs pull up out of the puddle into straight human legs with bare feet, the head blob stretches into a dog muzzle, the pointed ears and the spiky hair with long bangs pull up out of the paint, the mouth forms a sly closed-mouth smirk, and the eyes open last. Slow, sticky, viscous, dripping. The head takes shape gradually and evenly across all the frames, a little more in each frame, not all at once. It ends exactly in the standing pose of the last frame. The bushy tail stays visible behind him in every frame.",
+  "generations_before": 5000.7,
+  "generations_after": 4998.7,
+  "used": 2.0
+}
