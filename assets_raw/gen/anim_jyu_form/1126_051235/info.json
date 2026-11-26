@@ -1,0 +1,13 @@
+{
+  "name": "anim_jyu_form",
+  "mode": "anim",
+  "src": "assets_raw/keys/jyu_faceless.png",
+  "last": "assets_raw/gen/jyu_idle/1125_013037/ochre_half.png",
+  "frames": 12,
+  "direction": "west",
+  "subject": "a huge, heavy bear man made of glossy brown paint with messy cream splotches and a big round belly",
+  "desc": "The faceless paint humanoid finishes forming: the legs pull up out of the puddle into straight human legs with bare feet, the head blob takes the shape of a squarish bear head, the small round ears pull up out of the paint, the short boxy muzzle and the nose form, the thick eyebrows and the grumpy closed mouth appear, and the eyes open last. Slow, sticky, viscous, dripping. The head takes shape gradually and evenly across all the frames, a little more in each frame, not all at once. It ends exactly in the standing pose of the last frame.",
+  "generations_before": 5002.7,
+  "generations_after": 5000.7,
+  "used": 2.0
+}
