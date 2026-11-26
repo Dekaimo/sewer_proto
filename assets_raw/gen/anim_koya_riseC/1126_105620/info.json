@@ -1,0 +1,13 @@
+{
+  "name": "anim_koya_riseC",
+  "mode": "anim",
+  "src": "assets_raw/keys/koya_gooface3.png",
+  "last": "assets_raw/keys/koya_pose.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a slim, lean-muscled dog man made of glossy brown paint with broad diagonal cream bands and a bushy tail",
+  "desc": "The head slowly lowers from looking up to looking straight ahead, the gaping mouth closes into a sly closed-mouth smirk with the sticky strings snapping and dripping, and the eyes open. At the same time the melting paint body firms up, the drips slow down, the legs pull up out of the puddle into straight human legs with bare feet, and he puts one hand on his hip. The head, ears, hair and face keep the same design the whole time. Slow, sticky, viscous. It ends exactly in the pose of the last frame.",
+  "generations_before": 4745.7,
+  "generations_after": 4744.7,
+  "used": 1.0
+}
