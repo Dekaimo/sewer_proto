@@ -1,0 +1,14 @@
+{
+  "name": "skel_koya_walk",
+  "mode": "skel",
+  "src": "assets_raw/gen/koya_idle/1124_160615/eye_a.png",
+  "first_kp": "assets_raw/skel/koya_idle_kp.json",
+  "kp": "assets_raw/skel/koya_walk_kp.json",
+  "desc": "a slim, lean-muscled dog man made of glossy brown paint with broad diagonal cream bands, walking in place with a light quick walk, the face keeps the same sly closed-mouth smirk, the bushy tail bounces, paint drips",
+  "action": "walk",
+  "direction": "south-west",
+  "view": "side",
+  "generations_before": 5089.7,
+  "generations_after": 5086.7,
+  "used": 3.0
+}
