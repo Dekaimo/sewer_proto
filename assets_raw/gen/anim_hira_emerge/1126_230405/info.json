@@ -1,0 +1,13 @@
+{
+  "name": "anim_hira_emerge",
+  "mode": "anim",
+  "src": "assets_raw/keys/hira_puddle.png",
+  "last": "assets_raw/gen/hira_idle/1126_002929/eye_ochre.png",
+  "frames": 20,
+  "direction": "west",
+  "subject": "a very tall, extremely muscular horse man made of glossy brown paint with messy cream swirls",
+  "desc": "Emerging slowly and stickily from a flat paint puddle in one smooth, fluid, oozing motion, keeping the horse man's shape: the goo rises hunched forward, his huge chest and shoulders with the long horse head and spiky dripping mane hanging low, covered in thick sagging paint. As he rises he slowly rolls his shoulders, his chest sways side to side and his head lolls loosely. No eyes: the eye area stays smooth goo until the very end. The arms start melted onto the body, hang forward and slowly peel away, thick sticky strands stretching between arms and torso, sagging until they snap. Near the end he straightens his back, pushes out his chest and lifts his head, the mouth opens into a toothy grin, the eyes snap open, and the legs pull out of the goo into human legs, ending in the standing pose. Heavy, viscous, glossy goo dripping the whole time.",
+  "generations_before": 4687.7,
+  "generations_after": 4684.7,
+  "used": 3.0
+}
