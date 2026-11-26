@@ -1,0 +1,9 @@
+{
+  "name": "koya_pose",
+  "mode": "editv2",
+  "src": "assets_raw/gen/koya_idle/1126_043730/eye_ochre.png",
+  "desc": "Same character, same size, same three-quarter view facing left. New pose: he puts one hand on his hip and gives a sly sideways glance with the same closed-mouth smirk, standing with both feet planted, a cool confident pose. Keep the exact same head, face, body, colors, cream pattern, outline and pixel art style; change only the arms.",
+  "generations_before": 4918.7,
+  "generations_after": 4908.7,
+  "used": 10.0
+}
