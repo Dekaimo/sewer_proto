@@ -1,0 +1,13 @@
+{
+  "name": "anim_jyu_riseB",
+  "mode": "anim",
+  "src": "assets_raw/keys/jyu_lump4.png",
+  "last": "assets_raw/keys/jyu_gooface3.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge, heavy bear man made of glossy brown paint with messy cream splotches and a big round belly",
+  "desc": "From deep inside the shapeless paint mound the body slowly and stickily rises up: the goo slides and sags off as the shoulders and chest push up out of it, the arms peel out and hang limp, thick heavy strands of paint stretch between the body and the mound and droop back down, the head comes up last thrown back toward the sky with the mouth gaping open and thick sticky strings between the jaws. The legs stay merged into the puddle. Slow, heavy, sticky, viscous, gooey.",
+  "generations_before": 4749.7,
+  "generations_after": 4748.7,
+  "used": 1.0
+}
