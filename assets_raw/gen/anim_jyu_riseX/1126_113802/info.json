@@ -1,0 +1,13 @@
+{
+  "name": "anim_jyu_riseX",
+  "mode": "anim",
+  "src": "assets_raw/keys/jyu_lump5.png",
+  "last": "assets_raw/keys/jyu_pose.png",
+  "frames": 16,
+  "direction": "west",
+  "subject": "a huge, heavy, burly bear man made of glossy brown paint with messy cream splotches, a broad chest and a big round belly",
+  "desc": "One slow, heavy, continuous motion without stopping: the huge body slowly rises out of the paint mound, arching his back and pushing his broad chest out, thick heavy sheets of glossy paint slide down over his chest and big belly, clinging to the skin and dripping off, his head tilts back with half-closed eyes and the mouth falling open with thick sticky strings, as if savoring it, then he slowly lowers his head with a heavy exhale, the legs pull out of the puddle, and he crosses his thick arms over his chest with a grumpy stern look. Heavy, sensual, sticky, viscous, glossy.",
+  "generations_before": 4710.7,
+  "generations_after": 4708.7,
+  "used": 2.0
+}
