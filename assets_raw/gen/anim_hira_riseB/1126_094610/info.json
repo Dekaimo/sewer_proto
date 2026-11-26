@@ -1,0 +1,13 @@
+{
+  "name": "anim_hira_riseB",
+  "mode": "anim",
+  "src": "assets_raw/keys/hira_lump2.png",
+  "last": "assets_raw/keys/hira_gooface2.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a very tall, extremely muscular horse man made of glossy brown paint with messy cream swirls",
+  "desc": "The hunched paint mound slowly and stickily gets up into a melted humanoid: the back straightens, the arms peel away from the body and droop down, thick strands of paint stretch and sag between the body and the puddle, the head lifts out of the goo and tilts back toward the sky with the mouth gaping open, thick sticky strings stretching between the jaws. No eyes. Slow, heavy, sticky, viscous, gooey.",
+  "generations_before": 4847.7,
+  "generations_after": 4846.7,
+  "used": 1.0
+}
