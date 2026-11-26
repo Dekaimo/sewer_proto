@@ -1,0 +1,28 @@
+{
+  "name": "hira_idle",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "desc": "Pixel art game sprite of a very tall, extremely muscular horse man made entirely of glossy brown paint, comical but gross. His head and face are exactly the face reference: a long horse face, large dark nostrils, upright pointed ears, a mane of many thin pointed spikes of brown and cream paint standing up and out, with thin dripping strands. His eyes are wide open, staring straight ahead toward the left where he faces: each eye is a large almond shape with a thick dark upper eyelid line and a small dark pupil at the front of the eye, no white and no colored iris, the inside of the eye a lighter brown than the face, and a short separate dark eyebrow stroke raised high above each eye, giving a goofy, unsettling stare. His head is fairly small compared to his huge body, like the front view reference. There is no line between the nostrils and the mouth. He has a big, sly, nasty smirking grin with bared teeth, sticky paint stringing between the teeth and dripping from the mouth and chin. He wears nothing: no necklace, no armband, no wristband. His body, legs, feet and paint pattern are exactly the front and side view references, and his size and proportions are exactly the gray mannequin reference: a massive bodybuilder physique, a huge barrel chest, shoulders far wider than his hips, huge round shoulders and biceps, a thick neck, defined abs, thick straight legs with bare human feet, brown paint with random messy cream swirls that also fall across the face, paint dripping from the mane, chin and hands. His whole body is turned three-quarters to the left, chest facing the lower left, the far shoulder and arm partly hidden behind the body, standing idle pose with arms hanging at his sides. Clean pixel art game sprite style: dark outline, glossy highlights, drips. Plain flat light gray background, the character alone.",
+  "refs": [
+    [
+      "refs_enc/hira_dr1_head.png.enc",
+      "face and head: the long horse face, the eyes drawn as thick dark eyelid lines with a small dark pupil below, the short slanted eyebrow strokes, nostrils, ears, the sneering grin with bared teeth and paint dripping from the mouth, the spiky dripping mane"
+    ],
+    [
+      "refs_enc/hira_sheet_front.png.enc",
+      "body, legs, feet and paint pattern only, front view"
+    ],
+    [
+      "refs_enc/hira_sheet_side_left.png.enc",
+      "body, legs, feet and paint pattern, the body turned to the left"
+    ],
+    [
+      "assets_raw/guides/hira_size_guide.png",
+      "size, body proportions and pose only: a plain gray mannequin turned three-quarters to the left; ignore its colors and its simple shapes"
+    ]
+  ],
+  "generations_before": 5107.8,
+  "generations_after": 5097.8,
+  "used": 10.0
+}
