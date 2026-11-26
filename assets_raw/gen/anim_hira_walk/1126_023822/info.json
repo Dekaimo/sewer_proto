@@ -1,0 +1,13 @@
+{
+  "name": "anim_hira_walk",
+  "mode": "anim",
+  "src": "assets_raw/gen/hira_idle/1126_002929/eye_ochre.png",
+  "last": "assets_raw/gen/hira_idle/1126_002929/eye_ochre.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a very tall, extremely muscular horse man made of glossy brown paint with messy cream swirls, a spiky dripping brown and cream mane, wide-open eyes and a toothy grin, straight human legs with bare human feet",
+  "desc": "Walk cycle in place, keeping the same three-quarter view as the first frame for the whole cycle: the body never turns sideways, the huge chest and both broad shoulders keep the same width. Only the legs step in turn, one knee lifts and the foot steps down, then the other, the huge arms swing slightly, the body bobs 2 or 3 pixels up and down with each step, the mane strands bounce, paint drips stretch and fall. The body does not move across the frame. The face keeps the same wide-eyed toothy grin. Thick, sticky, viscous paint.",
+  "generations_before": 5095.8,
+  "generations_after": 5094.8,
+  "used": 1.0
+}
