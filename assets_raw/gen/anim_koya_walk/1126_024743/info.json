@@ -1,0 +1,13 @@
+{
+  "name": "anim_koya_walk",
+  "mode": "anim",
+  "src": "assets_raw/gen/koya_idle/1124_160615/eye_a.png",
+  "last": "assets_raw/gen/koya_idle/1124_160615/eye_a.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a slim, lean-muscled dog man made of glossy brown paint with broad diagonal cream bands, messy spiky brown hair with long bangs over one eye, yellow eyes, a sly closed-mouth smirk, a bushy brown tail with cream streaks, straight human legs with bare human feet",
+  "desc": "Walk cycle in place, keeping the same three-quarter view as the first frame for the whole cycle: the body never turns sideways, the chest and shoulders keep the same width. A light, quick, agile walk: only the slim legs step in turn, one knee lifts and the foot steps down lightly, then the other, the arms swing slightly, the body bobs 2 or 3 pixels up and down with each step, the hair and the bushy tail bounce, paint drips stretch and fall. The body does not move across the frame. The face keeps the same sly closed-mouth smirk. Thick, sticky, viscous paint.",
+  "generations_before": 5091.8,
+  "generations_after": 5091.8,
+  "used": 0.0
+}
