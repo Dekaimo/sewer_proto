@@ -1,0 +1,13 @@
+{
+  "name": "anim_koya_riseD",
+  "mode": "anim",
+  "src": "assets_raw/keys/koya_pose2.png",
+  "last": "assets_raw/gen/koya_idle/1126_043730/eye_ochre.png",
+  "frames": 4,
+  "direction": "west",
+  "subject": "a slim, lean-muscled handsome dog man made of glossy brown paint with broad diagonal cream bands and a bushy tail",
+  "desc": "He relaxes from this pose back to a calm standing pose with the arms hanging at his sides. The face stays the same. Thick, sticky, viscous paint.",
+  "generations_before": 4705.7,
+  "generations_after": 4705.7,
+  "used": 0.0
+}
