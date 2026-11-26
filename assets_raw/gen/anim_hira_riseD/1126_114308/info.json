@@ -1,0 +1,13 @@
+{
+  "name": "anim_hira_riseD",
+  "mode": "anim",
+  "src": "assets_raw/keys/hira_pose2.png",
+  "last": "assets_raw/gen/hira_idle/1126_002929/eye_ochre.png",
+  "frames": 4,
+  "direction": "west",
+  "subject": "a very tall, extremely muscular horse man made of glossy brown paint with messy cream swirls",
+  "desc": "He relaxes from this pose back to a calm standing pose with the arms hanging at his sides. The face stays the same. Thick, sticky, viscous paint.",
+  "generations_before": 4706.7,
+  "generations_after": 4705.7,
+  "used": 1.0
+}
