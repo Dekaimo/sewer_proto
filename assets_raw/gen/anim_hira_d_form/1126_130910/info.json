@@ -1,0 +1,13 @@
+{
+  "name": "anim_hira_d_form",
+  "mode": "anim",
+  "src": "assets_raw/keys/hira_faceless.png",
+  "last": "assets_raw/keys/hira_pose_goo.png",
+  "frames": 12,
+  "direction": "west",
+  "subject": "a very tall, extremely muscular horse man made of glossy brown paint with messy cream swirls",
+  "desc": "The faceless goo humanoid finishes forming: the head blob stretches forward into a long horse muzzle with the spiky dripping mane, the mouth splits open into a big toothy grin and the tongue licks the lip, the eyes open last with a leering look. At the same time the front arm lifts up beside the face, the fingers spread and squish, pulling thick sticky strands of goo between them, savoring the slimy feel, and the legs sag and melt down into a thick column of goo merging into the puddle. Slow, sticky, viscous, dripping.",
+  "generations_before": 4694.7,
+  "generations_after": 4694.7,
+  "used": 0.0
+}
