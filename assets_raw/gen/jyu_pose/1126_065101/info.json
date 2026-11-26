@@ -1,0 +1,9 @@
+{
+  "name": "jyu_pose",
+  "mode": "editv2",
+  "src": "assets_raw/gen/jyu_idle/1125_013037/ochre_half.png",
+  "desc": "Same character, same size, same three-quarter view facing left. New pose: he crosses his thick arms firmly over his chest, standing with both feet planted, with the same grumpy stern look and the mouth closed. Keep the exact same head, face, body, colors, cream pattern, outline and pixel art style; change only the arms.",
+  "generations_before": 4948.7,
+  "generations_after": 4938.7,
+  "used": 10.0
+}
