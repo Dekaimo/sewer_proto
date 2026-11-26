@@ -1,0 +1,13 @@
+{
+  "name": "anim_hira_idle",
+  "mode": "anim",
+  "src": "assets_raw/gen/hira_idle/1126_002929/eye_ochre.png",
+  "last": "assets_raw/gen/hira_idle/1126_002929/eye_ochre.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a very tall, extremely muscular horse man made of glossy brown paint with messy cream swirls, a spiky dripping brown and cream mane, wide-open eyes and a toothy grin, straight human legs with bare human feet",
+  "desc": "Idle loop: slow calm breathing, the huge chest rises only slightly (subtle, not inflating), the shoulders roll a little, thick brown paint keeps dripping and sagging from the chin, the mane strands and the hands, sticky drips stretch and fall, the body sways a little. Stays in place with both feet planted. The face keeps the same wide-eyed toothy grin. Thick, sticky, viscous paint.",
+  "generations_before": 5097.8,
+  "generations_after": 5096.8,
+  "used": 1.0
+}
