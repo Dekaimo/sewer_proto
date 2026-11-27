@@ -1,0 +1,9 @@
+{
+  "name": "jyu_slam_hold",
+  "mode": "editv2",
+  "src": "assets_raw/keys/jyu_slam_lean.png",
+  "desc": "Same character, same size, same colors, cream pattern and leaned-back upright pose with the broad chest and huge round belly pushed forward to the left, standing with both feet planted on the ground. Change only the arms: both hands rest on his hips, elbows out. The head and face stay exactly the same: the same thick angular black eyebrows, half-lidded eyes and closed mouth. Thick paint dripping. Same outline and pixel art style.",
+  "generations_before": 4625.7,
+  "generations_after": 4615.7,
+  "used": 10.0
+}
