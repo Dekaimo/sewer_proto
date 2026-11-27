@@ -1,0 +1,9 @@
+{
+  "name": "jyu_slam_crouch",
+  "mode": "editv2",
+  "src": "assets_raw/gen/jyu_idle/1125_013037/ochre_half.png",
+  "desc": "Same character, same size, same colors, cream pattern and three-quarter view facing left. New pose: he drops his hips low into a deep crouch, knees bent wide, fists clenched at his sides, the whole heavy body tensed and gathering power, leaning slightly back. The face is blank and expressionless. Thick paint dripping from the body. Same outline and pixel art style.",
+  "generations_before": 4669.7,
+  "generations_after": 4659.7,
+  "used": 10.0
+}
