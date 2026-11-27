@@ -1,0 +1,15 @@
+{
+  "name": "skel_jyu_sway",
+  "mode": "skel",
+  "src": "assets_raw/keys/jyu_slam_front.png",
+  "first_kp": "assets_raw/skel/jyu_front_kp.json",
+  "kp": "assets_raw/skel/jyu_sway_kp.json",
+  "desc": "a huge, heavy bear man made of glossy brown paint with messy cream splotches and a big round belly, both hands on his hips",
+  "action": "slow hip grind",
+  "direction": "south",
+  "view": "side",
+  "template": "mannequin",
+  "generations_before": 4543.19999999999,
+  "generations_after": 4540.19999999999,
+  "used": 3.0
+}
