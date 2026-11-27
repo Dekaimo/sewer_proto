@@ -1,0 +1,20 @@
+{
+  "name": "jyu_front_true2",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "desc": "Pixel art game sprite of the exact same character as the design reference: a huge, heavy bear man made entirely of glossy brown paint, with the same face, the same thick angular black eyebrows, the same small black nose with a glossy shine, the same grumpy closed mouth with paint dripping from the chin, the same colors, the same big glossy chest and belly and the same cream paint splotches. Only the facing changes: he is seen from the exact front, his head, face, chest, belly, hips and feet all facing straight toward the viewer, perfectly symmetrical left and right, nothing turned to either side, like the front view reference. He stands straight and still with his feet planted apart, both hands on his hips and the elbows pointing out to the sides, the half-lidded eyes looking down at the viewer. Clean pixel art game sprite style: dark outline, glossy highlights, drips. Plain flat light gray background, the character alone.",
+  "refs": [
+    [
+      "assets_raw/keys/jyu_slam_front.png",
+      "character design: copy exactly the face, colors, gloss, chest, belly and cream paint pattern"
+    ],
+    [
+      "refs_enc/jyu_sheet_front.png.enc",
+      "front view: body facing straight toward the viewer (direction only)"
+    ]
+  ],
+  "generations_before": 4514.19999999999,
+  "generations_after": 4504.19999999999,
+  "used": 10.0
+}
