@@ -1,0 +1,13 @@
+{
+  "name": "anim_koya_emerge",
+  "mode": "anim",
+  "src": "assets_raw/keys/koya_puddle.png",
+  "last": "assets_raw/gen/koya_idle/1126_043730/eye_ochre.png",
+  "frames": 20,
+  "direction": "west",
+  "subject": "a slim, lean-muscled dog man made of glossy brown paint with broad diagonal cream bands and a bushy tail",
+  "desc": "One smooth, fluid, oozing motion from a flat paint puddle to the standing pose, keeping the dog man's shape. Everything happens at the same time and continuously over the whole animation, not one step after another: the goo keeps rising and growing taller, the whole body keeps writhing and undulating, the torso twisting and swaying from side to side and the shoulders and hips rolling, the head slowly lifts from hanging low while lolling loosely, and the arms and legs keep slowly peeling away from the body and out of the goo, thick sticky strands stretching between them, sagging and snapping, all overlapping. The body gradually straightens as it rises. No eyes: the eye area stays smooth goo; only in the very last frames the mouth curls into a sly closed-mouth smirk and the eyes snap open, ending in the standing pose. Heavy, viscous, glossy goo dripping the whole time.",
+  "generations_before": 4675.7,
+  "generations_after": 4672.7,
+  "used": 3.0
+}
