@@ -1,0 +1,13 @@
+{
+  "name": "anim_jyu_slide_getup",
+  "mode": "anim",
+  "src": "assets_raw/keys/jyu_slide.png",
+  "last": "assets_raw/gen/jyu_idle/1125_013037/ochre_half.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge, heavy bear man made of glossy brown paint with messy cream splotches and a big round belly",
+  "desc": "He slowly pushes himself up from lying on his belly, thick sticky strands of paint stretching between his belly and the ground and snapping, gets his feet under him and stands up into the calm standing pose. The face keeps the same thick angular eyebrows, half-lidded eyes and closed mouth. Heavy, sticky, viscous paint.",
+  "generations_before": 4600.7,
+  "generations_after": 4600.7,
+  "used": 0.0
+}
