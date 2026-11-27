@@ -1,0 +1,13 @@
+{
+  "name": "anim_jyu_slam_miss",
+  "mode": "anim",
+  "src": "assets_raw/keys/jyu_slam_fly3.png",
+  "last": "assets_raw/gen/jyu_idle/1125_013037/ochre_half.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge, heavy bear man made of glossy brown paint with messy cream splotches and a big round belly",
+  "desc": "He lands heavily on both feet with a thud, the big belly and body jiggling, thick paint splashing out around his feet, then he straightens up into the calm standing pose. The face keeps the same thick angular eyebrows, half-lidded eyes and closed mouth. Heavy, sticky, viscous paint.",
+  "generations_before": 4615.7,
+  "generations_after": 4614.7,
+  "used": 1.0
+}
