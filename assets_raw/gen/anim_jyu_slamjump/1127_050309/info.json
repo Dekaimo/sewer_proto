@@ -1,0 +1,12 @@
+{
+  "name": "anim_jyu_slamjump",
+  "mode": "anim",
+  "src": "assets_raw/keys/jyu_slam_lean.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge, heavy bear man made of glossy brown paint with messy cream splotches and a big round belly",
+  "desc": "Keeping this leaned-back upright pose, he pushes off the ground with both feet and leaps straight sideways to the left, body upright and leaning back, the broad chest and huge round belly thrust forward to lead, both arms kept pulled back behind him, the feet leaving the ground and trailing slightly, a tail of thick paint streaming and dripping off behind him. The face keeps the same thick angular eyebrows, half-lidded eyes and closed mouth. Heavy, sticky, viscous paint.",
+  "generations_before": 4628.7,
+  "generations_after": 4627.7,
+  "used": 1.0
+}
