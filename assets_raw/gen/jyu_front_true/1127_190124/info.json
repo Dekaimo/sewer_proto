@@ -1,0 +1,20 @@
+{
+  "name": "jyu_front_true",
+  "mode": "gen",
+  "w": 256,
+  "h": 256,
+  "desc": "Pixel art game sprite of a huge, heavy bear man made entirely of glossy brown paint, seen from the exact front: his head, face, chest, belly, hips and feet all face straight toward the viewer, perfectly symmetrical left and right, nothing turned to either side. His head and face are exactly the face reference: a squarish head with small round ears and short brown hair, a short boxy muzzle, a small black nose sitting directly on a flat, unbroken muzzle, the only line on the lower muzzle being the short horizontal mouth line, small dark eyes under thick angular black eyebrows, a grumpy stern look, the mouth closed, the half-lidded eyes looking down at the viewer. His body, legs, feet and paint pattern are exactly the front view reference: very broad shoulders, thick arms, a big round belly, thick straight legs with bare human feet, brown paint with random messy cream splotches that also fall across the face, paint dripping from the chin and hands. He stands straight and still with his feet planted apart, both hands on his hips and the elbows pointing out to the sides. Clean pixel art game sprite style: dark outline, glossy highlights, drips. Plain flat light gray background, the character alone.",
+  "refs": [
+    [
+      "refs_enc/jyu_pre3_head.png.enc",
+      "character design: head and face (shape, eyes, eyebrows, nose, mouth, ears, hair)"
+    ],
+    [
+      "refs_enc/jyu_sheet_front.png.enc",
+      "body, legs, feet and paint pattern only, front view"
+    ]
+  ],
+  "generations_before": 4532.19999999999,
+  "generations_after": 4522.19999999999,
+  "used": 10.0
+}
