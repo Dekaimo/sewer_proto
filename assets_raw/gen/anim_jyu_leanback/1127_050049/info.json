@@ -1,0 +1,12 @@
+{
+  "name": "anim_jyu_leanback",
+  "mode": "anim",
+  "src": "assets_raw/gen/jyu_idle/1125_013037/ochre_half.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge, heavy bear man made of glossy brown paint with messy cream splotches and a big round belly",
+  "desc": "Standing upright, he slowly leans his upper body far back, arching his back, pushing his broad chest and huge round belly forward to the left, pulling both arms back behind his body, the head tilted back a little. The legs stay straight and planted. The face keeps the same thick angular eyebrows, half-lidded eyes and closed mouth. Thick, sticky, viscous paint dripping.",
+  "generations_before": 4629.7,
+  "generations_after": 4628.7,
+  "used": 1.0
+}
