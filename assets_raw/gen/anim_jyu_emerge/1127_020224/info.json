@@ -1,0 +1,13 @@
+{
+  "name": "anim_jyu_emerge",
+  "mode": "anim",
+  "src": "assets_raw/keys/jyu_puddle.png",
+  "last": "assets_raw/gen/jyu_idle/1125_013037/ochre_half.png",
+  "frames": 20,
+  "direction": "west",
+  "subject": "a huge, heavy bear man made of glossy brown paint with messy cream splotches and a big round belly",
+  "desc": "One smooth, fluid, oozing motion from a wide, thick paint puddle to the standing pose, keeping the bear man's shape. Everything happens at the same time and continuously, not one step after another: the goo keeps rising and growing taller, the whole heavy body keeps writhing and swaying from side to side, the head slowly lifts from hanging low, and the arms keep slowly peeling away from the body, thick sticky strands stretching and snapping. A wide, thick, bubbling puddle of the same paint stays on the floor around his feet the whole time, heaving and rippling as he moves; the legs stay merged into thick goo columns rising from the puddle and only pull free near the end. No eyes until the very end: the eye area stays smooth goo with no eyes at all; only in the last frames the eyes snap open with the grumpy look. Heavy, viscous, glossy goo dripping the whole time.",
+  "generations_before": 4672.7,
+  "generations_after": 4669.7,
+  "used": 3.0
+}
