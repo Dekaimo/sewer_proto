@@ -1,0 +1,12 @@
+{
+  "name": "anim_jyu_hip_right",
+  "mode": "anim",
+  "src": "assets_raw/keys/jyu_slam_front.png",
+  "frames": 8,
+  "direction": "south",
+  "subject": "a huge, heavy bear man made of glossy brown paint with messy cream splotches and a big round belly",
+  "desc": "Facing the viewer with both hands on his hips, he slowly twists and thrusts his hips far out to the right side of the picture, the pelvis and the big belly swinging to the right and the weight shifting onto the right leg, while the chest and shoulders lean the other way to the left, the body curving into a strong S shape. The face keeps the same eyebrows, nose, closed mouth and half-lidded eyes looking down with a heavy smug gaze. Thick, sticky, viscous paint.",
+  "generations_before": 4554.7,
+  "generations_after": 4553.7,
+  "used": 1.0
+}
