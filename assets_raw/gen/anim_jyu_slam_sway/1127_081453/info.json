@@ -1,0 +1,13 @@
+{
+  "name": "anim_jyu_slam_sway",
+  "mode": "anim",
+  "src": "assets_raw/keys/jyu_slam_hold.png",
+  "last": "assets_raw/keys/jyu_slam_hold.png",
+  "frames": 8,
+  "direction": "west",
+  "subject": "a huge, heavy bear man made of glossy brown paint with messy cream splotches and a big round belly",
+  "desc": "Loop: with both hands on his hips and the chest and big belly kept pushed forward, he slowly and sensually twists his hips, swaying his whole body to the left and then to the right in a sticky, teasing grind, the belly rolling with the motion, the feet planted. The face keeps the same thick angular eyebrows, half-lidded eyes and closed mouth. Thick, sticky, viscous paint, slow and heavy.",
+  "generations_before": 4613.7,
+  "generations_after": 4612.7,
+  "used": 1.0
+}
