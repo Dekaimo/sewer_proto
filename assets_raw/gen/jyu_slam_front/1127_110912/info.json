@@ -1,0 +1,9 @@
+{
+  "name": "jyu_slam_front",
+  "mode": "editv2",
+  "src": "assets_raw/keys/jyu_slam_front.png",
+  "desc": "Same image, same pose, body, colors and size. Change only the face to match his usual face more closely: very thick, bold, angular solid black eyebrows slanting down toward the nose in a grumpy frown, small half-lidded eyes under them with a dark outline, a big glossy black nose, a short boxy cream muzzle, and a small grumpy closed mouth. He still faces the viewer and looks down with a heavy, smug gaze. Same outline and pixel art style.",
+  "generations_before": 4589.7,
+  "generations_after": 4579.7,
+  "used": 10.0
+}
