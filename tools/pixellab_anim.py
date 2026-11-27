@@ -158,6 +158,8 @@ def run_job(j: dict) -> None:
         # 1枚から8方向（south, south-east, east, ... の順で返る）
         path = "/generate-8-rotations-v3"
         body = {"first_frame": b64img(j["src"]), "no_background": False}
+        if j.get("direction"):
+            body["direction"] = j["direction"]  # 元の絵の向き。返る8枚はこの向きから時計回り
         if j.get("desc"):
             body["description"] = j["desc"]
         if j.get("seed") is not None:
